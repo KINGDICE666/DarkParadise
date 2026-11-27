@@ -21,6 +21,14 @@ type Data = {
   currentPage: number;
   accounts: Account[];
   is_printing: boolean;
+  audit_log: AuditEntry[];
+};
+
+type AuditEntry = {
+  account: string;
+  cost: number;
+  vendor: string;
+  time: string;
 };
 
 type Account = {
@@ -64,6 +72,8 @@ export const AccountsUplinkTerminal = (_properties) => {
       body = <DetailedAccountInfo />;
     } else if (currentPage === 3) {
       body = <CreateAccount />;
+    } else if (currentPage === 4) {
+      body = <AuditLog />;
     }
   }
 
@@ -226,6 +236,9 @@ const AccountsActions = (properties: AccountsActionsProps) => {
         >
           Print Account List
         </Button>
+        <Button icon="receipt" ml="0.25rem" onClick={() => act('view_audit')}>
+          Журнал покупок
+        </Button>
       </Stack.Item>
       <Stack.Item grow>
         <Input
@@ -383,6 +396,40 @@ const DetailedAccountInfo = (_properties) => {
         </Section>
       </Stack.Item>
     </Stack>
+  );
+};
+
+const AuditLog = () => {
+  const { act, data } = useBackend<Data>();
+  const { audit_log = [] } = data;
+
+  return (
+    <>
+      <Button icon="arrow-left" onClick={() => act('back')}>
+        Back
+      </Button>
+      <Table mt={1}>
+        <Table.Row header>
+          <Table.Cell>Время</Table.Cell>
+          <Table.Cell>Покупатель</Table.Cell>
+          <Table.Cell>Покупка</Table.Cell>
+          <Table.Cell textAlign="right">Сумма</Table.Cell>
+        </Table.Row>
+        {audit_log
+          .slice()
+          .reverse()
+          .map((entry, index) => (
+            <Table.Row key={index}>
+              <Table.Cell collapsing>{entry.time}</Table.Cell>
+              <Table.Cell>{entry.account}</Table.Cell>
+              <Table.Cell>{entry.vendor}</Table.Cell>
+              <Table.Cell collapsing textAlign="right">
+                {entry.cost}
+              </Table.Cell>
+            </Table.Row>
+          ))}
+      </Table>
+    </>
   );
 };
 

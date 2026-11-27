@@ -65,10 +65,6 @@
 	mode = !mode
 	update_icon(UPDATE_OVERLAYS)
 
-/obj/item/reagent_containers/iv_bag/attack_self_secondary(mob/user)
-	if(has_variable_transfer_amount)
-		select_transfer_amount(user)
-
 /obj/item/reagent_containers/iv_bag/attack_hand()
 	..()
 	update_icon(UPDATE_OVERLAYS)
@@ -209,7 +205,7 @@
 
 		filling.color = get_color_matrix_from_reagents(reagents.reagent_list)
 		. += filling
-	if(ismob(loc) || istype(loc, /obj/item/gripper))
+	if(ismob(loc) || isrobotgripper(loc))
 		switch(mode)
 			if(IV_DRAW)
 				. += "draw"
@@ -224,7 +220,7 @@
 
 // MARK: Pre-filled IV Bags
 /obj/item/reagent_containers/iv_bag/salglu
-	list_reagents = list("salglu_solution" = 200)
+	list_reagents = list(/datum/reagent/medicine/salglu_solution = 200)
 
 /obj/item/reagent_containers/iv_bag/salglu/get_ru_names()
 	return alist(
@@ -277,7 +273,7 @@
 	. = ..()
 	if(blood_type != null && blood_species != null)
 		name = "[initial(name)] - [blood_species] ([blood_type])"
-		reagents.add_reagent("blood", 200, list("donor"=null,"diseases"=null,"blood_DNA"=null,"blood_type"=blood_type,"blood_species"=blood_species,"resistances"=null,"trace_chem"=null))
+		reagents.add_reagent(/datum/reagent/blood, 200, list("donor"=null,"diseases"=null,"blood_DNA"=null,"blood_type"=blood_type,"blood_species"=blood_species,"resistances"=null,"trace_chem"=null))
 		update_icon(UPDATE_OVERLAYS)
 
 /obj/item/reagent_containers/iv_bag/blood/random/get_ru_names()
@@ -371,7 +367,7 @@
 	. = ..()
 	if(blood_type != null && blood_species != null)
 		name = "[initial(name)] - Oxygenis"
-		reagents.add_reagent("sbloodoxy", 200, list("donor"=null,"diseases"=null,"blood_DNA"=null,"blood_type"=blood_type,"blood_species"=blood_species,"resistances"=null,"trace_chem"=null))
+		reagents.add_reagent(/datum/reagent/blood/synthetic/oxy, 200, list("donor"=null,"diseases"=null,"blood_DNA"=null,"blood_type"=blood_type,"blood_species"=blood_species,"resistances"=null,"trace_chem"=null))
 		update_icon(UPDATE_OVERLAYS)
 /obj/item/reagent_containers/iv_bag/bloodsynthetic/nitrogenis
 	var/blood_species = "Vox - synthetic"
@@ -390,11 +386,11 @@
 	. = ..()
 	if(blood_type != null && blood_species != null)
 		name = "[initial(name)] - Nitrogenis"
-		reagents.add_reagent("sbloodvox", 200, list("donor"=null,"diseases"=null,"blood_DNA"=null,"blood_type"=blood_type,"blood_species"=blood_species,"resistances"=null,"trace_chem"=null))
+		reagents.add_reagent(/datum/reagent/blood/synthetic/vox, 200, list("donor"=null,"diseases"=null,"blood_DNA"=null,"blood_type"=blood_type,"blood_species"=blood_species,"resistances"=null,"trace_chem"=null))
 		update_icon(UPDATE_OVERLAYS)
 
 /obj/item/reagent_containers/iv_bag/slime
-	list_reagents = list("slimejelly" = 200)
+	list_reagents = list(/datum/reagent/slimejelly = 200)
 
 /obj/item/reagent_containers/iv_bag/slime/get_ru_names()
 	return alist(

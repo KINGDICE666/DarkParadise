@@ -101,7 +101,7 @@
 	/// The effect used to render a pressure overlay from this tile.
 	var/obj/effect/abstract/pressure_overlay/pressure_overlay
 
-	var/list/milla_data = list()
+	var/list/milla_data
 
 /turf/vv_edit_var(var_name, new_value)
 	var/static/list/banned_edits = list(NAMEOF_STATIC(src, x), NAMEOF_STATIC(src, y), NAMEOF_STATIC(src, z))
@@ -633,6 +633,15 @@
 	ChangeTurf(baseturf)
 	return 2
 
+/turf/item_interaction(mob/living/user, obj/item/tool, list/modifiers)
+	if(istype(tool, /obj/item/stack/pipe_cleaner_coil))
+		add_fingerprint(user) // thats clowns rights
+		var/obj/item/stack/pipe_cleaner_coil/pipe_c = tool
+		pipe_c.place_turf(src, user)
+		return ITEM_INTERACT_SUCCESS
+
+	return ..()
+
 /turf/attackby(obj/item/used, mob/user, params)
 	. = ..()
 
@@ -965,6 +974,8 @@
 	return target_space_turf
 
 /turf/proc/initialize_milla()
+	if(!SSair.initialized)
+		return
 	var/datum/milla_safe/initialize_turf/milla = new()
 	milla.invoke_async(src)
 
@@ -1207,3 +1218,7 @@
 	for(var/atom/movable/to_clean as anything in src)
 		if(all_contents || HAS_TRAIT(to_clean, TRAIT_MOPABLE))
 			. |= to_clean.wash_tg(clean_types)
+
+/turf/proc/on_atom_inited(datum/source, atom/movable/movable)
+	SIGNAL_HANDLER
+	return

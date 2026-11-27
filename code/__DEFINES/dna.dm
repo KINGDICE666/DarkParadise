@@ -56,6 +56,8 @@
 
 #define DNA_SE_LENGTH 56 // Was STRUCDNASIZE, size 27. 15 new blocks added = 42, plus room to grow.
 
+#define DNA_BLOCK_MAX_VALUE 4095
+
 //Trinary State Values for DNA_UI_GENDER
 #define DNA_GENDER_FEMALE 0
 #define DNA_GENDER_MALE 1

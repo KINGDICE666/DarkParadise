@@ -1,7 +1,7 @@
 // Trash addition goal shuttle
 
 #define AGS_CREDITS_PER_TRASH 100
-#define AGS_CAPRGOPOINTS_PER_TRASH 1
+#define AGS_CARGO_CREDITS_PER_TRASH 25
 
 /datum/addition_goal/trash
 	id = "trash_utilization"
@@ -28,7 +28,7 @@
 		Мусор после разгрузки вы можете сжечь в крематории, либо утилизировать в измельчителе мусора. Впрочем судьба мусора нас не интересует.<br>
 		Награда за выполнение:<br>
 		1. [trash_count * AGS_CREDITS_PER_TRASH] кредитов на счет станции.<br>
-		2. [trash_count * AGS_CAPRGOPOINTS_PER_TRASH] очков поставки в карго.<br>"}
+		2. [trash_count * AGS_CARGO_CREDITS_PER_TRASH] кредитов на счёт отдела снабжения.<br>"}
 
 /datum/addition_goal/trash/complete_goal(datum/controller/subsystem/addition_goals/system)
 	var/shuttle_turfs = system.get_shuttle_turfs()
@@ -47,18 +47,18 @@
 	report_text += "<b>Общий прогресс запроса</b>: [progress]%<br>"
 	report_text += "<b>Ваша награда</b>:<br>"
 	reward_credits = complete_trash_count * AGS_CREDITS_PER_TRASH
-	reward_cargopoints = complete_trash_count * AGS_CAPRGOPOINTS_PER_TRASH
+	reward_cargo_credits = complete_trash_count * AGS_CARGO_CREDITS_PER_TRASH
 	var/reward_number = 1
 	if(reward_credits > 0)
 		report_text += "[reward_number]. [reward_credits] кредитов на счет станции.<br>"
 		reward_number++
-	if(reward_cargopoints > 0)
-		report_text += "[reward_number]. [reward_cargopoints] очков поставки в карго.<br>"
-	if(reward_credits <= 0 && reward_cargopoints <= 0)
+	if(reward_cargo_credits > 0)
+		report_text += "[reward_number]. [reward_cargo_credits] кредитов на счёт отдела снабжения.<br>"
+	if(reward_credits <= 0 && reward_cargo_credits <= 0)
 		report_text += "Отсутствует.<br>"
-	system.add_reward(reward_credits, reward_cargopoints)
+	system.add_reward(reward_credits, reward_cargo_credits)
 	var/paper_content = system.create_paper_content("Отчет об утилизации мусора №[request_number]", report_text, "Официальный документ, заверенный печатью Центрального командования \"Нанотрейзен\"")
 	system.print_report_on_console("Отчет [name]", paper_content, stamp = TRUE)
 
 #undef AGS_CREDITS_PER_TRASH
-#undef AGS_CAPRGOPOINTS_PER_TRASH
+#undef AGS_CARGO_CREDITS_PER_TRASH

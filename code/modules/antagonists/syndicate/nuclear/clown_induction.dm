@@ -144,6 +144,6 @@
 	if(QDELETED(ears))
 		return
 	if(damage)
-		ears.internal_receive_damage(damage)
+		ears.internal_receive_damage(damage * ears.damage_multiplier)
 	if(deafen)
 		Deaf(deafen)

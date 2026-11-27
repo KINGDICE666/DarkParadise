@@ -13,6 +13,7 @@
 	// Both of these variables are mostly going to be used with slime cores - but if you want to, you can use them for other things
 	var/atom/required_container = null // the container required for the reaction to happen
 	var/required_other = 0 // an integer required for the reaction to happen
+	var/requires_shaking = FALSE
 
 	var/result_amount = 0
 	var/list/secondary_results = list()		//additional reagents produced by the reaction

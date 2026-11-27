@@ -12,13 +12,13 @@
 			qdel(query_watchfind)
 			return
 		if(!query_watchfind.NextRow())
-			to_chat(usr, span_redtext("[new_ckey] has not been seen before, you can only add known players."))
+			to_chat(usr, span_redtext("[new_ckey] has not been seen before, you can only add known players."), confidential = TRUE)
 			qdel(query_watchfind)
 			return
 		else
 			target_ckey = new_ckey
 	if(check_watchlist(target_ckey))
-		to_chat(usr, span_redtext("[target_ckey] is already on the watchlist."))
+		to_chat(usr, span_redtext("[target_ckey] is already on the watchlist."), confidential = TRUE)
 		return
 	var/reason = tgui_input_text(usr, "Please state the reason", "Reason", multiline = TRUE, encode = FALSE)
 	if(!reason)
@@ -97,9 +97,10 @@
 	var/output = ""
 	output += "<form method='get' name='search' action='?'>\
 	<input type='hidden' name='_src_' value='holder'>\
+	[HrefTokenFormField()]\
 	<input type='text' name='watchsearch' value='[search]'>\
 	<input type='submit' value='Search'></form>"
-	output += "<a href='byond://?_src_=holder;watchshow=1'>\[Clear Search\]</a> <a href='byond://?_src_=holder;watchaddbrowse=1'>\[Add Ckey\]</a>"
+	output += "<a href='byond://?_src_=holder;[HrefToken()];watchshow=1'>\[Clear Search\]</a> <a href='byond://?_src_=holder;[HrefToken()];watchaddbrowse=1'>\[Add Ckey\]</a>"
 	output += "<hr style='background:#000000; border:0; height:3px'>"
 	if(search)
 		search = "^[search]"
@@ -118,9 +119,9 @@
 		var/adminckey = query_watchlist.item[3]
 		var/timestamp = query_watchlist.item[4]
 		var/last_editor = query_watchlist.item[5]
-		output += "<b>[ckey]</b> | Added by <b>[adminckey]</b> on <b>[timestamp]</b> <a href='byond://?_src_=holder;watchremovebrowse=[ckey]'>\[Remove\]</a> <a href='byond://?_src_=holder;watcheditbrowse=[ckey]'>\[Edit Reason\]</a>"
+		output += "<b>[ckey]</b> | Added by <b>[adminckey]</b> on <b>[timestamp]</b> <a href='byond://?_src_=holder;[HrefToken()];watchremovebrowse=[ckey]'>\[Remove\]</a> <a href='byond://?_src_=holder;[HrefToken()];watcheditbrowse=[ckey]'>\[Edit Reason\]</a>"
 		if(last_editor)
-			output += " <font size='2'>Last edit by [last_editor] <a href='byond://?_src_=holder;watcheditlog=[ckey]'>(Click here to see edit log)</a></font>"
+			output += " <font size='2'>Last edit by [last_editor] <a href='byond://?_src_=holder;[HrefToken()];watcheditlog=[ckey]'>(Click here to see edit log)</a></font>"
 		output += "<br>[reason]<hr style='background:#000000; border:0; height:1px'>"
 	var/datum/browser/popup = new(usr, "watchwin", "Watch list", 900, 500)
 	popup.set_content(output)

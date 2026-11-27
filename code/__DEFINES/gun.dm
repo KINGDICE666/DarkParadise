@@ -47,6 +47,7 @@ GLOBAL_LIST_INIT(gun_module_slot_ru_name, list(
 	ATTACHMENT_SLOT_MUZZLE = "ствол",
 	ATTACHMENT_SLOT_RAIL = "верхняя планка",
 	ATTACHMENT_SLOT_UNDER = "цевьё",
+	ATTACHMENT_SLOT_STOCK = "приклад",
 	ATTACHMENT_SLOT_LOCKING_PIN = "курок"
 ))
 
@@ -82,8 +83,6 @@ GLOBAL_LIST_INIT(gun_module_slot_ru_name, list(
 #define CALIBER_DOT_357 ".357 Magnum"
 /// Used in small caliber revolvers
 #define CALIBER_DOT_38 ".38"
-/// Used in Gatfruit revolver
-#define CALIBER_DOT_36 ".36"
 /// Used in improvised revolver
 #define CALIBER_DOT_257 ".257"
 /// Used in Nagant revolver
@@ -138,6 +137,9 @@ GLOBAL_LIST_INIT(gun_module_slot_ru_name, list(
 // Energy weapons
 /// Used in laser weapons
 #define CALIBER_LASER "\"лазер\""
+
+/// The caliber used by the (gatfruit) peashooter
+#define CALIBER_PEA "pea"
 
 // Foam force weapons
 /// Used in foam guns
@@ -201,8 +203,15 @@ GLOBAL_LIST_INIT(gun_module_slot_ru_name, list(
 #define GUN_ACCURACY_BOW_MASTER new /datum/gun_accuracy/bow/master()
 
 // Chrono beam stuff
-#define CHRONO_BEAM_RANGE 3
+#define CHRONO_BEAM_RANGE 9
 #define CHRONO_FRAME_COUNT 22
+#define CHRONO_GUN_CHARGE_TIME (2 SECONDS)
+#define CHRONO_GUN_MIN_CHARGE_TIME (0.5 SECONDS)
+#define CHRONO_GUN_CHARGE_SOUND_FREQUENCY 0.65
+#define CHRONO_STASIS_TIME (4 SECONDS)
+#define CHRONO_ERASE_TIME (3 SECONDS)
+#define CHRONO_BLAST_RADIUS 1
+#define CHRONO_BLAST_DAMAGE 60
 
 // MARK: Firemodes
 #define GUN_FIREMODE_SEMIAUTO "semi-auto fire mode"
@@ -213,3 +222,17 @@ GLOBAL_LIST_INIT(gun_module_slot_ru_name, list(
 //autofire component fire callback callback return flags
 #define AUTOFIRE_CONTINUE (1<<0)
 #define AUTOFIRE_SUCCESS (1<<1)
+
+
+// Scope component flags
+/// Do we have the scope cancel on move?
+#define SCOPE_MOVEMENT_CANCELS (1<<0)
+/// Can we use scope from mechs, lockers, etc?
+#define SCOPE_TURF_ONLY (1<<1)
+/// Do we let the user scope and click on the middle of their screen?
+#define SCOPE_CLICK_MIDDLE (1<<2)
+/// Should the user hold the item in active hand to use it?
+#define SCOPE_NEED_ACTIVE_HAND (1<<3)
+
+#define SEVERITY_ITEM 0
+#define SEVERITY_GUN 1

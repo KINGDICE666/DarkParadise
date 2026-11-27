@@ -14,6 +14,8 @@
 #define SECURITY_CODE_GAMMA "gamma"
 #define SECURITY_CODE_EPSILON "epsilon"
 #define SECURITY_CODE_DELTA "delta"
+#define SECURITY_CODE_DELTA_AZ5 "delta_az5"
+#define SECURITY_CODE_DELTA_ROCKET "delta_rocket"
 
 // We separate the title define from logging.
 #define ANNOUNCE_DEFAULT_RU "Объявление."
@@ -44,8 +46,6 @@
 #define ANNOUNCE_NUCLEARCODES_RU "Запрошены коды активации ядерной боеголовки."
 #define ANNOUNCE_CCMSG_RU "Сообщение Центрального командования."
 #define ANNOUNCE_SYSERROR_RU "Системный сбой."
-#define ANNOUNCE_CAPITAL_DEFOLT_RU "Дефолт станции."
-#define ANNOUNCE_CAPITAL_REPAY_RU "Возобновление выплат."
 #define ANNOUNCE_SOLAR_FLARE_RU "Солнечная вспышка."
 #define ANNOUNCE_SECRETMSG_RU "Входящее засекреченное сообщение."
 #define ANNOUNCE_APC_CRIT_RU "Критический сбой системы питания."

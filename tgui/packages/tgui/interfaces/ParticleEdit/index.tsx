@@ -89,6 +89,30 @@ export const ParticleEdit = (props) => {
                     tooltip={'Change type'}
                   />
                   <Button
+                    icon={'copy'}
+                    onClick={() => act('copy')}
+                    tooltip={'Copy particles'}
+                  />
+                  <Button
+                    icon={'paste'}
+                    disabled={!data.has_clipboard}
+                    onClick={() => act('paste')}
+                    tooltip={'Paste particles'}
+                  />
+                  <Button
+                    icon={'shoe-prints'}
+                    onClick={() => act('make_trail')}
+                    tooltip={'Use these particles as a movement trail'}
+                  />
+                  {data.has_trail ? (
+                    <Button
+                      icon={'eraser'}
+                      color={'orange'}
+                      onClick={() => act('remove_trail')}
+                      tooltip={'Remove movement trail'}
+                    />
+                  ) : null}
+                  <Button
                     icon={'x'}
                     color={'red'}
                     onClick={() => act('delete_and_close')}

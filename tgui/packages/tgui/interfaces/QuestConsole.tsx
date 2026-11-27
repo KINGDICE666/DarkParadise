@@ -17,18 +17,14 @@ import { decodeHtmlEntities } from 'tgui-core/string';
 import { useBackend } from '../backend';
 import { Window } from '../layouts';
 
-const getRewardColor = (reward: number, isCorp: boolean) => {
-  if (isCorp) {
-    reward /= 10;
-  }
-
-  if (reward > 1100) {
+const getRewardColor = (reward: number) => {
+  if (reward > 27500) {
     return 'purple';
   }
-  if (reward > 500) {
+  if (reward > 12500) {
     return 'orange';
   }
-  if (reward > 250) {
+  if (reward > 6250) {
     return 'yellow';
   }
   return 'green';
@@ -43,7 +39,6 @@ const mapTwoByTwo = <T1, T2>(a: T1[], c: (b: T1, c: T1, i: number) => T2) => {
 };
 
 type QuestConsoleData = {
-  points: number;
   timeleft: number;
   moving: boolean;
   at_station: boolean;
@@ -125,7 +120,6 @@ export const QuestConsole = (_properties) => {
 const StatusPane = (_properties) => {
   const { act, data } = useBackend<QuestConsoleData>();
   const {
-    points,
     timeleft,
     moving,
     at_station,
@@ -148,7 +142,6 @@ const StatusPane = (_properties) => {
     <Box>
       <Section title="Статус">
         <LabeledList>
-          <LabeledList.Item label="Очки снабжения">{points}</LabeledList.Item>
           <LabeledList.Item label="Статус шаттла">
             {statusText}
           </LabeledList.Item>
@@ -244,8 +237,7 @@ const QuestItem = (properties: QuestItemProps) => {
   const [cardWithShownMenu, setCardWithShownMenu] = useState('');
   const { act } = useBackend();
   const { quest } = properties;
-  const isCorp = quest.customer === 'corporation';
-  const rewardColor = getRewardColor(quest.reward, isCorp);
+  const rewardColor = getRewardColor(quest.reward);
   return (
     <Section
       title={`Запрос от "${quest.target_departament}"`}
@@ -284,8 +276,8 @@ const QuestItem = (properties: QuestItemProps) => {
             <Table.Row>
               <Table.Cell>
                 <Box fontSize={1.15}>
-                  <b>Награда:</b> +{quest.reward}{' '}
-                  {isCorp ? 'credits' : 'points'}
+                  <b>Награда:</b> +{quest.reward} кредит
+                  {declension_ru(quest.reward, '', 'а', 'ов')}
                 </Box>
               </Table.Cell>
               <Table.Cell>

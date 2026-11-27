@@ -1,4 +1,5 @@
 /datum/job/head_of_staff/hop
+	bounty_types = CIV_JOB_RANDOM
 	title = JOB_TITLE_HOP
 	flag = JOB_FLAG_HOP
 	department = STATION_DEPARTMENT_SERVICE
@@ -60,6 +61,7 @@
 	paycheck = PAYCHECK_CREW
 
 /datum/job/service/bartender
+	bounty_types = CIV_JOB_DRINK
 	title = JOB_TITLE_BARTENDER
 	flag = JOB_FLAG_BARTENDER
 	total_positions = 1
@@ -79,7 +81,7 @@
 	suit = /obj/item/clothing/suit/armor/vest
 	belt = /obj/item/storage/belt/bandolier/full
 	l_ear = /obj/item/radio/headset/headset_service
-	glasses = /obj/item/clothing/glasses/sunglasses/reagent
+	glasses = /obj/item/clothing/glasses/science/sunglasses
 	pda = /obj/item/pda/bar
 	backpack_contents = list(
 		/obj/item/toy/russian_revolver = 1,
@@ -93,6 +95,7 @@
 	H.force_gene_block(GLOB.soberblock, TRUE, TRUE)
 
 /datum/job/service/chef
+	bounty_types = CIV_JOB_CHEF
 	title = JOB_TITLE_CHEF
 	flag = JOB_FLAG_CHEF
 	total_positions = 1
@@ -138,6 +141,7 @@
 				suit = /obj/item/clothing/suit/storage/chefbluza
 
 /datum/job/service/botanist
+	bounty_types = CIV_JOB_GROW
 	title = JOB_TITLE_BOTANIST
 	flag = JOB_FLAG_BOTANIST
 	total_positions = 2
@@ -447,6 +451,7 @@
 	uniform = /obj/item/clothing/under/rank/janitor
 	l_ear = /obj/item/radio/headset/headset_service
 	pda = /obj/item/pda/janitor
+	r_pocket = /obj/item/door_remote/janikeyring
 
 /datum/job/service/librarian
 	title = JOB_TITLE_LIBRARIAN
@@ -512,7 +517,7 @@
 		return
 
 	if(H.mind)
-		H.mind.isholy = TRUE
+		ADD_TRAIT(H.mind, TRAIT_HOLY, INNATE_TRAIT)
 		ADD_TRAIT(H, TRAIT_HEALS_FROM_HOLY_PYLONS, INNATE_TRAIT)
 
 	INVOKE_ASYNC(src, PROC_REF(religion_pick), H)

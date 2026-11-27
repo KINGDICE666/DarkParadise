@@ -78,6 +78,7 @@
 	)
 
 /mob/living/simple_animal/hostile/mining_drone/emp_act(severity)
+	. = ..()
 	adjustHealth(100 / severity)
 	to_chat(src, span_userdanger("ВНИМАНИЕ: Обнаружен ЭМИ, системы повреждены!"))
 	visible_message(span_warning("[DECLENT_RU_CAP(src, NOMINATIVE)] яростно трещит и искрит!"))
@@ -171,6 +172,7 @@
 /mob/living/simple_animal/hostile/mining_drone/proc/SetCollectBehavior()
 	mode = MINEDRONE_COLLECT
 	vision_range = 9
+	deltimer(search_objects_timer_id)
 	search_objects = 2
 	wander = TRUE
 	ranged = FALSE
@@ -198,10 +200,15 @@
 		SetOffenseBehavior()
 	return ..()
 
+/mob/living/simple_animal/hostile/mining_drone/AIShouldSleep(list/possible_targets)
+	. = ..()
+	if(mode == MINEDRONE_COLLECT)
+		return FALSE
+
 /mob/living/simple_animal/hostile/mining_drone/OpenFire(atom/A)
 	if(CheckFriendlyFire(A))
 		return
-	stored_gun.afterattack(A, src) //of the possible options to allow minebots to have KA mods, would you believe this is the best?
+	stored_gun.fast_fire(A, src)
 
 /mob/living/simple_animal/hostile/mining_drone/proc/CollectOre()
 	for(var/obj/item/stack/ore/O in range(1, src))

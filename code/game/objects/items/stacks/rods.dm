@@ -34,6 +34,9 @@ GLOBAL_LIST_INIT(rod_recipes, list ( \
 	pickup_sound = 'sound/items/handling/materials/iron_rod_pick_up.ogg'
 	drop_sound = 'sound/items/handling/materials/metal_drop.ogg'
 
+/obj/item/stack/rods/two
+	amount = 2
+
 /obj/item/stack/rods/ten
 	amount = 10
 

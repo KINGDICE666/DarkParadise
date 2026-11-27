@@ -218,6 +218,8 @@
 #define COMSIG_MOB_BATONED "mob_batoned"
 /// A mob has just equipped an item. Called on [/mob] from base of [/obj/item/equipped()]: (/obj/item/equipped_item, slot)
 #define COMSIG_MOB_EQUIPPED_ITEM "mob_equipped_item"
+#define COMSIG_HUMAN_EQUIPPING_ITEM "mob_equipping_item"
+	#define COMPONENT_BLOCK_EQUIP (1<<0)
 /// A mob has just unequipped an item.
 #define COMSIG_MOB_UNEQUIPPED_ITEM "mob_unequipped_item"
 /// From base of /mob/proc/update_held_items
@@ -246,3 +248,6 @@
 /// From /atom/movable/screen/zone_sel/proc/set_selected_zone.
 /// Fires when the user has changed their selected body target.
 #define COMSIG_MOB_SELECTED_ZONE_SET "mob_set_selected_zone"
+
+/// from /mob/update_incapacitated(): (old_incap, new_incap)
+#define COMSIG_MOB_INCAPACITATE_CHANGED "mob_incapacitated"

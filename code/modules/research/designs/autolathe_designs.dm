@@ -108,6 +108,13 @@
 	build_path = /obj/item/storage/toolbox
 	category = list(PRINTER_CATEGORY_INITIAL, AUTOLATHE_CATEGORY_TOOLS)
 
+/datum/design/binoculars
+	id = "binoculars"
+	build_type = AUTOLATHE
+	materials = list(MAT_METAL = 500, MAT_GLASS = 100)
+	build_path = /obj/item/binoculars
+	category = list(PRINTER_CATEGORY_INITIAL, AUTOLATHE_CATEGORY_TOOLS)
+
 /datum/design/surgery
 	id = "sur_kit"
 	build_type = AUTOLATHE
@@ -882,6 +889,13 @@
 	build_type = AUTOLATHE
 	materials = list(MAT_METAL = 250, MAT_GLASS = 125)
 	build_path = /obj/item/destTagger
+	category = list(PRINTER_CATEGORY_INITIAL, AUTOLATHE_CATEGORY_ELECTRONICS)
+
+/datum/design/universal_scanner
+	id = "universal_scanner"
+	build_type = AUTOLATHE
+	materials = list(MAT_METAL = 1500, MAT_GLASS = 1000)
+	build_path = /obj/item/universal_scanner
 	category = list(PRINTER_CATEGORY_INITIAL, AUTOLATHE_CATEGORY_ELECTRONICS)
 
 /datum/design/handlabeler

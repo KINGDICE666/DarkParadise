@@ -179,7 +179,7 @@
 
 /mob/living/simple_animal/Initialize(mapload)
 	. = ..()
-	GLOB.simple_animals[AIStatus] += src
+	GLOB.simple_animals[AIStatus] |= src
 	if(gender == PLURAL)
 		gender = pick(MALE, FEMALE)
 	if(!real_name)
@@ -213,7 +213,8 @@
 /mob/living/simple_animal/Destroy()
 	QDEL_NULL(pcollar)
 	master_commander = null
-	GLOB.simple_animals[AIStatus] -= src
+	for(var/list/status_list as anything in GLOB.simple_animals)
+		status_list -= src
 	SSnpcpool.currentrun -= src
 	SSidlenpcpool.currentrun -= src
 	walk(src, NONE)
@@ -547,7 +548,7 @@
 
 	if(check_if_child(src)) // Children aren't fertile enough
 		return FALSE
-	next_scan_time = world.time + 400
+	next_scan_time = world.time + 40 SECONDS
 
 	var/alone = TRUE
 	var/mob/living/simple_animal/partner
@@ -570,7 +571,10 @@
 		var/childspawn = pickweight(childtype)
 		var/turf/target = get_turf(loc)
 		if(target)
-			return new childspawn(target)
+			var/mob/living/simple_animal/child = new childspawn(target)
+			if(!QDELETED(child))
+				SEND_SIGNAL(src, COMSIG_SIMPLE_ANIMAL_GAVE_BIRTH, child)
+			return child
 
 /mob/living/simple_animal/get_item_by_slot(slot_id)
 	switch(slot_id)
@@ -661,8 +665,9 @@
 	if(!can_have_ai && (togglestatus != AI_OFF))
 		return
 	if(HAS_TRAIT(src, TRAIT_AI_PAUSED))
-		AIStatus = AI_OFF
-		return
+		togglestatus = AI_OFF
+		if(AIStatus == AI_OFF)
+			return
 	var/turf/our_turf = get_turf(src)
 	if(QDELETED(src) || !our_turf)
 		return
@@ -675,7 +680,7 @@
 		else
 			SSidlenpcpool.idle_mobs_by_zlevel[our_turf.z] += src
 	GLOB.simple_animals[AIStatus] -= src
-	GLOB.simple_animals[togglestatus] += src
+	GLOB.simple_animals[togglestatus] |= src
 	AIStatus = togglestatus
 	AI_delay_current = world.time
 

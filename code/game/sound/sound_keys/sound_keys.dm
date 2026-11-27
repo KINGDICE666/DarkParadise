@@ -1070,3 +1070,34 @@
 		'sound/items/handling/reagent_containers/default/default_liquid_slosh4.ogg',
 		'sound/items/handling/reagent_containers/default/default_liquid_slosh5.ogg',
 	)
+
+/datum/sound_effect/can_open
+	key = SFX_CAN_OPEN
+	file_paths = list(
+		'sound/items/can/can_open1.ogg',
+		'sound/items/can/can_open2.ogg',
+		'sound/items/can/can_open3.ogg',
+	)
+
+/datum/sound_effect/hallucination_i_m_here
+	key = SFX_IM_HERE
+	file_paths = list(
+		'sound/effects/hallucinations/im_here1.ogg',
+		'sound/effects/hallucinations/im_here2.ogg',
+	)
+
+/datum/sound_effect/flamethrower
+	key = SFX_FLAMETHROWER
+	file_paths = list(
+		'sound/weapons/gun_flamethrower1.ogg',
+		'sound/weapons/gun_flamethrower2.ogg',
+		'sound/weapons/gun_flamethrower3.ogg',
+	)
+
+/datum/sound_effect/bullet_miss_alt
+	key = SFX_BULLET_MISS_ALT
+	file_paths = list(
+		'sound/weapons/bulletflyby.ogg',
+		'sound/weapons/bulletflyby2.ogg',
+		'sound/weapons/bulletflyby3.ogg',
+	)

@@ -1199,6 +1199,18 @@ to destroy them and players will be able to make replacements.
 		/obj/item/stack/sheet/glass = 1,
 	)
 
+/obj/item/circuitboard/civilian_bounty_pad
+	board_name = "Civilian Bounty Pad"
+	build_path = /obj/machinery/civilian_bounty_pad
+	board_type = "machine"
+	greyscale_colors = CIRCUIT_COLOR_SUPPLY
+	origin_tech = "programming=2;bluespace=2"
+	req_components = list(
+		/obj/item/stack/ore/bluespace_crystal = 1,
+		/obj/item/stock_parts/scanning_module = 1,
+		/obj/item/stock_parts/micro_laser = 1,
+	)
+
 /obj/item/circuitboard/quantumpad
 	board_name = "Quantum Pad"
 	build_path = /obj/machinery/quantumpad
@@ -1213,22 +1225,23 @@ to destroy them and players will be able to make replacements.
 	)
 
 // syndie pads can be created by emagging normal quantumpads
-/obj/item/circuitboard/quantumpad/emag_act(mob/user)
-	if(!emagged)
-		if(user)
-			user.visible_message(span_warning("Sparks fly out of the [src]!"), span_notice("You emag the [src], rewriting it's protocols for redspace usage."))
-			playsound(src.loc, 'sound/effects/sparks4.ogg', 50, TRUE)
-		emagged = TRUE
-		name = "circuit board (Syndicate Quantum Pad)"
-		build_path = /obj/machinery/syndiepad
-		board_type = "machine"
-		req_components = list(
-			/obj/item/stack/telecrystal = 5,
-			/obj/item/stock_parts/capacitor = 1,
-			/obj/item/stock_parts/manipulator = 1,
-			/obj/item/stack/cable_coil = 1,
-		)
-	return
+/obj/item/circuitboard/quantumpad/emag_act(mob/user, obj/item/card/emag/emag_card)
+	. = ..()
+	if(obj_flags & EMAGGED)
+		return FALSE
+	user.visible_message(span_warning("Sparks fly out of the [src]!"), span_notice("You emag the [src], rewriting it's protocols for redspace usage."))
+	playsound(loc, SFX_SPARKS, 50, TRUE)
+	obj_flags |= EMAGGED
+	name = "circuit board (Syndicate Quantum Pad)"
+	build_path = /obj/machinery/syndiepad
+	board_type = "machine"
+	req_components = list(
+		/obj/item/stack/telecrystal = 5,
+		/obj/item/stock_parts/capacitor = 1,
+		/obj/item/stock_parts/manipulator = 1,
+		/obj/item/stack/cable_coil = 1,
+	)
+	return TRUE
 // syndie pads by Furukai
 
 /obj/item/circuitboard/quantumpad/syndiepad
@@ -1241,7 +1254,7 @@ to destroy them and players will be able to make replacements.
 		/obj/item/stock_parts/manipulator = 1,
 		/obj/item/stack/cable_coil = 1,
 	)
-	emagged = TRUE
+	obj_flags = parent_type::obj_flags|EMAGGED
 
 /obj/item/circuitboard/roboquest_pad
 
@@ -1290,6 +1303,22 @@ to destroy them and players will be able to make replacements.
 /obj/item/circuitboard/sleeper/survival
 	board_name = "Sleeper - Survival Pod"
 	build_path = /obj/machinery/sleeper/survival_pod
+
+/obj/item/circuitboard/autodoc
+	board_name = "AutoDOCtor 3000"
+	build_path = /obj/machinery/autodoc
+	board_type = "machine"
+	greyscale_colors = CIRCUIT_COLOR_MEDICAL
+	origin_tech = "programming=6;biotech=6;engineering=6"
+	req_components = list(
+		/obj/item/stock_parts/matter_bin = 2,
+		/obj/item/stock_parts/manipulator = 2,
+		/obj/item/stock_parts/micro_laser = 1,
+		/obj/item/stock_parts/scanning_module = 1,
+		/obj/item/stack/sheet/glass = 2,
+		/obj/item/stack/sheet/plasteel = 2,
+		/obj/item/stack/cable_coil = 2,
+	)
 
 /obj/item/circuitboard/bodyscanner
 	board_name = "Body Scanner"

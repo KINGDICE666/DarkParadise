@@ -1,4 +1,5 @@
 /obj/machinery/vending/engineering
+	payment_department = STATION_DEPARTMENT_ENGINEERING
 	name = "Robco Tool Maker"
 	desc = "Всё, что вам требуется для самостоятельного обслуживания станции."
 	icon_state = "engi_off"

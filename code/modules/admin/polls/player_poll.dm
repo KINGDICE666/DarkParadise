@@ -245,7 +245,7 @@
 	if(IsAdminAdvancedProcCall())
 		log_game("[key_name(usr)] attempted to rig the vote by voting as [key]")
 		message_admins("[key_name_admin(usr)] attempted to rig the vote by voting as [key]")
-		to_chat(usr, span_danger("You don't seem to be [key]."))
+		to_chat(usr, span_danger("You don't seem to be [key]."), MESSAGE_TYPE_SYSTEM)
 		to_chat(src, span_danger("Something went horribly wrong processing your vote. Please contact an administrator, they should have gotten a message about this"))
 		return
 	var/admin_rank
@@ -258,7 +258,7 @@
 			admin_rank = "Player"
 	var/player_playtime = round(client?.get_exp_type_num(EXP_TYPE_LIVING) / 60)
 	if(!isnull(player_playtime) && (player_playtime < poll.minimum_playtime))
-		to_chat(usr, span_warning("You do not have sufficient playtime to vote in this poll. Minimum: [poll.minimum_playtime] hour(s). Your playtime: [player_playtime] hour(s)."))
+		to_chat(usr, span_warning("You do not have sufficient playtime to vote in this poll. Minimum: [poll.minimum_playtime] hour(s). Your playtime: [player_playtime] hour(s)."), MESSAGE_TYPE_SYSTEM)
 		return
 	var/table = "poll_vote"
 	if(poll.poll_type == POLLTYPE_TEXT)
@@ -278,11 +278,11 @@
 	if(query_validate_poll_vote.NextRow())
 		vote_id = text2num(query_validate_poll_vote.item[1])
 		if(vote_id && !poll.allow_revoting)
-			to_chat(usr, span_danger("Poll revoting is disabled and you've already replied to this poll."))
+			to_chat(usr, span_danger("Poll revoting is disabled and you've already replied to this poll."), MESSAGE_TYPE_SYSTEM)
 			qdel(query_validate_poll_vote)
 			return
 	else
-		to_chat(usr, span_danger("Selected poll is not open."))
+		to_chat(usr, span_danger("Selected poll is not open."), MESSAGE_TYPE_SYSTEM)
 		qdel(query_validate_poll_vote)
 		return
 	qdel(query_validate_poll_vote)
@@ -299,7 +299,7 @@
 	if(vote_success)
 		if(!vote_id)
 			poll.poll_votes++
-		to_chat(usr, span_notice("Vote successful."))
+		to_chat(usr, span_notice("Vote successful."), MESSAGE_TYPE_SYSTEM)
 
 /**
  * Processes vote form data and saves results to the database for an option type poll.

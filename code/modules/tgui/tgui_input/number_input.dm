@@ -31,6 +31,8 @@
 	// Client does NOT have tgui_input on: Returns regular input
 	if(user.client?.prefs?.toggles2 & PREFTOGGLE_2_DISABLE_TGUI_INPUT)
 		var/input_number = input(user, message, title, default) as null|num
+		if(isnull(input_number))
+			return
 		return clamp(round_value ? round(input_number) : input_number, min_value, max_value)
 
 	var/datum/tgui_input_number/number_input = new(user, message, title, default, max_value, min_value, timeout, round_value, ui_state, ui_source, ui_source)

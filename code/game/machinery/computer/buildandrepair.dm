@@ -339,6 +339,16 @@
 	build_path = /obj/machinery/computer/slot_machine
 	origin_tech = "programming=1"
 
+/obj/item/circuitboard/arcade/crash
+	board_name = "Crash Machine"
+	build_path = /obj/machinery/computer/casino/crash
+	origin_tech = "programming=1"
+
+/obj/item/circuitboard/arcade/wheel
+	board_name = "Wheel of Fortune"
+	build_path = /obj/machinery/computer/casino/wheel
+	origin_tech = "programming=1"
+
 /obj/item/circuitboard/solar_control
 	board_name = "Solar Control"
 	greyscale_colors = CIRCUIT_COLOR_ENGINEERING
@@ -482,6 +492,11 @@
 	greyscale_colors = CIRCUIT_COLOR_SUPPLY
 	build_path = /obj/machinery/computer/supplyquest
 	origin_tech = "programming=3"
+
+/obj/item/circuitboard/civilian_bounty
+	board_name = "Civilian Bounty Control Terminal"
+	greyscale_colors = CIRCUIT_COLOR_SUPPLY
+	build_path = /obj/machinery/computer/civilian_bounty
 
 /obj/item/circuitboard/questcons
 	board_name = "Supply Quest Monitor"

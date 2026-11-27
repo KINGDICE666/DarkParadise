@@ -346,7 +346,7 @@
 	var/scratch_damage = 3
 
 /datum/status_effect/eldritch_painting/beauty/on_tick(seconds_between_ticks)
-	if(owner.incapacitated())
+	if(owner.incapacitated)
 		return
 
 	var/obj/item/organ/external/bodypart = owner.get_bodypart(owner.get_random_valid_zone(even_weights = TRUE))

@@ -1007,7 +1007,7 @@
 	var/datum/game_mode/pve/mode = get_pve_mode()
 	if(!mode || mode.finished || mode.arena_z != z)
 		return FALSE
-	if(!istype(user) || user.stat != CONSCIOUS || user.incapacitated() || !Adjacent(user))
+	if(!istype(user) || user.stat != CONSCIOUS || user.incapacitated || !Adjacent(user))
 		return FALSE
 	var/datum/pve_account/account = mode.get_account(user)
 	var/datum/pve_product/product = mode.products[product_id]

@@ -41,6 +41,21 @@
 	TEST_ASSERT_EQUAL(server.retries_spent, 1, "building an avatar did not spend a hololadder")
 	TEST_ASSERT(locate(/obj/structure/hololadder) in get_turf(avatar), "the avatar was not placed on a hololadder")
 
+	var/mob/living/carbon/human/vox_pilot = allocate(/mob/living/carbon/human, anchor)
+	vox_pilot.set_species(/datum/species/vox)
+	var/mob/living/carbon/human/vox_avatar = server.generate_avatar(get_turf(avatar), vox_pilot, TRUE)
+	TEST_ASSERT_NOTNULL(vox_avatar, "server failed to build a copied Vox avatar")
+	TEST_ASSERT(istype(vox_avatar.internal, /obj/item/tank/internals/emergency_oxygen/double/vox), "the copied Vox avatar did not receive nitrogen internals")
+	TEST_ASSERT(istype(vox_avatar.wear_mask, /obj/item/clothing/mask/breath/vox), "the copied Vox avatar did not receive a Vox breathing mask")
+
+	var/mob/living/carbon/human/plasma_pilot = allocate(/mob/living/carbon/human, anchor)
+	plasma_pilot.set_species(/datum/species/plasmaman)
+	var/mob/living/carbon/human/plasma_avatar = server.generate_avatar(get_turf(avatar), plasma_pilot, TRUE)
+	TEST_ASSERT_NOTNULL(plasma_avatar, "server failed to build a copied Plasmaman avatar")
+	TEST_ASSERT(istype(plasma_avatar.internal, /obj/item/tank/internals/plasmaman), "the copied Plasmaman avatar did not receive plasma internals")
+	TEST_ASSERT(istype(plasma_avatar.w_uniform, /obj/item/clothing/under/plasmaman), "the copied Plasmaman avatar did not receive an envirosuit")
+	TEST_ASSERT(istype(plasma_avatar.head, /obj/item/clothing/head/helmet/space/plasmaman), "the copied Plasmaman avatar did not receive an envirosuit helmet")
+
 	var/mob/living/carbon/human/crewman = allocate(/mob/living/carbon/human, anchor)
 	crewman.equipOutfit(/datum/outfit/job/cargo_tech)
 	var/obj/item/radio/headset/crew_headset = crewman.l_ear
@@ -48,9 +63,9 @@
 	var/supply_freq = SSradio.return_frequency(SUP_FREQ).frequency
 
 	TEST_ASSERT(istype(avatar_headset, /obj/item/radio/headset/headset_cargo/virtual), "the avatar was not given a virtual headset")
-	TEST_ASSERT(avatar_headset.receive_range(supply_freq, list(crewman.z)) > -1, "the avatar cannot hear the station on its virtual headset")
-	TEST_ASSERT(crew_headset.receive_range(supply_freq, list(0)) > -1, "the station cannot hear a domain broadcast")
-	TEST_ASSERT_EQUAL(crew_headset.receive_range(supply_freq, list(avatar.z)), -1, "an ordinary headset started hearing across z-levels")
+	TEST_ASSERT(avatar_headset.can_receive(supply_freq, list(crewman.z)), "the avatar cannot hear the station on its virtual headset")
+	TEST_ASSERT(crew_headset.can_receive(supply_freq, list(0)), "the station cannot hear a domain broadcast")
+	TEST_ASSERT(!crew_headset.can_receive(supply_freq, list(avatar.z)), "an ordinary headset started hearing across z-levels")
 
 	var/list/console_data = console.ui_data(pilot)
 	TEST_ASSERT(console_data["connected"], "the console reported no server in its interface data")
@@ -215,7 +230,7 @@
 	glitch.mind_initialize()
 	glitch.mind.add_antag_datum(/datum/antagonist/bitrunning_glitch/cyber_police)
 	server.add_threats(glitch)
-	server.emagged = TRUE
+	server.obj_flags |= EMAGGED
 
 	server.station_spawn(glitch, forge)
 

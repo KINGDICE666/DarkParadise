@@ -1,5 +1,5 @@
 /mob/living/carbon/human/proc/can_hold_pickupable_mob(mob/living/target_mob)
-	if(!target_mob || incapacitated() || HAS_TRAIT(src, TRAIT_HANDS_BLOCKED))
+	if(!target_mob || incapacitated || HAS_TRAIT(src, TRAIT_HANDS_BLOCKED))
 		return FALSE
 	if(r_hand && l_hand)
 		return FALSE

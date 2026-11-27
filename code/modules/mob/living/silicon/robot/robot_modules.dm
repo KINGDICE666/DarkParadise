@@ -153,7 +153,10 @@
 	return FALSE
 
 /obj/item/robot_module/proc/handle_death(mob/living/silicon/robot/R, gibbed)
-	return
+	SHOULD_CALL_PARENT(TRUE)
+	var/obj/item/gripper/gripper = locate() in modules
+	if(gripper)
+		gripper.drop_gripped_item(silent = TRUE)
 
 /obj/item/robot_module/standard
 	// if station is fine, assist with constructing station goal room, cleaning, and repairing cables chewed by rats
@@ -219,6 +222,7 @@
 	modules += new /obj/item/stack/rods/cyborg(src)
 	modules += new /obj/item/stack/tile/plasteel(src)
 	modules += new /obj/item/instrument/piano_synth(src) // added for minimal service part
+	modules += new /obj/item/gripper(src)
 
 	emag = new /obj/item/melee/energy/sword/cyborg(src)
 
@@ -320,10 +324,11 @@
 	handle_storages()
 
 // Disable safeties on the borg's defib.
-/obj/item/robot_module/medical/emag_act(mob/user)
+/obj/item/robot_module/medical/emag_act(mob/user, obj/item/card/emag/emag_card)
 	. = ..()
 	for(var/obj/item/twohanded/shockpaddles/borg/defib in modules)
-		defib.emag_act()
+		defib?.emag_act(user)
+	return TRUE
 
 // Enable safeties on the borg's defib.
 /obj/item/robot_module/medical/unemag()
@@ -438,11 +443,6 @@
 /obj/item/robot_module/engineering/add_default_robot_items()
 	return
 
-/obj/item/robot_module/engineering/handle_death(mob/living/silicon/robot/R, gibbed)
-	var/obj/item/gripper/G = locate(/obj/item/gripper) in modules
-	if(G)
-		G.drop_gripped_item(silent = TRUE)
-
 /obj/item/robot_module/engineering/ert
 	name = "Combat Engineering"
 
@@ -525,6 +525,7 @@
 	modules += new /obj/item/clothing/mask/gas/sechailer/cyborg(src)
 	modules += new /obj/item/extinguisher/mini(src)
 	modules += new /obj/item/crowbar/cyborg(src)
+	modules += new /obj/item/gripper(src)
 	emag = new /obj/item/gun/energy/laser/cyborg(src)
 
 	fix_modules()
@@ -589,9 +590,11 @@
 	modules += new /obj/item/extinguisher/mini(src)
 	modules += new /obj/item/reagent_containers/spray/pestspray(src) //kill all kidans!
 	modules += new /obj/item/crowbar/cyborg(src)
+	modules += new /obj/item/gripper(src)
+	modules += new /obj/item/melee/flyswatter(src)
 	emag = new /obj/item/reagent_containers/spray(src)
 
-	emag.reagents.add_reagent("lube", 250)
+	emag.reagents.add_reagent(/datum/reagent/lube, 250)
 	emag.name = "Lube spray"
 
 	fix_modules()
@@ -703,7 +706,7 @@
 
 /obj/item/robot_module/butler/respawn_consumable(mob/living/silicon/robot/R)
 	var/obj/item/reagent_containers/spray/pestspray/spray = locate() in modules
-	spray?.reagents.add_reagent("pestkiller", 3)
+	spray?.reagents.add_reagent(/datum/reagent/pestkiller, 3)
 
 	return ..()
 
@@ -728,14 +731,11 @@
 	R.grant_language(/datum/language/resomi, SPOKEN_LANGUAGE, LANGUAGE_MODULE)
 
 /obj/item/robot_module/butler/handle_death(mob/living/silicon/robot/R, gibbed)
+	. = ..()
 	var/obj/item/storage/bag/tray/T = locate() in modules
 
 	if(istype(T))
 		T.drop_inventory(R)
-
-	var/obj/item/gripper/service/G = locate() in modules
-	if(G)
-		G.drop_gripped_item(silent = TRUE)
 
 /obj/item/robot_module/miner
 	name = "Miner"
@@ -792,21 +792,23 @@
 	modules += new /obj/item/t_scanner/adv_mining_scanner/cyborg(src)
 	modules += new /obj/item/gun/energy/kinetic_accelerator/cyborg(src)
 	modules += new /obj/item/crowbar/cyborg(src)
+	modules += new /obj/item/gripper(src)
 	emag = new /obj/item/storage/bag/kaboom/cyborg(src)
 
 	fix_modules()
 
 // Replace their normal drill with a diamond drill.
-/obj/item/robot_module/miner/emag_act()
+/obj/item/robot_module/miner/emag_act(mob/user, obj/item/card/emag/emag_card)
 	. = ..()
-	for(var/obj/item/pickaxe/drill/cyborg/D in modules)
+	for(var/obj/item/pickaxe/drill/cyborg/cyborg_drill in modules)
 		// Make sure we don't remove the diamond drill If they already have a diamond drill from the borg upgrade.
-		if(!istype(D, /obj/item/pickaxe/drill/cyborg/diamond))
-			qdel(D)
-			modules -= D // Remove it from this list so it doesn't get added in the rebuild.
+		if(!istype(cyborg_drill, /obj/item/pickaxe/drill/cyborg/diamond))
+			qdel(cyborg_drill)
+			modules -= cyborg_drill // Remove it from this list so it doesn't get added in the rebuild.
 
 	modules += new /obj/item/pickaxe/drill/cyborg/diamond(src)
 	rebuild()
+	return TRUE
 
 // Readd the normal drill
 /obj/item/robot_module/miner/unemag()
@@ -1102,14 +1104,15 @@
 	modules += new /obj/item/flash/cyborg/alien(src)
 	modules += new /obj/item/reagent_containers/spray/alien/smoke(src)
 	modules += new /obj/item/reagent_containers/spray/alien/stun(src)
+	modules += new /obj/item/gripper(src)
 	emag = new /obj/item/reagent_containers/spray/alien/acid(src)
 	fix_modules()
 
 /obj/item/robot_module/hunter/respawn_consumable(mob/living/silicon/robot/R)
 	if(emag)
 		var/obj/item/reagent_containers/spray/alien/acid/acidSpray = emag
-		acidSpray.reagents.add_reagent("sacid", 3)
-		acidSpray.reagents.add_reagent("facid", 3)
+		acidSpray.reagents.add_reagent(/datum/reagent/acid, 3)
+		acidSpray.reagents.add_reagent(/datum/reagent/acid/facid, 3)
 	return ..()
 
 /obj/item/robot_module/hunter/add_languages(mob/living/silicon/robot/R)
@@ -1152,6 +1155,7 @@
 	modules += new /obj/item/stack/sheet/rglass/cyborg(src)
 	modules += new /obj/item/stack/cable_coil/cyborg(src)
 	modules += new /obj/item/stack/rods/cyborg(src)
+	modules += new /obj/item/stack/pipe_cleaner_coil/cyborg(src)
 	modules += new /obj/item/stack/tile/plasteel(src)
 
 	fix_modules()
@@ -1164,11 +1168,6 @@
 	var/obj/item/reagent_containers/spray/cleaner/cleaner = locate() in modules
 	cleaner.reagents.add_reagent(/datum/reagent/space_cleaner, 3)
 	return ..()
-
-/obj/item/robot_module/drone/handle_death(mob/living/silicon/robot/R, gibbed)
-	var/obj/item/gripper/G = locate(/obj/item/gripper) in modules
-	if(G)
-		G.drop_gripped_item(silent = TRUE)
 
 /obj/item/robot_module/cogscarab
 	name = "Cogscarab"
@@ -1203,10 +1202,6 @@
 
 /obj/item/robot_module/cogscarab/respawn_consumable(mob/living/silicon/robot/R)
 	return
-
-/obj/item/robot_module/cogscarab/handle_death(mob/living/silicon/robot/R, gibbed)
-	var/obj/item/gripper/cogscarab/G = locate(/obj/item/gripper/cogscarab) in modules
-	G?.drop_gripped_item(silent = TRUE)
 
 /obj/item/robot_module/clockwork
 	name = "Clockwork"
@@ -1251,10 +1246,6 @@
 
 /obj/item/robot_module/clockwork/respawn_consumable(mob/living/silicon/robot/R)
 	return
-
-/obj/item/robot_module/clockwork/handle_death(mob/living/silicon/robot/R, gibbed)
-	var/obj/item/gripper/cogscarab/G = locate() in modules
-	G?.drop_gripped_item(silent = TRUE)
 
 /obj/item/robot_module/ninja
 	name = "Ninja"

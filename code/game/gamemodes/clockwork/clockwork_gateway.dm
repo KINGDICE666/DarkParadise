@@ -31,7 +31,7 @@
 	STOP_PROCESSING(SSprocessing, src)
 
 	var/datum/team/clockwork_cult/clock_team = get_clockwork_cult_team()
-	if(clock_team.clocker_objs.clock_status != RATVAR_HAS_RISEN)
+	if(clock_team && clock_team.clocker_objs.clock_status != RATVAR_HAS_RISEN)
 		for(var/datum/mind/clock_mind as anything in clock_team.members)
 			if(clock_mind?.current)
 				to_chat(clock_mind.current, span_clocklarge("The Ark has fallen!"))

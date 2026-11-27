@@ -786,6 +786,10 @@
 	protection = CONFIG_ENTRY_LOCKED | CONFIG_ENTRY_HIDDEN
 
 /datum/config_entry/string/shutdown_shell_command/ValidateAndSet(str_val)
+	if(config?.loaded)
+		if(str_val != GLOB.shutdown_shell_command && (str_val || GLOB.shutdown_shell_command))
+			log_config("[name] changed in the config file; the new value applies only after a server restart.")
+		return TRUE
 	. = ..()
 	if(.)
 		GLOB.shutdown_shell_command = config_entry_value
@@ -944,7 +948,11 @@
 
 /datum/config_entry/flag/launcher_required
 
-/datum/config_entry/flag/web_guest_login
+/datum/config_entry/string/seeker_auth_socket
+	default = null
+	protection = CONFIG_ENTRY_LOCKED | CONFIG_ENTRY_HIDDEN
+
+/datum/config_entry/flag/seeker_allow_guests
 	protection = CONFIG_ENTRY_LOCKED
 
 /// allow votes to change map
@@ -969,3 +977,6 @@
 
 /datum/config_entry/string/ntnet_editor_url
 	default = "https://ntnet.wiki-ss13.space"
+/datum/config_entry/flag/grey_assistants
+
+/datum/config_entry/flag/debug_admin_hrefs

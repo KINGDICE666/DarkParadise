@@ -48,7 +48,7 @@ GLOBAL_LIST_EMPTY(data_storages) //list of all cargo console data storage datums
 	//create the manifest slip
 	var/obj/item/paper/manifest/slip = new()
 	slip.erroneous = errors
-	slip.points = object.cost
+	slip.cost = object.cost
 	slip.ordernumber = ordernum
 
 	var/stationName = (errors & MANIFEST_ERROR_NAME) ? new_station_name() : "Syndicate RaMSS 'Taipan' Supply Mannifest"
@@ -246,6 +246,7 @@ GLOBAL_LIST_EMPTY(data_storages) //list of all cargo console data storage datums
 	icon_keyboard = "syndie_key"
 	req_access = list(ACCESS_SYNDICATE_CARGO)
 	circuit = /obj/item/circuitboard/syndicatesupplycomp
+	obj_flags = parent_type::obj_flags|NO_EMAG
 	/// Is this a public console
 	var/is_public = FALSE
 	var/datum/syndie_data_storage/data_storage = null
@@ -391,7 +392,7 @@ GLOBAL_LIST_EMPTY(data_storages) //list of all cargo console data storage datums
 	sales_market = EXPORT_MARKET_SYNDICATE
 	needed_interest = INTEREST_SYNDICATE
 
-/datum/export/gem/syndicate
+/datum/export/lavaland/gem/syndicate
 	cost = SYNDICATE_CRATE_VALUE * 40
 	sales_market = EXPORT_MARKET_SYNDICATE
 
@@ -411,11 +412,10 @@ GLOBAL_LIST_EMPTY(data_storages) //list of all cargo console data storage datums
 	cost = SYNDICATE_CRATE_VALUE * 10
 	sales_market = EXPORT_MARKET_SYNDICATE
 
-/datum/export/stack/plasma/syndicate
+/datum/export/material/plasma/syndicate
 	cost = SYNDICATE_CRATE_VALUE * 2
 	k_elasticity = 0
 	sales_market = EXPORT_MARKET_SYNDICATE
-	message = "cm3 of exotic material"
 
 // End of syndie sales
 
@@ -425,11 +425,6 @@ GLOBAL_LIST_EMPTY(data_storages) //list of all cargo console data storage datums
 	circuit = /obj/item/circuitboard/syndicatesupplycomp/public
 	req_access = list()
 	is_public = TRUE
-
-/obj/machinery/computer/syndie_supplycomp/emag_act(mob/user)
-	if(user)
-		to_chat(user, span_notice("The electronic systems in this console are far too advanced for your primitive hacking peripherals."))
-	return
 
 /obj/machinery/computer/syndie_supplycomp/attack_hand(mob/user as mob)
 	if(..())
@@ -568,7 +563,7 @@ GLOBAL_LIST_EMPTY(data_storages) //list of all cargo console data storage datums
 			if(!istype(SP))
 				return
 
-			var/reason = tgui_input_text(ui.user, "Reason", "Why do you require this item?", encode = FALSE, timeout = 60 SECONDS)
+			var/reason = tgui_input_text(ui.user, "Reason", "Why do you require this item?", timeout = 60 SECONDS)
 			if(!reason || (!is_public && !is_authorized(usr)) || ..())
 				// Cancel if they take too long, they dont give a reason, they aint authed, or if they walked away
 				return

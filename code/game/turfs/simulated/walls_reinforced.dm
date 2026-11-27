@@ -98,7 +98,7 @@
 		return .|ATTACK_CHAIN_BLOCKED_ALL
 
 /turf/simulated/wall/r_wall/welder_act(mob/user, obj/item/I)
-	if(reagents?.get_reagent_amount("thermite") && I.use_tool(src, user, volume = I.tool_volume))
+	if(reagents?.get_reagent_amount(/datum/reagent/thermite) && I.use_tool(src, user, volume = I.tool_volume))
 		thermitemelt(user)
 		return TRUE
 	if(!(d_state in list(RWALL_COVER, RWALL_SUPPORT_RODS, RWALL_CUT_COVER)))
@@ -248,7 +248,7 @@
 			dismantle_wall()
 		return TRUE
 
-	if(istype(I, /obj/item/twohanded/required/zombie_claw))
+	if(istype(I, /obj/item/zombie_claw))
 		to_chat(user, span_notice("Вы начинаете раздирать стену когтями."))
 		if(do_after(user, 2 MINUTES * I.toolspeed, src, category = DA_CAT_TOOL, max_interact_count = 1))
 			to_chat(user, span_notice("Ваши [I.declent_ru(NOMINATIVE)] разрывают укреплённую обшивку."))

@@ -13,6 +13,7 @@
 #define COMSIG_MOVABLE_CROSS_OVER "movable_cross_am"
 ///from base of atom/movable/Bump(): (/atom/bumped_atom)
 #define COMSIG_MOVABLE_BUMP "movable_bump"
+#define COMPONENT_INTERCEPT_BUMPED (1<<0)
 
 ///from base of atom/movable/throw_impact(): (/atom/hit_atom, /datum/thrownthing/throwingdatum)
 #define COMSIG_MOVABLE_IMPACT "movable_impact"

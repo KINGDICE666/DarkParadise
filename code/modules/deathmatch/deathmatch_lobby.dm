@@ -201,7 +201,7 @@
 		loser.ghostize()
 		qdel(loser)
 	var/list/datum/deathmatch_modifier/our_target = GLOB.deathmatch_game.modifiers
-	for(var/datum/deathmatch_modifier/modifier in modifiers)
+	for(var/datum/deathmatch_modifier/modifier as anything in modifiers)
 		our_target[modifier].on_end_game(src)
 
 	clear_reservation()

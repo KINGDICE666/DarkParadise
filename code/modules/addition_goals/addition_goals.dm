@@ -137,12 +137,12 @@ SUBSYSTEM_DEF(addition_goals)
 		refresh_available_goals(force = TRUE)
 	goal_state = AGS_STATE_IDLE
 
-/datum/controller/subsystem/addition_goals/proc/add_reward(credits, cargopoints)
+/datum/controller/subsystem/addition_goals/proc/add_reward(credits, cargo_credits)
 	if(credits > 0)
 		var/datum/money_account/account = GLOB.station_account
 		account.credit(round(credits), "Завершение дополнительной цели", "Дополнительная цель", account.owner_name)
-	if(cargopoints > 0)
-		SSshuttle.points += round(cargopoints)
+	if(cargo_credits > 0)
+		SSshuttle.cargo_money_account.credit(round(cargo_credits), "Завершение дополнительной цели", "Дополнительная цель", SSshuttle.cargo_money_account.owner_name)
 
 // MARK:	Console logic
 
@@ -153,8 +153,8 @@ SUBSYSTEM_DEF(addition_goals)
 	if(goal.reward_credits > 0)
 		report += "<br>[reward_number]. [goal.reward_credits] кредитов на счет станции."
 		reward_number++
-	if(goal.reward_cargopoints > 0)
-		report += "<br>[reward_number]. [goal.reward_cargopoints] очков поставки в карго."
+	if(goal.reward_cargo_credits > 0)
+		report += "<br>[reward_number]. [goal.reward_cargo_credits] кредитов на счёт отдела снабжения."
 	var/addition = "Данный запрос считается действительным только при наличии печати Центрального Командоваия \"Нанотрейзен\""
 	var/report_message = create_paper_content(goal.name, report, addition)
 	print_report_on_console(goal.name, report_message, stamp = TRUE)
@@ -184,7 +184,7 @@ SUBSYSTEM_DEF(addition_goals)
 	var/description
 	var/request_number
 	var/reward_credits = 0
-	var/reward_cargopoints = 0
+	var/reward_cargo_credits = 0
 	var/accept_time = "???"
 
 /datum/addition_goal/proc/setup()

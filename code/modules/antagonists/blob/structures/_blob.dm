@@ -204,8 +204,6 @@
 			var/offstation = FALSE
 			var/area/Ablob = get_area(B)
 			if(Ablob.area_flags & BLOBS_ALLOWED) //Is this area allowed for winning as blob?
-				if(overmind)
-					overmind.blobs_legit |= B
 				SSticker?.mode?.add_blob_tile(B)
 			else if(controller)
 				B.balloon_alert(overmind, "вне станции, не считается!")
@@ -239,9 +237,8 @@
 
 /obj/structure/blob/emp_act(severity)
 	. = ..()
-	// tgstation emp protection
-	//if(. & EMP_PROTECT_SELF)
-		//return
+	if(. & EMP_PROTECT_SELF)
+		return
 	if(severity > 0)
 		if(overmind)
 			overmind.blobstrain.emp_reaction(src, severity)

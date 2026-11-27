@@ -12,13 +12,13 @@
 	max_amount = 60
 	flags = CONDUCT
 	logistics_count_amount = TRUE
+	scatter_distance = 3
 	var/turf_type = null
 	var/mineralType = null
 
 /obj/item/stack/tile/Initialize(mapload, new_amount, merge)
 	. = ..()
-	pixel_x = rand(-3, 3)
-	pixel_y = rand(-3, 3) //randomize a little
+	scatter_atom()
 	AddElement(/datum/element/openspace_item_click_handler)
 
 /obj/item/stack/tile/welder_act(mob/user, obj/item/I)
@@ -239,6 +239,10 @@
 	armor = list(MELEE = 0, BULLET = 0, LASER = 0, ENERGY = 0, BOMB = 0, BIO = 0, FIRE = 100, ACID = 70)
 	resistance_flags = FIRE_PROOF
 	energy_type = /datum/robot_energy_storage/metal
+
+/obj/item/stack/tile/plasteel/four
+	amount = 4
+
 // LIGHT
 /obj/item/stack/tile/light
 	name = "light tiles"

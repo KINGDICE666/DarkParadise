@@ -99,18 +99,28 @@
 /// Tries to find a ghost to take control of the mob. If no ghost accepts, ask again in a bit.
 /mob/living/simple_animal/hostile/heretic_summon/star_gazer/proc/beg_for_ghost()
 	SIGNAL_HANDLER
+	if(QDELETED(src))
+		return
 	if(timeleft(begging_timer) && !client)
 		return
 	begging_timer = addtimer(CALLBACK(src, PROC_REF(beg_for_ghost)), 2 MINUTES, TIMER_STOPPABLE | TIMER_UNIQUE) // Keep begging until someone accepts
 	if(client) // Already player-controlled; keep the heartbeat armed for a future ghosting but don't poll over them.
 		return
-	INVOKE_ASYNC(src, PROC_REF(poll_for_gazer))
-
-/mob/living/simple_animal/hostile/heretic_summon/star_gazer/proc/poll_for_gazer()
 	var/mob/living/master = summoner?.resolve()
-	var/list/candidates = SSghost_spawns.poll_candidates("Вы хотите стать [declent_ru(INSTRUMENTAL)] вознёсшегося еретика[master ? " [master.real_name]" : ""]?", null, FALSE, poll_time = 20 SECONDS, ignore_respawnability = TRUE, source = src)
-	if(!length(candidates) || client || QDELETED(src))
+	poll_for_star_gazer(WEAKREF(src), "Вы хотите стать [declent_ru(INSTRUMENTAL)] вознёсшегося еретика[master ? " [master.real_name]" : ""]?")
+
+/proc/poll_for_star_gazer(datum/weakref/gazer_ref, question)
+	set waitfor = FALSE
+	usr = null
+	var/datum/candidate_poll/poll = SSghost_spawns.start_candidate_poll(question, null, FALSE, poll_time = 20 SECONDS, ignore_respawnability = TRUE, source = gazer_ref.resolve())
+	UNTIL(poll.finished)
+	var/mob/living/simple_animal/hostile/heretic_summon/star_gazer/gazer = gazer_ref.resolve()
+	gazer?.accept_ghost(poll.signed_up)
+
+/mob/living/simple_animal/hostile/heretic_summon/star_gazer/proc/accept_ghost(list/candidates)
+	if(!length(candidates) || client)
 		return
+	var/mob/living/master = summoner?.resolve()
 	var/mob/dead/observer/chosen_ghost = pick(candidates)
 	key = chosen_ghost.key
 	deltimer(begging_timer)

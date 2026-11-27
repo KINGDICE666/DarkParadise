@@ -36,7 +36,7 @@
 	//	SSdemo.write_chat(target, message)
 
 	// send it immediately
-	SSchat.send_immediate(target, message)
+	SSchat.send_immediate(target, message, confidential)
 
 /**
  * Sends the message to the recipient (target).
@@ -56,7 +56,7 @@
 /proc/to_chat(target, html, type, text, avoid_highlighting, handle_whitespace = TRUE, trailing_newline = TRUE, confidential = FALSE, ticket_id = -1)
 	html = replacetext(html, "\n", "<br>")
 	if(isnull(Master) || !SSchat?.initialized || !MC_RUNNING(SSchat.init_stage))
-		to_chat_immediate(target, html, type, text)
+		to_chat_immediate(target, html, type, text, confidential = confidential)
 		return
 
 	// Useful where the integer 0 is the entire message. Use case is enabling to_chat(target, some_boolean) while preventing to_chat(target, "")

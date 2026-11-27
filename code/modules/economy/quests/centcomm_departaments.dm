@@ -11,8 +11,8 @@
 #define	PERCENTAGE_PAYMENTS_CARGO 0.6 //60 percent on the cargo account
 #define PERCENTAGE_PAYMENTS_PERSONAL 0.15 //15 percent on the account of the beggars
 
-#define POINT_TO_CREDITS 10
-#define COMMERCIAL_MODIFIER 3
+#define POINT_TO_CREDITS 25
+#define COMMERCIAL_MODIFIER 1.2
 
 //Give up hope, hope, everyone who enters here
 
@@ -42,7 +42,7 @@
 	SSshuttle.supply.callTime = max(SSshuttle.supply.callTime * cargo_sale[GROUP_SCIENCE], 90 SECONDS)
 
 /datum/quest_customer/proc/change_reward(datum/cargo_quests_storage/quest)
-	return
+	quest.reward *= POINT_TO_CREDITS
 
 /datum/quest_customer/proc/get_difficulty()
 	return
@@ -171,7 +171,7 @@
 	group_name = "corporation"
 
 /datum/quest_customer/corp/change_reward(datum/cargo_quests_storage/quest)
-	quest.reward *= POINT_TO_CREDITS * COMMERCIAL_MODIFIER
+	quest.reward = round(quest.reward * POINT_TO_CREDITS * COMMERCIAL_MODIFIER)
 
 /datum/quest_customer/corp/send_reward(reward, list/copmpleted_quests = list())
 	var/list/nishebrod_jobs = list()

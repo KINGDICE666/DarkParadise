@@ -94,7 +94,7 @@
 			"name" = program.program_name,
 			"UID" = program.UID(),
 			"description" = program.description,
-			"memory_cost" = program.cost,
+			"memory_cost" = program.installed ? 1 : program.cost,
 			"installed" = program.installed,
 			"upgrade_level" = program.upgrade_level,
 			"is_passive" = program.upgrade
@@ -613,7 +613,7 @@
 		airlock.wires.repair()
 		playsound(T, 'sound/items/deconstruct.ogg', 100, TRUE)
 		if(spell_level >= 5)
-			airlock.emagged = FALSE
+			airlock.obj_flags &= ~EMAGGED
 
 /datum/action/cooldown/ai_program/ranged/airlock_restoration/on_purchase_upgrade()
 	if(spell_level == 5)
@@ -762,7 +762,7 @@
 			continue
 		light.status = LIGHT_OK
 		light.switchcount = 0
-		light.emagged = FALSE
+		light.obj_flags &= ~EMAGGED
 		light.on = light.has_power()
 		light.update(TRUE, TRUE)
 		user.play_sound_remote(light, 'sound/machines/ding.ogg', 50)

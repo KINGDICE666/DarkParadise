@@ -177,6 +177,8 @@
 	c.fields = copy.fields
 	c.stamps = copy.stamps
 	c.language = copy.language
+	c.paper_width = copy.paper_width
+	c.paper_height = copy.paper_height
 	c.stamped = LAZYLISTDUPLICATE(copy.stamped)
 	if(LAZYLEN(copy.stamp_overlays))
 		for(var/mutable_appearance/overlay as anything in copy.stamp_overlays)	//gray overlay onto the copy
@@ -208,7 +210,7 @@
  */
 /obj/machinery/photocopier/proc/photocopy(obj/item/photo/photocopy, scanning = FALSE, bundled = FALSE)
 	if(!scanning) //If we're just storing this as a file inside the copier then we don't expend toner
-		if(toner_cartridge.charges < 5)
+		if(!toner_cartridge.charges)
 			balloon_alert(usr, "недостаточно чернил!")
 			visible_message(span_notice("На корпусе [declent_ru(GENITIVE)] загорается жёлтая лампочка, обозначая недостаток чернил для завершения операции."))
 			return null
@@ -224,8 +226,7 @@
 	p.tiny = photocopy.tiny
 	p.img = photocopy.img
 	p.desc = photocopy.desc
-	p.pixel_x = rand(-10, 10)
-	p.pixel_y = rand(-10, 10)
+	p.scatter_atom()
 	if(photocopy.scribble)
 		p.scribble = photocopy.scribble
 	return p
@@ -251,8 +252,7 @@
 	copy.craft_duration = original.craft_duration
 	copy.crafting_name = original.crafting_name
 	copy.copy_type = null
-	copy.pixel_x = rand(-10, 10)
-	copy.pixel_y = rand(-10, 10)
+	copy.scatter_atom()
 	return copy
 
 /obj/machinery/photocopier/proc/copyass(scanning = FALSE)
@@ -265,7 +265,7 @@
 
 	var/icon/temp_img
 
-	if(emagged)
+	if(obj_flags & EMAGGED)
 		if(ishuman(copymob))
 			copymob.apply_damage(30, BURN, BODY_ZONE_PRECISE_GROIN)
 			if(copymob.has_pain())
@@ -290,8 +290,7 @@
 	else if(folder)
 		p.forceMove(folder)
 	p.desc = "На фото вы видите задницу [copymob.declent_ru(GENITIVE)]."
-	p.pixel_x = rand(-10, 10)
-	p.pixel_y = rand(-10, 10)
+	p.scatter_atom()
 	p.img = temp_img
 	var/icon/small_img = icon(temp_img) //Icon() is needed or else temp_img will be rescaled too >.>
 	var/icon/ic = icon('icons/obj/items.dmi',"photo")
@@ -319,7 +318,7 @@
 		else if(istype(thing, /obj/item/photo))
 			thing = photocopy(thing, bundled = TRUE)
 			if(use_toner && thing)
-				use_toner(5)
+				use_toner(1)
 		if(!thing)
 			break
 		thing.forceMove(P)
@@ -338,8 +337,7 @@
 
 	P.update_appearance(UPDATE_ICON|UPDATE_DESC)
 	P.name = bundle.name
-	P.pixel_y = rand(-8, 8)
-	P.pixel_x = rand(-9, 9)
+	P.scatter_atom()
 	return P
 
 /obj/machinery/photocopier/proc/remove_document()
@@ -428,7 +426,7 @@
 		for(var/i in copies to 1 step -1)
 			if(!photocopy(C))
 				break
-			use_toner(5)
+			use_toner(1)
 			count_of_copies++
 			use_power(active_power_usage)
 			addtimer(CALLBACK(src, PROC_REF(finish_copying)), time_to_print)
@@ -445,7 +443,7 @@
 			if(!copyass())
 				balloon_alert(usr, "нельзя отсканировать!")
 				break
-			use_toner(5)
+			use_toner(1)
 			count_of_copies++
 		finish_copying()
 	else if(istype(C, /obj/item/craft_blueprints))
@@ -466,6 +464,7 @@
 		playsound(loc, pick(print_sounds), 50, TRUE)
 		return
 	balloon_alert(usr, "нельзя отсканировать!")
+	finish_copying()
 
 /obj/machinery/photocopier/proc/finish_copying()
 	copying = FALSE
@@ -649,7 +648,7 @@
 		p.desc += "Ксерокопия была сделана [tempAI.name]"
 	else
 		p.desc += " – Ксерокопия была сделана [tempAI.name]"
-	use_toner(5)
+	use_toner(1)
 	use_power(active_power_usage)
 	COOLDOWN_START(src, copying_cooldown, time_to_print)
 
@@ -666,7 +665,7 @@
 			continue
 		if(cached_syndicate && !(form_type.syndicate))
 			continue
-		if(!cached_syndicate && !emagged && (form_type.syndicate))
+		if(!cached_syndicate && !(obj_flags & EMAGGED) && (form_type.syndicate))
 			continue
 		var/list/form = list()
 		form["path"] = form_type
@@ -688,8 +687,7 @@
 
 /obj/machinery/photocopier/proc/do_print_form_paper(obj/item/paper/form/form)
 	var/obj/item/paper/paper = new form(loc)
-	paper.pixel_x = rand(-10, 10)
-	paper.pixel_y = rand(-10, 10)
+	paper.scatter_atom()
 	finish_copying()
 
 /obj/machinery/photocopier/attackby(obj/item/I, mob/user, params)
@@ -745,7 +743,7 @@
 		toner_cartridge.charges = 0
 
 /obj/machinery/photocopier/mouse_drop_receive(mob/target, mob/living/user, params)
-	if(!istype(target) || target.buckled || get_dist(user, src) > 1 || get_dist(user, target) > 1 || user.incapacitated() || HAS_TRAIT(user, TRAIT_HANDS_BLOCKED) || isAI(user))
+	if(!istype(target) || target.buckled || get_dist(user, src) > 1 || get_dist(user, target) > 1 || user.incapacitated || HAS_TRAIT(user, TRAIT_HANDS_BLOCKED) || isAI(user))
 		return
 	if(check_mob()) //is target mob or another mob on this photocopier already?
 		return
@@ -779,13 +777,19 @@
 	else
 		return TRUE
 
-/obj/machinery/photocopier/emag_act(mob/user)
-	if(!emagged)
-		emagged = TRUE
+/obj/machinery/photocopier/emag_act(mob/user, obj/item/card/emag/emag_card)
+	. = ..()
+	return photocopier_emag(user, emag_card)
+
+/obj/machinery/photocopier/proc/photocopier_emag(mob/user, obj/item/card/emag/emag_card)
+	if(obj_flags & EMAGGED)
 		if(user)
-			balloon_alert(user, "взломано")
-	else if(user)
-		balloon_alert(user, "уже взломано!")
+			balloon_alert(user, "уже взломано!")
+		return FALSE
+	obj_flags |= EMAGGED
+	if(user)
+		balloon_alert(user, "взломано")
+	return TRUE
 
 /**
  * Removes a certain amount of toner that is affected by the efficiency of stock parts

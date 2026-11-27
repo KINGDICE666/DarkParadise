@@ -9,6 +9,8 @@ import { useBackend } from '../../backend';
 
 type DeconstructionData = {
   loaded_item: DeconstructedItem;
+  destroy_queue: { id: string; name: string }[];
+  destroy_busy: boolean;
 } & RndData;
 
 type DeconstructedItem = {
@@ -27,7 +29,13 @@ type DeconstructedTech = {
 export const DeconstructionMenu = (properties) => {
   const { data, act } = useBackend<DeconstructionData>();
 
-  const { loaded_item, linked_destroy } = data;
+  const {
+    loaded_item,
+    linked_destroy,
+    destroy_queue = [],
+    destroy_busy,
+  } = data;
+  const has_queue = destroy_queue.length > 1;
 
   if (!linked_destroy) {
     return <Box>ДЕСТРУКТИВНЫЙ АНАЛИЗАТОР НЕ ПОДКЛЮЧЁН</Box>;
@@ -43,6 +51,18 @@ export const DeconstructionMenu = (properties) => {
 
   return (
     <Section noTopPadding title="Меню разборки">
+      {has_queue && (
+        <Box mt="10px">
+          <h3>Очередь разборки:</h3>
+          <LabeledList>
+            {destroy_queue.map((item, index) => (
+              <LabeledList.Item label={`${index + 1}`} key={item.id}>
+                {item.name}
+              </LabeledList.Item>
+            ))}
+          </LabeledList>
+        </Box>
+      )}
       <Box mt="10px">
         <DmIcon
           icon={loaded_item.icon}
@@ -76,19 +96,21 @@ export const DeconstructionMenu = (properties) => {
       </Box>
       <Button
         icon="unlink"
+        disabled={destroy_busy}
         onClick={() => {
           act('deconstruct');
         }}
       >
-        Разобрать объект
+        {has_queue ? 'Разобрать очередь' : 'Разобрать объект'}
       </Button>
       <Button
         icon="eject"
+        disabled={destroy_busy}
         onClick={() => {
           act('eject_item');
         }}
       >
-        Извлечь объект
+        {has_queue ? 'Извлечь первый предмет' : 'Извлечь объект'}
       </Button>
     </Section>
   );

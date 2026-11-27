@@ -16,26 +16,58 @@ import { numberOfDecimalDigits, toFixed } from 'tgui-core/math';
 import { useBackend } from '../backend';
 import { Window } from '../layouts';
 
+const FilterJitterEntry = (props) => {
+  const { name, filterName } = props;
+  const { act, data } = useBackend();
+  const radius = data.jitter_radii?.[filterName]?.[name] || 0;
+  return (
+    <>
+      <Box inline ml={2} mr={1}>
+        Random ±
+      </Box>
+      <NumberInput
+        value={radius}
+        minValue={0}
+        maxValue={500}
+        step={0.1}
+        stepPixelSize={4}
+        format={(value) => toFixed(value, 1)}
+        width="50px"
+        onChange={(value) =>
+          act('jitter_filter_value', {
+            name: filterName,
+            field: name,
+            radius: value,
+          })
+        }
+      />
+    </>
+  );
+};
+
 const FilterIntegerEntry = (props) => {
   const { value, name, filterName } = props;
   const { act } = useBackend();
   return (
-    <NumberInput
-      value={value || 0}
-      minValue={-500}
-      maxValue={500}
-      step={1}
-      stepPixelSize={5}
-      width="39px"
-      onChange={(value) =>
-        act('modify_filter_value', {
-          name: filterName,
-          new_data: {
-            [name]: value,
-          },
-        })
-      }
-    />
+    <>
+      <NumberInput
+        value={value || 0}
+        minValue={-500}
+        maxValue={500}
+        step={1}
+        stepPixelSize={5}
+        width="39px"
+        onChange={(value) =>
+          act('modify_filter_value', {
+            name: filterName,
+            new_data: {
+              [name]: value,
+            },
+          })
+        }
+      />
+      <FilterJitterEntry name={name} filterName={filterName} />
+    </>
   );
 };
 
@@ -73,6 +105,7 @@ const FilterFloatEntry = (props) => {
         width="70px"
         onChange={(value) => setStep(value)}
       />
+      <FilterJitterEntry name={name} filterName={filterName} />
     </>
   );
 };
@@ -153,7 +186,7 @@ const FilterFlagsEntry = (props) => {
 
   const filterInfo = data.filter_info;
   const flags = filterInfo[filterType].flags;
-  return flags.map((bitField, flagName) => (
+  return Object.entries<number>(flags).map(([flagName, bitField]) => (
     <Button.Checkbox
       checked={value & bitField}
       onClick={() =>
@@ -414,14 +447,28 @@ const FilterEntry = (props) => {
   const { type, priority, ...restOfProps } = filterDataEntry;
 
   const filterDefaults = data.filter_info;
+  const isAnimated = data.animated_filters?.includes(name);
 
   const targetFilterPossibleKeys = Object.keys(filterDefaults[type].defaults);
 
   return (
     <Collapsible
-      title={`${name} (${type})`}
+      title={`${name} (${type})${isAnimated ? ' [animated]' : ''}`}
       buttons={
         <>
+          {isAnimated ? (
+            <Button
+              icon="stop"
+              tooltip="Stop animation"
+              onClick={() => act('stop_animation', { name: name })}
+            />
+          ) : (
+            <Button
+              icon="play"
+              tooltip="Animate"
+              onClick={() => act('animate_filter', { name: name })}
+            />
+          )}
           <NumberInput
             value={priority}
             step={1}
@@ -484,7 +531,7 @@ export const Filterrific = (_props: unknown) => {
   const [hiddenSecret, setHiddenSecret] = useState(false);
 
   return (
-    <Window title="Filterrific" width={500} height={500}>
+    <Window title="Filterrific" width={680} height={560}>
       <Window.Content scrollable>
         <NoticeBox danger>
           DO NOT MESS WITH EXISTING FILTERS IF YOU DO NOT KNOW THE CONSEQUENCES.
@@ -515,20 +562,58 @@ export const Filterrific = (_props: unknown) => {
             )
           }
           buttons={
-            <Dropdown
-              icon="plus"
-              displayText="Add Filter"
-              noChevron
-              selected={Object.keys(filterDefaults)?.[0]}
-              options={Object.keys(filterDefaults)}
-              onSelected={(value) =>
-                act('add_filter', {
-                  name: 'default',
-                  priority: 10,
-                  type: value,
-                })
-              }
-            />
+            <Stack>
+              <Stack.Item>
+                <Dropdown
+                  icon="plus"
+                  displayText="Add Filter"
+                  noChevron
+                  selected={Object.keys(filterDefaults)?.[0]}
+                  options={Object.keys(filterDefaults)}
+                  onSelected={(value) =>
+                    act('add_filter', {
+                      name: 'default',
+                      priority: 10,
+                      type: value,
+                    })
+                  }
+                />
+              </Stack.Item>
+              <Stack.Item>
+                <Dropdown
+                  icon="magic"
+                  displayText="Add Preset"
+                  noChevron
+                  selected={data.presets?.[0]}
+                  options={data.presets || []}
+                  onSelected={(value) =>
+                    act('add_preset', {
+                      preset: value,
+                    })
+                  }
+                />
+              </Stack.Item>
+              <Stack.Item>
+                <Button
+                  icon="copy"
+                  tooltip="Copy filters"
+                  disabled={!hasFilters}
+                  onClick={() => act('copy_filters')}
+                />
+                <Button
+                  icon="paste"
+                  tooltip="Paste filters"
+                  disabled={!data.has_clipboard}
+                  onClick={() => act('paste_filters')}
+                />
+                <Button.Confirm
+                  icon="trash"
+                  tooltip="Remove all filters"
+                  disabled={!hasFilters}
+                  onClick={() => act('clear_filters')}
+                />
+              </Stack.Item>
+            </Stack>
           }
         >
           {!hasFilters ? (

@@ -55,6 +55,7 @@
 	var/effectShrapnel = FALSE
 	var/shrapnel_type = /obj/projectile/shrapnel
 	var/shrapnel_magnitude = 3
+	var/list/gas_release = list()
 	var/list/reverse_option_list = list(MOB_OPTION=FALSE, UNANCHORED_OPTION=FALSE, ANCHORED_OPTION=FALSE, MECHA_OPTION=FALSE)
 
 /obj/structure/closet/supplypod/get_ru_names()
@@ -215,7 +216,7 @@
 	name = "cruise missile"
 	desc = "Огромная ракета, вероятно, запущенная из какой-то далёкой ракетной шахты в дальнем космосе."
 	style = /datum/pod_style/missile/syndicate
-	explosionSize = list(0,1,2,2)
+	explosionSize = list(0, 1, 2, 2)
 	effectShrapnel = TRUE
 	specialised = TRUE
 	delays = list(POD_TRANSIT = 2.6 SECONDS, POD_FALLING = 0.4 SECONDS)
@@ -234,17 +235,21 @@
 /obj/structure/closet/supplypod/deadmatch_missile/endgame
 	explosionSize = list(80, 100, 120, 0)
 	ignore_explosion_cap = TRUE
-	delays = list(POD_TRANSIT = 30 SECONDS, POD_FALLING = 10 SECONDS)
+	delays = list(POD_TRANSIT = 1.5 MINUTES, POD_FALLING = 5 SECONDS)
+
+/obj/structure/closet/supplypod/deadmatch_missile/endgame/Initialize(mapload, customStyle)
+	SSsecurity_level.set_level(SEC_LEVEL_DELTA_ROCKET)
+	return ..()
 
 /obj/structure/closet/supplypod/deadmatch_missile/endgame/preOpen()
 	INVOKE_ASYNC(GLOBAL_PROC, GLOBAL_PROC_REF(nuke_effect), z)
-	. = ..()
+	return ..()
+
+/proc/launch_endgame_missile()
+	new /obj/effect/pod_landingzone(pick(GLOB.airdrops_points), new /obj/structure/closet/supplypod/deadmatch_missile/endgame())
 
 /proc/nuke_effect(z)
 	for(var/mob/living as anything in GLOB.mob_list)
-		if(living.stat == DEAD)
-			continue
-
 		var/turf/turf = get_turf(living)
 
 		if(!turf || (turf.z != z) || isnewplayer(living) || istype(living.loc, /obj/structure/closet/secure_closet/freezer))
@@ -263,7 +268,9 @@
 		qdel(core)
 		CHECK_TICK
 
-	SSticker.mode.end_game()
+	GLOB.enter_allowed = 0
+	SSticker.mode.station_was_nuked = TRUE
+	to_chat(world, span_bold("Станция уничтожена взрывом ядерной ракеты!"))
 
 /obj/structure/closet/supplypod/swarmer
 	style = /datum/pod_style/swarmer
@@ -437,6 +444,8 @@
 	set_density(TRUE) //Density is originally false so the pod doesn't block anything while it's still falling through the air
 	if(effectShrapnel)
 		AddComponent(/datum/component/pellet_cloud, projectile_type = shrapnel_type, magnitude = shrapnel_magnitude)
+	if(length(gas_release))
+		new /obj/effect/abstract/supplypod_gas_release(turf_underneath, gas_release)
 	SEND_SIGNAL(src, COMSIG_SUPPLYPOD_LANDED)
 	for(var/mob/living/target_living in turf_underneath)
 		if(iscarbon(target_living)) //If effectLimb is true (which means we pop limbs off when we hit people):
@@ -708,6 +717,40 @@
 	qdel(glow_effect)
 	open_pod(src, broken = TRUE) //Lets dump our contents by opening up
 	return ..()
+
+/obj/effect/abstract/supplypod_gas_release
+	name = "supplypod gas release"
+	var/list/gases_left = list()
+	var/list/release_rates = list()
+
+/obj/effect/abstract/supplypod_gas_release/Initialize(mapload, list/gas_release)
+	. = ..()
+	for(var/gas_id in gas_release)
+		var/list/gas_settings = gas_release[gas_id]
+		gases_left[gas_id] = gas_settings["amount"]
+		release_rates[gas_id] = gas_settings["rate"]
+	START_PROCESSING(SSobj, src)
+
+/obj/effect/abstract/supplypod_gas_release/Destroy()
+	STOP_PROCESSING(SSobj, src)
+	return ..()
+
+/obj/effect/abstract/supplypod_gas_release/process(seconds_per_tick)
+	var/datum/gas_mixture/released_air = new
+	released_air.set_temperature(T20C)
+	var/still_releasing = FALSE
+	for(var/gas_id in gases_left)
+		var/amount = min(gases_left[gas_id], release_rates[gas_id] * seconds_per_tick)
+		if(amount <= 0)
+			continue
+		released_air.adjust_gas(gas_id, amount)
+		gases_left[gas_id] -= amount
+		if(gases_left[gas_id] > 0)
+			still_releasing = TRUE
+	var/turf/release_turf = get_turf(src)
+	release_turf.blind_release_air(released_air)
+	if(!still_releasing)
+		qdel(src)
 
 //------------------------------------TEMPORARY_VISUAL-------------------------------------//
 /obj/effect/supplypod_smoke //Falling pod smoke

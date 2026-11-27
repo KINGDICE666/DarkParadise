@@ -37,6 +37,7 @@
 #define COMSIG_ITEM_PRE_UNEQUIP "item_pre_unequip"
 	///only the pre unequip can be cancelled
 	#define COMPONENT_ITEM_BLOCK_UNEQUIP (1<<0)
+	#define COMPONENT_ITEM_BLOCK_UNEQUIP_FORCE (1<<1)
 ///called on [/obj/item] AFTER unequip from base of [mob/proc/do_unEquip]: (force, atom/newloc, no_move, invdrop, silent)
 #define COMSIG_ITEM_POST_UNEQUIP "item_post_unequip"
 ///from base of obj/item/dropped(): (mob/user)
@@ -382,6 +383,10 @@
 /// from /datum/component/subtype_picker/pick_subtype(): (obj/item/old_item, mob/picker)
 #define COMSIG_ITEM_SUBTYPE_PICKER_SELECTED "item_subtype_picker_selected"
 
+#define COMSIG_ITEM_GET_STRIPPABLE_ALT_ACTIONS "item_get_strippable_alt_actions"
+#define COMSIG_ITEM_STRIPPABLE_ALT_ACTION "item_strippable_alt_action"
+	#define COMPONENT_ALT_ACTION_DONE (1<<0)
+
 // /obj/item signals for economy
 ///called before an item is sold by the exports system.
 #define COMSIG_ITEM_PRE_EXPORT "item_pre_sold"
@@ -393,3 +398,7 @@
 	#define COMPONENT_STOP_EXPORT_REPORT (1<<0)
 
 #define COMSIG_GRIPPED_ITEM_CHANGE "gripped_item_change"
+
+#define COMSIG_CLOSET_PRE_OPEN "closet_pre_open"
+	#define BLOCK_OPEN (1<<0)
+#define COMSIG_CLOSET_POST_OPEN "closet_post_open"

@@ -118,7 +118,7 @@
 		visible_message(span_warning("[DECLENT_RU_CAP(src, NOMINATIVE)] направля[PLUR_ET_YUT(src)] [held_gun.declent_ru(ACCUSATIVE)] в сторону [possible_target.declent_ru(GENITIVE)]!"))
 		return
 	// for his neutral special, he wields a Gun
-	held_gun.afterattack(possible_target, src)
+	held_gun.fast_fire(possible_target, src)
 	visible_message(span_danger("[DECLENT_RU_CAP(src, NOMINATIVE)] стреля[PLUR_ET_YUT(src)] из [held_gun.declent_ru(GENITIVE)][isturf(possible_target) ? "" : " в сторону [possible_target.declent_ru(GENITIVE)]!"]"))
 
 /mob/living/carbon/human/proc/dchat_step(dir)

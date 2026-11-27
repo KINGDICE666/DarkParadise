@@ -1,5 +1,5 @@
-import { useState } from 'react';
+import { atom, useAtom } from 'jotai';
 
-export const useCompact = () => useState(false);
+const compactAtom = atom(false);
 
-export const useTab = () => useState(1);
+export const useCompact = () => useAtom(compactAtom);

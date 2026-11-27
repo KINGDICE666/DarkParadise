@@ -1,36 +1,44 @@
 /datum/disease/virus/beesease/wizard_variant
 	spread_flags = NON_CONTAGIOUS
+	show_in_records = FALSE
 
 /datum/disease/virus/fluspanish/wizard_variant
 	spread_flags = NON_CONTAGIOUS
+	show_in_records = FALSE
 
 /datum/disease/virus/kingstons_advanced/wizard_variant
 	spread_flags = NON_CONTAGIOUS
+	show_in_records = FALSE
 
 /datum/disease/virus/dna_retrovirus/wizard_variant
 	spread_flags = NON_CONTAGIOUS
+	show_in_records = FALSE
 
 /datum/disease/virus/tuberculosis/wizard_variant
 	spread_flags = NON_CONTAGIOUS
+	show_in_records = FALSE
 
 /datum/disease/virus/wizarditis/wizard_variant
 	spread_flags = NON_CONTAGIOUS
+	show_in_records = FALSE
 
 /datum/disease/virus/anxiety/wizard_variant
 	spread_flags = NON_CONTAGIOUS
+	show_in_records = FALSE
 
 /datum/disease/virus/grut_gut
-	name = "Грутовый живот"
-	agent = "Eruca Stomachum"
-	desc = "Пропитанная магией болезнь, создающая в желудке ОПАСНО высокое давление желчи."
+	name = "Желудочная гниль"
 	stage_prob = 5
-	spread_flags = AIRBORNE
-	cures = list("stabilizing_agent")
+	cure_text = "Пиротехнические стабилизирующий агент"
+	agent = "Eruca Stomachum"
+	cures = list(/datum/reagent/stabilizing_agent)
+	infectable_mobtypes = list(/mob/living/carbon/human)
+	desc = "Магически насыщенная болезнь, которая вызывает опасно высокое давление желчи в желудке."
 	severity = DISEASE_SEVERITY_DANGEROUS
 	virus_heal_resistant = TRUE
 
 /datum/disease/virus/grut_gut/wizard_variant
-	spread_flags = NON_CONTAGIOUS
+	show_in_records = FALSE
 
 /datum/disease/virus/grut_gut/stage_act()
 	if(!..())
@@ -39,10 +47,10 @@
 	switch(stage)
 		if(1)
 			if(prob(3))
-				to_chat(affected_mob, span_danger("Вы чувствуете странное в животе."))
+				to_chat(affected_mob, span_danger("С вашим желудком что-то не то."))
 		if(2)
 			if(prob(3))
-				to_chat(affected_mob, span_danger("Вас пучит."))
+				to_chat(affected_mob, span_danger("Вы чувствуете вздутие."))
 			if(prob(2))
 				to_chat(affected_mob, span_danger("Вы чувствуете неприятное давление в животе."))
 		if(3)
@@ -54,53 +62,53 @@
 				affected_mob.emote("groan")
 		if(4)
 			if(prob(1))
-				affected_mob.fakevomit(no_text = TRUE)
-				affected_mob.adjust_nutrition(-rand(3, 5))
+				affected_mob.fakevomit(no_text = 1)
+				affected_mob.adjust_nutrition(-rand(3,5))
 			if(prob(2))
 				affected_mob.emote("burp")
 			if(prob(3))
-				to_chat(affected_mob, span_danger("Вас ужасно пучит."))
+				to_chat(affected_mob, span_danger("Вы чувствуете ужасное вздутие."))
 			if(prob(2))
-				to_chat(affected_mob, span_danger("В груди раздаётся глубокое бульканье."))
+				to_chat(affected_mob, span_danger("Глубокое бурление отдаётся эхом в груди."))
 		if(5)
 			if(prob(2))
-				affected_mob.custom_emote(EMOTE_AUDIBLE, "громко рыга[PLUR_ET_YUT(affected_mob)]!")
+				affected_mob.start_custom_emote(EMOTE_AUDIBLE, "отрыгива%(ет,ют)%. громко!")
 			if(prob(1))
 				affected_mob.emote("burp")
 			if(prob(1))
 				affected_mob.emote("groan")
 			if(prob(3))
-				to_chat(affected_mob, span_danger("Живот просто убивает вас!"))
+				to_chat(affected_mob, span_danger("Желудок разрывается от боли!"))
 			if(prob(3))
-				to_chat(affected_mob, span_danger("Ваш живот яростно бурлит и клокочет!"))
-			if(prob(2) && affected_mob.nutrition >= 100 && iscarbon(affected_mob))
-				var/mob/living/carbon/carbon = affected_mob
-				carbon.adjustBruteLoss(5)
-				carbon.vomit(6, NONE, 0, 7, FALSE)
-				carbon.visible_message(
-					span_danger("[carbon] блю[PLUR_ET_YUT(carbon)] с такой силой, что [GEND_HIS_HER(carbon)] отбрасывает назад!"),
-					span_userdanger("Вас извергает потоком магической желчи с такой силой, что вас отбрасывает!"),
-					span_warning("Вы слышите, как кого-то обильно рвёт."),
+				to_chat(affected_mob, span_danger("Живот урчит и бурлит с неистовой силой!"))
+			if(prob(2) && affected_mob.nutrition >= 100)
+				affected_mob.adjustBruteLoss(5)
+				affected_mob.vomit(6, 0, TRUE, 7, 0)
+				affected_mob.visible_message(
+					span_danger("[DECLENT_RU_CAP(affected_mob, NOMINATIVE)] с такой силой рвёт, что [affected_mob.declent_ru(ACCUSATIVE)] отбрасывает назад!"),
+					span_userdanger("Вас вырывает потоком магической желчи с такой силой, что вас отбрасывает назад!"),
+					span_warning("Вы слышите, как кого-то обильно вырывает.")
 				)
-				do_fling()
+				do_fling(affected_mob)
 
 /datum/disease/virus/grut_gut/proc/do_fling()
 	var/fling_dir = REVERSE_DIR(affected_mob.dir)
 	var/turf/general_direction = get_edge_target_turf(affected_mob, fling_dir)
-	affected_mob.throw_at(general_direction, 200, 3)
+	affected_mob.throw_at(general_direction, 200, 3) // YEET them til they hit something!!
 
 /datum/disease/virus/wand_rot
-	name = "Палочковая гниль"
-	agent = "Nasum Magicum"
-	desc = "Пропитанная магией болезнь, превращающая волоски в носу в крошечные волшебные палочки. Избегайте раздражителей носа."
+	name = "Гниль жезла"
 	stage_prob = 5
-	spread_flags = AIRBORNE
-	cures = list("acetaldehyde")
+	cure_text = "Ацетальдегид"
+	agent = "nasum magicum"
+	cures = list(/datum/reagent/acetaldehyde)
+	infectable_mobtypes = list(/mob/living/carbon/human)
+	desc = "Магически насыщенная болезнь, которая заменяет волоски в носу крошечными жезлами. Избегайте раздражителей носа."
 	severity = DISEASE_SEVERITY_DANGEROUS
 	virus_heal_resistant = TRUE
 
 /datum/disease/virus/wand_rot/wizard_variant
-	spread_flags = NON_CONTAGIOUS
+	show_in_records = FALSE
 
 /datum/disease/virus/wand_rot/stage_act()
 	if(!..())
@@ -114,57 +122,59 @@
 			if(prob(3))
 				affected_mob.emote("sniff")
 			if(prob(3))
-				to_chat(affected_mob, span_danger("В носу и горле неприятно пересохло."))
+				to_chat(affected_mob, span_danger("Ваш нос и горло ощущаются неприятно сухими."))
 		if(3)
 			if(prob(2))
 				affected_mob.emote("cough")
 			if(prob(3))
 				affected_mob.emote("sniff")
 			if(prob(3))
-				to_chat(affected_mob, span_danger("В носу и горле неприятно пересохло."))
+				to_chat(affected_mob, span_danger("Ваш нос и горло ощущаются неприятно сухими."))
 		if(4)
 			if(prob(2))
 				affected_mob.emote("cough")
 			if(prob(3))
 				affected_mob.emote("sneeze")
 			if(prob(3))
-				to_chat(affected_mob, span_danger("Горло жжёт и чешется!"))
+				to_chat(affected_mob, span_danger("Ваше горло горит и чешется!"))
+
 		if(5)
 			if(prob(2))
 				affected_mob.emote("cough")
 			if(prob(2))
-				to_chat(affected_mob, span_danger("Кажется, нос вот-вот сгорит прямо на лице!"))
+				to_chat(affected_mob, span_danger("Ваш нос словно сейчас сгорит прямо на вашем лице!"))
 				affected_mob.adjustFireLoss(5)
 			if(prob(3))
 				affected_mob.emote("sniff")
 			if(prob(1))
 				affected_mob.emote("sneeze")
-				addtimer(CALLBACK(src, PROC_REF(sneeze_fireball)), 0.2 SECONDS)
+				addtimer(CALLBACK(src, PROC_REF(sneeze_fireballs)), 0.2 SECONDS)
 
-/datum/disease/virus/wand_rot/proc/sneeze_fireball()
-	if(QDELETED(affected_mob))
-		return
-	var/turf/target_tile = get_edge_target_turf(affected_mob, pick(GLOB.alldirs))
-	var/obj/projectile/magic/fireball/fireball = new(affected_mob.loc)
+//sneeze a fireball in a random direction
+/datum/disease/virus/wand_rot/proc/sneeze_fireballs()
+	var/fuck_you_dir = pick(GLOB.alldirs)
+	var/turf/target_tile = get_edge_target_turf(affected_mob, fuck_you_dir)
+	var/obj/projectile/magic/fireball/fireball = new (affected_mob.loc)
 	fireball.current = get_turf(affected_mob)
 	fireball.original = target_tile
 	fireball.firer = affected_mob
 	fireball.preparePixelProjectile(target_tile, affected_mob)
 	fireball.fire()
-	playsound(affected_mob, 'sound/magic/fireball.ogg', 50, TRUE)
+	playsound(affected_mob, 'sound/magic/fireball.ogg', 50, 1)
 
 /datum/disease/virus/mystic_malaise
-	name = "Мистическое недомогание"
-	agent = "Spatio Ventrem"
-	desc = "Пропитанная магией болезнь, поселяющаяся в кишечнике и превращающая желудочный сок в космическую материю."
+	name = "Мистический недуг"
 	stage_prob = 5
-	spread_flags = AIRBORNE
-	cures = list("liquid_dark_matter")
+	cure_text = "жидкая тёмная материя"
+	agent = "Spatio Ventrem"
+	cures = list(/datum/reagent/liquid_dark_matter)
+	infectable_mobtypes = list(/mob/living/carbon/human)
+	desc = "Магически насыщенная болезнь, обитающая в кишечнике и превращающая желудочные соки в космическую материю."
 	severity = DISEASE_SEVERITY_DANGEROUS
 	virus_heal_resistant = TRUE
 
 /datum/disease/virus/mystic_malaise/wizard_variant
-	spread_flags = NON_CONTAGIOUS
+	show_in_records = FALSE
 
 /datum/disease/virus/mystic_malaise/stage_act()
 	if(!..())
@@ -173,18 +183,18 @@
 	switch(stage)
 		if(1)
 			if(prob(2))
-				to_chat(affected_mob, span_danger("Вас подташнивает."))
+				to_chat(affected_mob, span_danger("Вас тошнит."))
 		if(2)
 			if(prob(3))
 				to_chat(affected_mob, span_danger("У вас болит живот."))
 		if(3)
 			if(prob(3))
-				to_chat(affected_mob, span_danger("Вы чувствуете, как внутри растёт пустота."))
+				to_chat(affected_mob, span_danger("Вы чувствуете растущую пустоту внутри."))
 			if(prob(2))
 				affected_mob.emote("cough")
 		if(4)
 			if(prob(3))
-				to_chat(affected_mob, span_danger("Кажется, грудь вот-вот провалится внутрь!"))
+				to_chat(affected_mob, span_danger("Кажется, будто ваша грудь сейчас провалится!"))
 			if(prob(2))
 				affected_mob.emote("cough")
 			if(prob(2))
@@ -192,22 +202,31 @@
 		if(5)
 			if(prob(2))
 				affected_mob.AdjustConfused(5 SECONDS)
-				var/turf/current_turf = get_turf(affected_mob)
-				playsound(current_turf, 'sound/effects/splat.ogg', 50, TRUE)
-				if(!isspaceturf(current_turf))
-					new /obj/effect/decal/cleanable/vomit/spacematter(current_turf)
+				playsound(get_turf(affected_mob), 'sound/effects/splat.ogg', 50, 1)
+				var/turf/location = get_turf(affected_mob)
+				location.add_vomit_floor(FALSE, FALSE, /obj/effect/decal/cleanable/vomit/spacematter)
 
 /obj/effect/decal/cleanable/vomit/spacematter
 	name = "spacematter vomit"
-	desc = "Несмотря на опасность, оно ослепительно красиво. Но лучше бы от этого держаться подальше."
+	desc = "Несмотря на опасность, она ослепительно красива. Впрочем, вам, наверное, стоит отойти от неё подальше."
 	icon_state = "vomitnebula_1"
 	random_icon_states = list("vomitnebula_1", "vomitnebula_2", "vomitnebula_3", "vomitnebula_4")
-	var/time_to_live
+	no_scoop = TRUE
+
+/obj/effect/decal/cleanable/vomit/spacematter/get_ru_names()
+	return alist(
+		NOMINATIVE = "космоматериальная рвота",
+		GENITIVE = "космоматериальной рвоты",
+		DATIVE = "космоматериальной рвоте",
+		ACCUSATIVE = "космоматериальную рвоту",
+		INSTRUMENTAL = "космоматериальной рвотой",
+		PREPOSITIONAL = "космоматериальной рвоте",
+	)
 
 /obj/effect/decal/cleanable/vomit/spacematter/Initialize(mapload)
 	. = ..()
 	START_PROCESSING(SSprocessing, src)
-	time_to_live = world.time + 15 SECONDS
+	QDEL_IN(src, 15 SECONDS)
 
 /obj/effect/decal/cleanable/vomit/spacematter/Destroy()
 	STOP_PROCESSING(SSprocessing, src)
@@ -216,16 +235,11 @@
 /obj/effect/decal/cleanable/vomit/spacematter/process()
 	var/datum/milla_safe/spacematter_vomit_process/milla = new()
 	milla.invoke_async(src)
-	if(world.time >= time_to_live)
-		visible_message(span_danger("[src] испаряется в ничто!"))
-		qdel(src)
 
 /datum/milla_safe/spacematter_vomit_process
 
 /datum/milla_safe/spacematter_vomit_process/on_run(obj/effect/decal/cleanable/vomit/spacematter/splatter)
 	var/turf/tile = get_turf(splatter)
-	if(!tile)
-		return
 	var/datum/gas_mixture/environment = get_turf_air(tile)
 	var/removed_moles = environment.total_moles() * (1500 / environment.volume)
 	environment.remove(removed_moles)

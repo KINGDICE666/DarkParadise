@@ -1,3 +1,15 @@
+#define WALL_GIRDER_COST 2
+#define COMPUTER_FRAME_COST 5
+#define MACHINE_FRAME_COST 5
+#define FLOOR_TILE_COST 1
+#define METALL_ROD_COST 1
+
+#define WALL_GIRDER_TIME 5 SECONDS
+#define COMPUTER_FRAME_TIME 2.5 SECONDS
+#define MACHINE_FRAME_TIME 2.5 SECONDS
+#define FLOOR_TILE_TIME 0.5 SECONDS
+#define METALL_ROD_TIME 0.5 SECONDS
+
 // MARK: METAL
 GLOBAL_LIST_INIT(metal_recipes, list(
 	new /datum/stack_recipe_list("sofas", list(
@@ -110,6 +122,55 @@ GLOBAL_LIST_INIT(metal_recipes, list(
 	merge_type = /obj/item/stack/sheet/metal
 	point_value = 2
 
+/obj/item/stack/sheet/metal/Initialize(mapload)
+	. = ..()
+	register_item_context()
+
+/obj/item/stack/sheet/metal/add_item_context(obj/item/source, list/context, atom/target, mob/living/user)
+	. = ..()
+
+	if(get_amount() > WALL_GIRDER_COST)
+		context[SCREENTIP_CONTEXT_RMB] = "Сделать балку"
+		. = CONTEXTUAL_SCREENTIP_SET
+
+/obj/item/stack/sheet/metal/examine(mob/user)
+	. = ..()
+	. += span_notice("Используйте <b>ПКМ</b> на пустом тайле, чтобы построить балку.")
+	. += span_notice("Используйте <b>ЛКМ</b> кусачками, чтобы сделать плитку пола.")
+	. += span_notice("Используйте <b>ПКМ</b> кусачками, чтобы сделать металические стержни.")
+	. += span_notice("Используйте <b>ЛКМ</b> гаечным ключом, чтобы сделать корпус механизма.")
+	. += span_notice("Используйте <b>ПКМ</b> гаечным ключом, чтобы сделать корпус компьютера.")
+
+/obj/item/wrench/add_item_context(obj/item/source, list/context, atom/target, mob/living/user)
+	. = ..()
+
+	if(!(istype(target, /obj/item/stack/sheet/metal)))
+		return
+
+	var/obj/item/stack/stack_target = target
+	if(stack_target.get_amount() > COMPUTER_FRAME_COST)
+		context[SCREENTIP_CONTEXT_LMB] = "Сделать корпус механизма"
+		. = CONTEXTUAL_SCREENTIP_SET
+
+	if(stack_target.get_amount() > MACHINE_FRAME_COST)
+		context[SCREENTIP_CONTEXT_RMB] = "Сделать корпус компьютера"
+		. = CONTEXTUAL_SCREENTIP_SET
+
+/obj/item/wirecutters/add_item_context(obj/item/source, list/context, atom/target, mob/living/user)
+	. = ..()
+
+	if(!(istype(target, /obj/item/stack/sheet/metal)))
+		return
+
+	var/obj/item/stack/stack_target = target
+	if(stack_target.get_amount() > FLOOR_TILE_COST)
+		context[SCREENTIP_CONTEXT_LMB] = "Сделать плитку пола"
+		. = CONTEXTUAL_SCREENTIP_SET
+
+	if(stack_target.get_amount() > METALL_ROD_COST)
+		context[SCREENTIP_CONTEXT_RMB] = "Сделать металические стержни"
+		. = CONTEXTUAL_SCREENTIP_SET
+
 /obj/item/stack/sheet/metal/cyborg
 	materials = list()
 	cyborg_construction_stack = /obj/item/stack/sheet/metal
@@ -130,6 +191,97 @@ GLOBAL_LIST_INIT(metal_recipes, list(
 /obj/item/stack/sheet/metal/Initialize(mapload, new_amount, merge = TRUE)
 	. = ..()
 	recipes = GLOB.metal_recipes
+
+/obj/item/stack/sheet/metal/wirecutter_act(mob/living/user, obj/item/tool)
+	if(get_amount() < FLOOR_TILE_COST)
+		user.balloon_alert(user, "не хватает металла!")
+		return ITEM_INTERACT_BLOCKING
+
+	var/calculated_time = FLOOR_TILE_TIME
+
+	if(tool.use_tool(src, user, delay = calculated_time, volume = tool.tool_volume))
+		var/obj/item/stack/tile/plasteel/four/new_item = new(user.loc)
+		use(FLOOR_TILE_COST)
+		user.put_in_inactive_hand(new_item)
+		return ITEM_INTERACT_SUCCESS
+
+/obj/item/stack/sheet/metal/wirecutter_act_secondary(mob/living/user, obj/item/tool)
+	if(get_amount() < METALL_ROD_COST)
+		user.balloon_alert(user, "не хватает металла!")
+		return ITEM_INTERACT_BLOCKING
+
+	var/calculated_time = METALL_ROD_TIME
+
+	if(tool.use_tool(src, user, delay = calculated_time, volume = tool.tool_volume))
+		var/obj/item/stack/rods/two/new_item = new(user.loc)
+		use(METALL_ROD_COST)
+		user.put_in_inactive_hand(new_item)
+		return ITEM_INTERACT_SUCCESS
+
+/obj/item/stack/sheet/metal/wrench_act(mob/living/user, obj/item/tool)
+	var/turf/simulated/floor/build_on = get_turf(user)
+	if(!user.Adjacent(build_on))
+		return ITEM_INTERACT_BLOCKING
+	if(!issimulatedturf(build_on))
+		user.balloon_alert(user, "нельзя поставить здесь!")
+		return ITEM_INTERACT_BLOCKING
+	if(get_amount() < MACHINE_FRAME_COST)
+		user.balloon_alert(user, "не хватает металла!")
+		return ITEM_INTERACT_BLOCKING
+
+	var/calculated_time = MACHINE_FRAME_TIME
+
+	if(tool.use_tool(src, user, delay = calculated_time, volume = tool.tool_volume))
+		new /obj/machinery/constructable_frame/machine_frame(user.loc)
+		use(MACHINE_FRAME_COST)
+		return ITEM_INTERACT_SUCCESS
+
+/obj/item/stack/sheet/metal/wrench_act_secondary(mob/living/user, obj/item/tool)
+	var/turf/simulated/floor/build_on = get_turf(user)
+	if(!user.Adjacent(build_on))
+		return ITEM_INTERACT_BLOCKING
+	if(!issimulatedturf(build_on))
+		user.balloon_alert(user, "нельзя поставить здесь!")
+		return ITEM_INTERACT_BLOCKING
+	if(get_amount() < COMPUTER_FRAME_COST)
+		user.balloon_alert(user, "не хватает металла!")
+		return ITEM_INTERACT_BLOCKING
+
+	var/calculated_time = COMPUTER_FRAME_TIME
+
+	if(tool.use_tool(src, user, delay = calculated_time, volume = tool.tool_volume))
+		new /obj/structure/computerframe(user.loc)
+		use(COMPUTER_FRAME_COST)
+		return ITEM_INTERACT_SUCCESS
+
+/obj/item/stack/sheet/metal/interact_with_atom_secondary(atom/interacting_with, mob/living/user, list/modifiers)
+	if(!isfloorturf(interacting_with))
+		return NONE
+	var/turf/simulated/floor/build_on = interacting_with
+	if(!user.Adjacent(build_on))
+		return ITEM_INTERACT_BLOCKING
+	if(isgroundlessturf(build_on))
+		user.balloon_alert(user, "нельзя поставить здесь!")
+		return ITEM_INTERACT_BLOCKING
+	if(build_on.is_blocked_turf())
+		user.balloon_alert(user, "что-то мешает!")
+		return ITEM_INTERACT_BLOCKING
+
+	var/cost = WALL_GIRDER_COST
+	var/time = WALL_GIRDER_TIME
+	if(get_amount() < cost)
+		user.balloon_alert(user, "не хватает металла!")
+		return ITEM_INTERACT_BLOCKING
+	if(!do_after(user, time, build_on))
+		return ITEM_INTERACT_BLOCKING
+	if(build_on.is_blocked_turf())
+		user.balloon_alert(user, "что-то мешает!")
+		return ITEM_INTERACT_BLOCKING
+	if(!use(cost))
+		user.balloon_alert(user, "не хватает!")
+		return ITEM_INTERACT_BLOCKING
+	new /obj/structure/girder(build_on)
+	return ITEM_INTERACT_SUCCESS
 
 // MARK: PLASTEEL
 GLOBAL_LIST_INIT(plasteel_recipes, list(
@@ -915,3 +1067,15 @@ GLOBAL_LIST_INIT(gingerbread_recipes, list(
 /obj/item/stack/sheet/gingerbread/Initialize(mapload, new_amount, merge = TRUE)
 	. = ..()
 	recipes = GLOB.gingerbread_recipes
+
+#undef WALL_GIRDER_COST
+#undef COMPUTER_FRAME_COST
+#undef MACHINE_FRAME_COST
+#undef FLOOR_TILE_COST
+#undef METALL_ROD_COST
+
+#undef WALL_GIRDER_TIME
+#undef COMPUTER_FRAME_TIME
+#undef MACHINE_FRAME_TIME
+#undef FLOOR_TILE_TIME
+#undef METALL_ROD_TIME

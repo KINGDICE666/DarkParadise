@@ -31,7 +31,7 @@
 			continue
 
 		if(bodypart.is_traumatized() || !bodypart.properly_attached)
-			var/drop_chance = bodypart.fracture.drop_chance
+			var/drop_chance = bodypart.fracture?.drop_chance
 			if(!drop_chance || !prob(drop_chance))
 				continue
 

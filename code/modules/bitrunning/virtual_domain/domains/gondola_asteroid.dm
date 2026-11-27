@@ -20,7 +20,7 @@
 /obj/item/reagent_containers/food/snacks/meat/virtual_gondola
 	name = "gondola meat"
 	desc = "Кусок плоти виртуальной гондолы. От него веет спокойствием."
-	list_reagents = list("protein" = 4, "virtual_tranquility" = 5)
+	list_reagents = list(/datum/reagent/consumable/nutriment/protein = 4, /datum/reagent/virtual_tranquility = 5)
 
 /obj/item/reagent_containers/food/snacks/meat/virtual_gondola/get_ru_names()
 	return alist(
@@ -45,7 +45,7 @@
 	if(method == REAGENT_TOUCH && !prob(min(volume, 100)))
 		return
 	var/datum/disease/virus/transformation/virtual_gondola/disease = new
-	disease.Contract(target, act_type = CONTACT, need_protection_check = method == REAGENT_TOUCH)
+	disease.Contract(target, act_type = method == REAGENT_TOUCH ? CONTACT : null, need_protection_check = method == REAGENT_TOUCH)
 	qdel(disease)
 
 /datum/disease/virus/transformation/virtual_gondola
@@ -54,7 +54,7 @@
 	desc = "Плоть виртуальной гондолы меняет съевшего её."
 	stage_prob = 9
 	cure_prob = 55
-	cures = list("condensedcapsaicin")
+	cures = list(/datum/reagent/consumable/condensedcapsaicin)
 	new_form = /mob/living/simple_animal/pet/gondola/virtual_domain
 	stage1 = list(span_notice_alt("Ваш шаг стал немного легче."))
 	stage2 = list(span_notice_alt("Вы улыбаетесь без причины."))
@@ -71,7 +71,7 @@
 	if(prob(5))
 		affected_mob.emote("smile")
 	if(prob(20))
-		affected_mob.reagents.add_reagent("pax", 5)
+		affected_mob.reagents.add_reagent(/datum/reagent/pax, 5)
 	if(stage == 4 && prob(2))
 		var/obj/item/held_item = affected_mob.get_active_hand()
 		if(held_item)

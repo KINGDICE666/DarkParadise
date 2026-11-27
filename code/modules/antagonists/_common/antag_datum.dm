@@ -1,5 +1,6 @@
 GLOBAL_LIST_EMPTY(antagonists)
 GLOBAL_LIST_EMPTY(antagonists_datums)
+#define SUCCESSFUL_DETACH "dont touch this string numbnuts"
 
 /datum/antagonist
 	/// The name of the antagonist.
@@ -70,37 +71,42 @@ GLOBAL_LIST_EMPTY(antagonists_datums)
 		if(!objective.team)
 			qdel(objective)
 
-	remove_owner_from_gamemode()
 	GLOB.antagonists -= src
+
+	if(!QDELETED(owner) && detach_from_owner() != SUCCESSFUL_DETACH)
+		stack_trace("[src] ([type]) failed to detach from owner! This is very bad!")
+
+	return ..()
+
+/**
+ * Removes owner's dependencies on this antag datum.
+ * For example: removal of antag datum from owner's `antag_datums`, antag datum related teams etc.
+ * If your `/datum/antagonist`  subtype adds more dependencies on `owner` - they should be cleared there.
+ */
+/datum/antagonist/proc/detach_from_owner()
+	SHOULD_CALL_PARENT(TRUE)
 
 	if(hidden_uplink)
 		var/obj/item/uplink_holder = hidden_uplink.loc
 		if(!QDELETED(uplink_holder))
 			uplink_holder.hidden_uplink = null
-
 		QDEL_NULL(hidden_uplink)
 
+	remove_owner_from_gamemode()
 	if(!silent)
 		farewell()
-
-	if(owner?.current)
-		remove_innate_effects()
-
+	remove_innate_effects()
 	antag_memory = null
-
 	var/datum/team/team = get_team()
 	team?.remove_member(owner)
-
 	if(owner)
 		LAZYREMOVE(owner.antag_datums, src)
 
 		if(!LAZYLEN(owner.antag_datums)) // that one was the last antag datum.
 			handle_last_instance_removal()
-
 	restore_last_hud_and_role()
 	owner = null
-
-	return ..()
+	return SUCCESSFUL_DETACH
 
 /**
  * Loops through the owner's `antag_datums` list and determines if this one is blacklisted by any others.
@@ -174,7 +180,7 @@ GLOBAL_LIST_EMPTY(antagonists_datums)
 		messages.Add(span_motd("С полной информацией вы можете ознакомиться на вики: <a href=\"[CONFIG_GET(string/wikiurl)]/index.php/[wiki_page_name]\">[russian_wiki_name]"))
 	list_clear_nulls(messages)
 	if(length(messages))
-		to_chat(owner.current, custom_boxed_message(greet_box_class, messages.Join("<br>")))
+		to_chat(owner.current, custom_boxed_message(greet_box_class, messages.Join("<br>")), MESSAGE_TYPE_SYSTEM)
 
 	if(is_banned(owner.current) && replace_banned)
 		INVOKE_ASYNC(src, PROC_REF(replace_banned_player))
@@ -377,10 +383,10 @@ GLOBAL_LIST_EMPTY(antagonists_datums)
 	if(!length(objectives))
 		return FALSE
 
-	to_chat(owner.current, span_notice("Your current objectives:"))
+	to_chat(owner.current, span_notice("Your current objectives:"), MESSAGE_TYPE_SYSTEM)
 	var/objective_num = 1
 	for(var/datum/objective/objective in objectives)
-		to_chat(owner.current, span_notice("<b>Objective #[objective_num++]</b>: [objective.explanation_text]<br>"))
+		to_chat(owner.current, span_notice("<b>Objective #[objective_num++]</b>: [objective.explanation_text]<br>"), MESSAGE_TYPE_SYSTEM)
 	return TRUE
 
 /**
@@ -568,3 +574,5 @@ GLOBAL_LIST_EMPTY(antagonists_datums)
 
 /datum/antagonist/proc/get_steal_objective_type()
 	return /datum/objective/steal
+
+#undef SUCCESSFUL_DETACH

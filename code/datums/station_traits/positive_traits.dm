@@ -72,8 +72,7 @@
 /datum/station_trait/galactic_grant/on_round_start()
 	. = ..()
 	var/datum/money_account/cargo_money_account = GLOB.department_accounts[STATION_DEPARTMENT_SUPPLY]
-	cargo_money_account.phantom_credit(rand(5000, 10000))
-	SSshuttle.points += rand(50, 100)
+	cargo_money_account.phantom_credit(rand(6250, 12500))
 
 /datum/station_trait/premium_internals_box
 	name = "Премиальные экстренные коробки"
@@ -305,7 +304,7 @@
 		/datum/job/head_of_staff/judge = /obj/item/organ/internal/heart/cybernetic/upgraded,
 		/datum/job/lawyer = /obj/item/organ/internal/cyberimp/eyes/hud/security,
 		/datum/job/head_of_staff/qm = /obj/item/organ/internal/liver/cybernetic,
-		/datum/job/supply/cargo_tech = /obj/item/organ/internal/heart/cybernetic,
+		/datum/job/supply/cargo_tech = /obj/item/organ/internal/cyberimp/arm/cargo,
 		/datum/job/supply/bitrunner = /obj/item/organ/internal/cyberimp/brain/bci,
 		/datum/job/supply/mining = /obj/item/organ/internal/cyberimp/eyes/meson,
 		/datum/job/supply/mining_medic = /obj/item/organ/internal/cyberimp/arm/surgery,

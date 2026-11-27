@@ -43,12 +43,16 @@
 		return
 	icon_state = "signmaker_clown_[sign ? "on" : "off"]"
 
-/obj/item/signmaker/emag_act(mob/user)
-	add_attack_logs(user, src, "emagged")
+/obj/item/signmaker/emag_act(mob/user, obj/item/card/emag/emag_card)
+	. = ..()
+	if(obj_flags & EMAGGED)
+		return FALSE
+	obj_flags |= EMAGGED
+	holosign_type = /obj/structure/holosoap/holosoap_emagged
 	clear_holosign()
 	if(user)
 		to_chat(user, "You broke the pointer, oh no")
-	holosign_type = /obj/structure/holosoap/holosoap_emagged
+	return TRUE
 
 /obj/item/signmaker/attack_self(mob/user)
 	clear_holosign()
@@ -123,7 +127,7 @@
 			icon_flick()
 			var/obj/machinery/camera/C = target
 			if(prob(20))
-				C.emp_act(1)
+				C.emp_act(EMP_HEAVY)
 				visible_message(span_notice("You hit the lens of [C] with [src], temporarily disabling the camera!"))
 
 				log_admin("[key_name(user)] EMPd a camera with a signmaker")

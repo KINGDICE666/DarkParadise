@@ -99,6 +99,16 @@
 /datum/action/item_action/equip_unequip_TED_Gun
 	name = "Экипировать/снять TED-пушку"
 
+/datum/action/item_action/chrono_shield
+	name = "Временной щит"
+	desc = "Окружает вас щитом, который отклоняет снаряды в случайные стороны."
+	button_icon_state = "shield"
+
+/datum/action/item_action/chrono_dash
+	name = "Рывок"
+	desc = "Совершить скачок в пространстве сквозь любые преграды. Всё вокруг места приземления отбрасывается."
+	button_icon_state = "repulse"
+
 /datum/action/item_action/toggle_paddles
 	name = "Взять электроды"
 

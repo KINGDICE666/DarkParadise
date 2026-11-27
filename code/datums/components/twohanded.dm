@@ -182,11 +182,12 @@
 /datum/component/two_handed/proc/on_attack_self(datum/source, mob/user)
 	SIGNAL_HANDLER
 
-	if(!require_twohands)
-		if(wielded)
+	if(wielded)
+		if(!require_twohands)
 			unwield(user)
-		else if(user.is_in_hands(parent))
-			wield(user)
+		return
+	if(user.is_in_hands(parent))
+		wield(user)
 
 /**
  * Wield the two handed item in both hands
@@ -235,7 +236,7 @@
 				user.balloon_alert(user, "освободите вторую руку!")
 		return
 
-	if(user.l_arm_broken() || user.r_arm_broken())
+	if(!HAS_TRAIT(parent, TRAIT_NODROP) && (user.l_arm_broken() || user.r_arm_broken()))
 		if(require_twohands)
 			user.drop_item_ground(parent, force = TRUE)
 		if(abstract_check && (world.time > antispam_timer + 0.1 SECONDS))

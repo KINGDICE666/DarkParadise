@@ -1,0 +1,921 @@
+$doc-shell: #4b4b46;
+$doc-shell-dark: #33332f;
+$doc-plastic-light: #d9d9d1;
+$doc-plastic: #c6c6be;
+$doc-plastic-dark: #a8a89f;
+$doc-edge: #84847d;
+$doc-label: #e3e3db;
+$doc-ink: #23241f;
+$doc-ink-muted: #5e5f56;
+$doc-screw: #6f6f69;
+$doc-lcd: #101c17;
+$doc-lcd-edge: #050a08;
+$doc-lcd-text: #8df0ae;
+$doc-lcd-muted: #5f9c78;
+$doc-green: #129c49;
+$doc-amber: #e8a02e;
+$doc-red: #d3262a;
+$doc-flesh: #e88f96;
+$doc-sticker: #ecc94b;
+
+@mixin screws($offset: 5px) {
+  background-image:
+    radial-gradient(circle at $offset $offset, $doc-screw 1.5px, transparent 2px),
+    radial-gradient(
+      circle at calc(100% - #{$offset}) $offset,
+      $doc-screw 1.5px,
+      transparent 2px
+    ),
+    radial-gradient(
+      circle at $offset calc(100% - #{$offset}),
+      $doc-screw 1.5px,
+      transparent 2px
+    ),
+    radial-gradient(
+      circle at calc(100% - #{$offset}) calc(100% - #{$offset}),
+      $doc-screw 1.5px,
+      transparent 2px
+    ),
+    linear-gradient($doc-plastic-light, $doc-plastic);
+}
+
+@mixin housing {
+  @include screws;
+
+  border: 1px solid $doc-edge;
+  border-bottom: 4px solid $doc-shell-dark;
+  border-radius: 6px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+@mixin lcd {
+  color: $doc-lcd-text;
+  background: $doc-lcd;
+  border: 1px solid $doc-lcd-edge;
+  border-radius: 3px;
+  box-shadow: inset 0 1px 4px #000;
+}
+
+@mixin keycap {
+  color: $doc-ink;
+  background: linear-gradient($doc-plastic-light, $doc-plastic-dark);
+  border: 1px solid $doc-edge;
+  border-bottom: 3px solid #62625b;
+  border-radius: 4px;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.55),
+    0 1px 2px rgba(0, 0, 0, 0.35);
+}
+
+.AutoDoc {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  height: 100%;
+  padding: 8px;
+  color: $doc-ink;
+  background: linear-gradient($doc-shell, $doc-shell-dark);
+  font-family: 'Segoe UI', Tahoma, Verdana, sans-serif;
+  font-size: 13px;
+
+  button {
+    font-family: inherit;
+    cursor: pointer;
+
+    &:disabled {
+      cursor: default;
+    }
+  }
+}
+
+.AutoDoc__header {
+  @include housing;
+
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+  padding: 8px 14px;
+}
+
+.AutoDoc__title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: $doc-ink;
+  font-size: 15px;
+  font-weight: 800;
+  letter-spacing: 1px;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.45);
+}
+
+.AutoDoc__status {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: $doc-ink-muted;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.AutoDoc__statusDot {
+  width: 9px;
+  height: 9px;
+  background: currentcolor;
+  border: 1px solid #000;
+  border-radius: 50%;
+}
+
+.AutoDoc__status--idle {
+  color: #54554d;
+}
+
+.AutoDoc__status--good {
+  color: $doc-green;
+}
+
+.AutoDoc__status--warn {
+  color: #a86a07;
+}
+
+.AutoDoc__status--bad {
+  color: $doc-red;
+}
+
+.AutoDoc__spacer {
+  flex: 1;
+}
+
+.AutoDoc__button {
+  @include keycap;
+
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 10px;
+  font-size: 12px;
+  font-weight: 600;
+
+  &:not(:disabled):hover {
+    filter: brightness(1.05);
+  }
+
+  &:not(:disabled):active {
+    border-bottom-width: 1px;
+    transform: translateY(2px);
+  }
+
+  &:disabled {
+    color: #85857c;
+    background: $doc-plastic-dark;
+  }
+}
+
+.AutoDoc__button--on {
+  background: linear-gradient($doc-plastic-dark, $doc-plastic);
+  border-bottom-width: 1px;
+  transform: translateY(2px);
+
+  &::before {
+    width: 8px;
+    height: 8px;
+    content: '';
+    background: #5be08a;
+    border: 1px solid #000;
+    border-radius: 50%;
+    box-shadow: 0 0 5px #5be08a;
+  }
+}
+
+.AutoDoc__button--accent {
+  color: #fff;
+  background: linear-gradient(#25b863, $doc-green);
+  border-color: #0b6a31;
+  border-bottom-color: #084a22;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.4),
+    0 1px 2px rgba(0, 0, 0, 0.35);
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.4);
+}
+
+.AutoDoc__button--danger {
+  color: #fff;
+  background: linear-gradient(#ec4a48, $doc-red);
+  border-color: #8a1518;
+  border-bottom-color: #5e0e10;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.4),
+    0 1px 2px rgba(0, 0, 0, 0.35);
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.4);
+}
+
+.AutoDoc__layout {
+  display: grid;
+  flex: 1;
+  grid-template-columns: 300px minmax(0, 1fr);
+  gap: 8px;
+  min-height: 0;
+}
+
+.AutoDoc__column {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-height: 0;
+}
+
+.AutoDoc__panel {
+  @include housing;
+}
+
+.AutoDoc__panelTitle {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 6px 14px;
+  border-bottom: 1px solid $doc-edge;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.4);
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.45);
+}
+
+.AutoDoc__panelTitle--tabs {
+  gap: 4px;
+  align-items: flex-end;
+  padding: 6px 14px 0;
+
+  > .AutoDoc__button {
+    margin-bottom: 5px;
+  }
+}
+
+.AutoDoc__tab {
+  @include keycap;
+
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: -1px;
+  padding: 5px 12px;
+  border-bottom: 1px solid $doc-edge;
+  border-radius: 4px 4px 0 0;
+  font-size: 13px;
+  font-weight: 700;
+  color: $doc-ink-muted;
+
+  &:hover {
+    color: $doc-ink;
+  }
+}
+
+.AutoDoc__tab--active {
+  color: $doc-ink;
+  background: #b2b2a9;
+  border-bottom-color: #b2b2a9;
+}
+
+.AutoDoc__empty {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 20px;
+  color: $doc-ink-muted;
+  font-weight: 600;
+  text-align: center;
+}
+
+.AutoDoc__patient {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 8px;
+  min-height: 0;
+  padding: 12px 14px;
+  overflow-y: auto;
+}
+
+.AutoDoc__patientHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.AutoDoc__patientName {
+  overflow: hidden;
+  font-size: 14px;
+  font-weight: 800;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.AutoDoc__pill {
+  flex-shrink: 0;
+  padding: 1px 8px;
+  border: 1px solid rgba(0, 0, 0, 0.5);
+  border-radius: 3px;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.AutoDoc__pill--good {
+  color: #fff;
+  background: $doc-green;
+}
+
+.AutoDoc__pill--warn {
+  color: #2b1e04;
+  background: $doc-amber;
+}
+
+.AutoDoc__pill--bad {
+  color: #fff;
+  background: $doc-red;
+}
+
+.AutoDoc__bodyMap {
+  display: flex;
+  gap: 8px;
+}
+
+.AutoDoc__figure {
+  @include lcd;
+
+  position: relative;
+  flex-shrink: 0;
+  width: 160px;
+  height: 160px;
+}
+
+.AutoDoc__layer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 158px;
+  height: 158px;
+  image-rendering: pixelated;
+}
+
+.AutoDoc__layer--hurt {
+  opacity: 0.55;
+}
+
+.AutoDoc__layer--dim {
+  opacity: 0.15;
+}
+
+.AutoDoc__zones {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.AutoDoc__zone {
+  flex: 1;
+  padding: 0 6px;
+  color: #85857c;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 3px;
+  font-size: 11px;
+  font-weight: 600;
+  text-align: left;
+}
+
+.AutoDoc__zone--hurt {
+  @include keycap;
+
+  color: #99191c;
+  border-bottom-width: 2px;
+  font-weight: 700;
+
+  &:hover {
+    filter: brightness(1.05);
+  }
+}
+
+.AutoDoc__zone--active {
+  color: #fff;
+  background: linear-gradient(#ec4a48, $doc-red);
+  border-color: #8a1518;
+  border-bottom-width: 1px;
+}
+
+.AutoDoc__meters {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px 10px;
+}
+
+.AutoDoc__meterLabel {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 2px;
+  color: $doc-ink-muted;
+  font-size: 11px;
+  font-weight: 600;
+
+  b {
+    color: $doc-ink;
+  }
+}
+
+.AutoDoc__track {
+  height: 8px;
+  overflow: hidden;
+  background: $doc-lcd;
+  border: 1px solid $doc-lcd-edge;
+  border-radius: 2px;
+  box-shadow: inset 0 1px 2px #000;
+}
+
+.AutoDoc__track--tall {
+  height: 12px;
+}
+
+.AutoDoc__fill {
+  height: 100%;
+  transition: width 0.5s linear;
+}
+
+.AutoDoc__fill--good {
+  background: #3fcf74;
+}
+
+.AutoDoc__fill--warn {
+  background: $doc-amber;
+}
+
+.AutoDoc__fill--bad {
+  background: #ee4b47;
+}
+
+.AutoDoc__fill--brute {
+  background: #e4544f;
+}
+
+.AutoDoc__fill--burn {
+  background: #ee9b3a;
+}
+
+.AutoDoc__fill--tox {
+  background: #7ed957;
+}
+
+.AutoDoc__fill--oxy {
+  background: #58a5ee;
+}
+
+.AutoDoc__fill--flesh {
+  background: $doc-flesh;
+}
+
+.AutoDoc__risk {
+  @include lcd;
+
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 6px 8px;
+  font-size: 12px;
+
+  > div {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .AutoDoc__riskTag {
+    margin-left: auto;
+    padding: 0;
+    border: 0;
+    box-shadow: none;
+    background: transparent;
+    font-size: 13px;
+  }
+}
+
+.AutoDoc__riskTag {
+  @include lcd;
+
+  flex-shrink: 0;
+  min-width: 42px;
+  padding: 1px 5px;
+  font-size: 12px;
+  font-weight: 700;
+  text-align: center;
+}
+
+.AutoDoc__riskTag--good {
+  color: $doc-lcd-text;
+}
+
+.AutoDoc__riskTag--warn {
+  color: #ffc35a;
+}
+
+.AutoDoc__riskTag--bad {
+  color: #ff6a64;
+}
+
+.AutoDoc__warnings {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 6px 8px 6px 14px;
+  color: #2c2305;
+  background:
+    repeating-linear-gradient(
+      -45deg,
+      #1d1d1b 0,
+      #1d1d1b 4px,
+      $doc-sticker 4px,
+      $doc-sticker 8px
+    )
+    left / 6px 100% no-repeat,
+    $doc-sticker;
+  border: 1px solid #8a7420;
+  border-radius: 2px;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.AutoDoc__warningsTitle {
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.AutoDoc__warning {
+  display: flex;
+  gap: 6px;
+  align-items: baseline;
+}
+
+.AutoDoc__tank {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 14px;
+}
+
+.AutoDoc__tankIcon {
+  color: #b5393f;
+  font-size: 20px;
+}
+
+.AutoDoc__tankBody {
+  flex: 1;
+  min-width: 0;
+}
+
+.AutoDoc__tankStats {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  color: $doc-ink-muted;
+  font-size: 11px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.AutoDoc__main,
+.AutoDoc__queue {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.AutoDoc__scroll {
+  flex: 1;
+  min-height: 0;
+  margin: 0 6px 6px;
+  padding: 6px 8px;
+  overflow-y: auto;
+  background: #b2b2a9;
+  border-radius: 0 0 3px 3px;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.35);
+  scrollbar-color: #6f6f67 #9e9e95;
+}
+
+.AutoDoc__hint {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 100%;
+  color: $doc-ink-muted;
+  font-weight: 600;
+}
+
+.AutoDoc__group {
+  margin-bottom: 6px;
+}
+
+.AutoDoc__groupTitle {
+  margin-bottom: 3px;
+  color: #3a3b34;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.5);
+}
+
+.AutoDoc__note {
+  margin-bottom: 6px;
+  color: #45463f;
+  font-size: 11px;
+}
+
+.AutoDoc__row,
+.AutoDoc__order {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 3px;
+  padding: 3px 6px;
+  background: $doc-label;
+  border: 1px solid $doc-edge;
+  border-radius: 2px;
+  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.25);
+}
+
+.AutoDoc__row--queued {
+  background: #cbcbc3;
+
+  .AutoDoc__rowName,
+  .AutoDoc__rowOrgan,
+  .AutoDoc__rowStats {
+    color: #85857c;
+  }
+}
+
+.AutoDoc__order--active {
+  border-color: $doc-green;
+  box-shadow:
+    inset 3px 0 0 $doc-green,
+    0 1px 1px rgba(0, 0, 0, 0.25);
+}
+
+.AutoDoc__orderIndex {
+  flex-shrink: 0;
+  width: 18px;
+  color: $doc-ink-muted;
+  font-weight: 800;
+  text-align: center;
+}
+
+.AutoDoc__rowText {
+  flex: 1;
+  min-width: 0;
+
+  .AutoDoc__track {
+    margin-top: 3px;
+  }
+}
+
+.AutoDoc__rowName {
+  display: flex;
+  align-items: baseline;
+  gap: 5px;
+  font-weight: 700;
+}
+
+.AutoDoc__rowOrgan {
+  color: $doc-ink-muted;
+  font-size: 11px;
+}
+
+.AutoDoc__rowStats {
+  display: flex;
+  flex-shrink: 0;
+  flex-direction: column;
+  width: 76px;
+  color: #45463f;
+  font-size: 11px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.AutoDoc__totals {
+  @include lcd;
+
+  display: flex;
+  flex-shrink: 0;
+  justify-content: space-between;
+  gap: 8px;
+  margin: 0 6px 6px;
+  padding: 5px 10px;
+  font-size: 12px;
+}
+
+.AutoDoc__totals--bad {
+  color: #ff6a64;
+  font-weight: 600;
+}
+
+.AutoDoc__modes {
+  display: flex;
+  gap: 2px;
+}
+
+.AutoDoc__mode {
+  @include keycap;
+
+  padding: 3px 9px;
+  color: $doc-ink-muted;
+  font-size: 12px;
+  font-weight: 600;
+
+  &:not(:disabled):hover {
+    color: $doc-ink;
+  }
+
+  &:disabled {
+    color: #85857c;
+  }
+}
+
+.AutoDoc__mode--active,
+.AutoDoc__mode--active:not(:disabled):hover {
+  @include lcd;
+
+  padding: 3px 9px;
+  font-weight: 700;
+  transform: translateY(2px);
+}
+
+.AutoDoc__mode--overdrive {
+  color: #99191c;
+  font-weight: 800;
+}
+
+.AutoDoc__mode--overdrive.AutoDoc__mode--active,
+.AutoDoc__mode--overdrive.AutoDoc__mode--active:not(:disabled):hover {
+  color: #fff;
+  background: linear-gradient(#ec4a48, $doc-red);
+  border-color: #5e0e10;
+  box-shadow: 0 0 8px rgba(255, 60, 60, 0.8);
+}
+
+.AutoDoc__organHealth {
+  max-width: 180px;
+  height: 6px;
+  margin-top: 3px;
+}
+
+.AutoDoc__organDead {
+  color: $doc-red;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.AutoDoc__led {
+  flex-shrink: 0;
+  width: 11px;
+  height: 11px;
+  background: radial-gradient(circle at 40% 35%, #5a5a55, #24241f);
+  border: 1px solid #000;
+  border-radius: 50%;
+}
+
+.AutoDoc__led--on {
+  background: radial-gradient(circle at 40% 35%, #b4ffc9, #2fd06b);
+  box-shadow: 0 0 5px #5be08a;
+}
+
+.AutoDoc--emagged {
+  background: repeating-linear-gradient(
+    -45deg,
+    #2a2a26 0,
+    #2a2a26 14px,
+    #4a3a10 14px,
+    #4a3a10 28px
+  );
+
+  .AutoDoc__title {
+    color: #b3141a;
+  }
+
+  .AutoDoc__order--active {
+    border-color: $doc-red;
+    box-shadow:
+      inset 3px 0 0 $doc-red,
+      0 1px 1px rgba(0, 0, 0, 0.25);
+  }
+
+  .AutoDoc__fill--good {
+    background: #ee4b47;
+  }
+
+  .AutoDoc__risk,
+  .AutoDoc__totals {
+    color: #ff6a64;
+  }
+}
+
+.AutoDoc__box {
+  @include screws(4px);
+
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 2px;
+  padding: 3px 9px 4px;
+  border: 1px solid $doc-edge;
+  border-bottom: 4px solid #55554f;
+  border-radius: 5px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.45);
+}
+
+.AutoDoc__push {
+  position: relative;
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 3px;
+  background: linear-gradient(160deg, #474747, #0b0b0b 60%);
+  border: 0;
+  border-radius: 50%;
+  box-shadow:
+    0 2px 3px rgba(0, 0, 0, 0.6),
+    0 0 0 1px rgba(0, 0, 0, 0.55);
+}
+
+.AutoDoc__pushCap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  color: #fff;
+  border-radius: 50%;
+  box-shadow:
+    inset 0 -3px 4px rgba(0, 0, 0, 0.4),
+    inset 0 1px 1px rgba(255, 255, 255, 0.35),
+    0 0 0 1px rgba(0, 0, 0, 0.7);
+  font-size: 10px;
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.7);
+  transition:
+    filter 0.1s,
+    transform 0.05s;
+
+  &::after {
+    position: absolute;
+    top: 1px;
+    right: 3px;
+    left: 3px;
+    height: 42%;
+    content: '';
+    pointer-events: none;
+    background: linear-gradient(
+      rgba(255, 255, 255, 0.5),
+      rgba(255, 255, 255, 0.04)
+    );
+    border-radius: 50%;
+  }
+}
+
+.AutoDoc__push--green .AutoDoc__pushCap {
+  background: radial-gradient(circle at 50% 35%, #3fd377, #129c49 62%, #086a2e);
+}
+
+.AutoDoc__push--red .AutoDoc__pushCap {
+  background: radial-gradient(circle at 50% 35%, #f6564f, #d41c23 62%, #8e0d13);
+}
+
+.AutoDoc .AutoDoc__push:disabled .AutoDoc__pushCap {
+  color: rgba(255, 255, 255, 0.4);
+  filter: saturate(0.35) brightness(0.6);
+}
+
+.AutoDoc__push:not(:disabled):hover .AutoDoc__pushCap {
+  filter: brightness(1.15);
+}
+
+.AutoDoc__push:not(:disabled):active {
+  box-shadow:
+    0 1px 1px rgba(0, 0, 0, 0.6),
+    0 0 0 1px rgba(0, 0, 0, 0.55);
+
+  .AutoDoc__pushCap {
+    filter: brightness(0.82);
+    transform: scale(0.93);
+  }
+}

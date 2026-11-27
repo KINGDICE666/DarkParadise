@@ -472,6 +472,22 @@ GLOBAL_LIST_EMPTY(hand_gap_filled_icons)
 
 /mob/living/carbon/human/proc/update_mutant_ears()
 	remove_overlay(MUTANT_EARS_LAYER)
+	var/obj/item/organ/internal/ears/cybernetic/cat/cyber_ears = get_organ_slot(INTERNAL_ORGAN_EARS)
+	if(istype(cyber_ears))
+		var/mutable_appearance/ears_appearance = fitted_mutation_appearance("catears_cyber")
+		if(istext(ears_appearance))
+			ears_appearance = mutable_appearance('icons/effects/genetics.dmi', ears_appearance)
+		ears_appearance.layer = -MUTANT_EARS_LAYER
+		var/mutable_appearance/inner_ears = fitted_mutation_appearance("catearsinner_cyber")
+		if(istext(inner_ears))
+			inner_ears = mutable_appearance('icons/effects/genetics.dmi', inner_ears)
+		inner_ears.color = cyber_ears.inner_color
+		ears_appearance.overlays += inner_ears
+		ears_appearance.overlays += emissive_appearance(inner_ears.icon, inner_ears.icon_state, src, alpha = 0.75 * 255)
+		overlays_standing[MUTANT_EARS_LAYER] = ears_appearance
+		apply_overlay(MUTANT_EARS_LAYER)
+		return
+
 	var/datum/dna/gene/disability/catears/ears_gene = locate(/datum/dna/gene/disability/catears) in GLOB.dna_genes
 	if(!ears_gene.is_active(src))
 		return
@@ -1168,6 +1184,19 @@ GLOBAL_LIST_EMPTY(hand_gap_filled_icons)
 
 	overlays_standing[INTORGAN_LAYER] = standing
 	apply_overlay(INTORGAN_LAYER)
+	update_hand_int_organs()
+
+/mob/living/carbon/human/proc/update_hand_int_organs()
+	remove_overlay(HAND_INTORGAN_LAYER)
+
+	var/list/standing = list()
+	for(var/obj/item/organ/internal/organ as anything in internal_organs)
+		var/extra_render = organ.extra_render()
+		if(extra_render)
+			standing += extra_render
+
+	overlays_standing[HAND_INTORGAN_LAYER] = standing
+	apply_overlay(HAND_INTORGAN_LAYER)
 
 /mob/living/carbon/human/handle_transform_change()
 	..()

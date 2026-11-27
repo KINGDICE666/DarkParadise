@@ -633,18 +633,6 @@
 		/obj/item/shard = 45,
 	)
 
-/datum/surgery_step/internal/manipulate_organs/lobotomy/proc/cut_off_something_important(obj/item/organ/internal/brain/brain)
-	switch(rand(1, 3))
-		if(1)
-			brain.gain_trauma_type(BRAIN_TRAUMA_MILD, TRAUMA_RESILIENCE_MAGIC)
-		if(2)
-			if(HAS_TRAIT(brain, TRAIT_SPECIAL_TRAUMA_BOOST) && prob(50))
-				brain.gain_trauma_type(BRAIN_TRAUMA_SPECIAL, TRAUMA_RESILIENCE_MAGIC)
-			else
-				brain.gain_trauma_type(BRAIN_TRAUMA_SEVERE, TRAUMA_RESILIENCE_MAGIC)
-		if(3)
-			brain.gain_trauma_type(BRAIN_TRAUMA_SPECIAL, TRAUMA_RESILIENCE_MAGIC)
-
 /datum/surgery_step/internal/manipulate_organs/lobotomy/begin_step(mob/living/user, mob/living/carbon/target, target_zone, obj/item/tool, datum/surgery/surgery)
 	if(!get_operated_brain(target_zone, target))
 		user.balloon_alert(user, "мозг отсутствует!")
@@ -669,7 +657,7 @@
 	to_chat(target, span_warning("Ваша голова на мгновение полностью немеет!"))
 	brain.cure_all_traumas(TRAUMA_RESILIENCE_LOBOTOMY)
 	if(prob(75))
-		cut_off_something_important(brain)
+		brain.gain_lobotomy_side_effect()
 
 	return SURGERY_STEP_CONTINUE
 
@@ -683,7 +671,7 @@
 		span_warning("Вы вырезаете не ту часть мозга, нанося ещё больше вреда!"),
 	)
 	target.apply_damage(80, BRAIN)
-	cut_off_something_important(brain)
+	brain.gain_lobotomy_side_effect()
 
 	return SURGERY_STEP_RETRY
 
@@ -843,7 +831,7 @@
 		user.balloon_alert(user, "несовместимо с организмом!")
 		return SURGERY_BEGINSTEP_SKIP
 
-	if((organ.status == ORGAN_ROBOT) && HAS_TRAIT(target, TRAIT_NO_ROBOPARTS))
+	if((organ.status == ORGAN_ROBOT) && !istype(organ, /obj/item/organ/internal/cyberimp) && HAS_TRAIT(target, TRAIT_NO_ROBOPARTS))
 		user.balloon_alert(user, "несовместимо с организмом!")
 		return SURGERY_BEGINSTEP_SKIP
 
@@ -954,8 +942,8 @@
 			ethanol += alcohol.alcohol_perc * 300
 		ethanol /= length(R.reagent_list)
 
-		mito_tot = R.get_reagent_amount("mitocholide")
-		spaceacillin = R.get_reagent_amount("spaceacillin")
+		mito_tot = R.get_reagent_amount(/datum/reagent/medicine/mitocholide)
+		spaceacillin = R.get_reagent_amount(/datum/reagent/medicine/spaceacillin)
 
 	for(var/obj/item/organ/internal/organ as anything in get_organ_list(target_zone, target, affected))
 		if(organ.germ_level < INFECTION_LEVEL_ONE / 2 && !(organ.is_dead()))  // not dead, don't need to inject mito either

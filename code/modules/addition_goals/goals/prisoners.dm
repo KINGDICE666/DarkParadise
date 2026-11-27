@@ -1,7 +1,7 @@
 // Prisoners addition goal shuttle
 
 #define AGS_CREDITS_PER_PRISONER 7500
-#define AGS_CAPRGOPOINTS_PER_PRISONER 35
+#define AGS_CARGO_CREDITS_PER_PRISONER 875
 
 /datum/addition_goal/prisoners
 	id = "prisoners"
@@ -25,7 +25,7 @@
 
 /datum/addition_goal/prisoners/spawn_shuttle_contain(list/turf/shuttle_turfs)
 	reward_credits = 0
-	reward_cargopoints = 0
+	reward_cargo_credits = 0
 	spawner = new /obj/effect/mob_spawn/human/addition_goal/prisoners(shuttle_turfs[1])
 	for(var/i = 0; i < prisoners_count; i++)
 		var/turf/random_turf = pick(shuttle_turfs)
@@ -80,7 +80,7 @@
 
 /datum/addition_goal/prisoners/proc/calculate_prionser_reward(mob/living/prisoner)
 	reward_credits += AGS_CREDITS_PER_PRISONER
-	reward_cargopoints += AGS_CAPRGOPOINTS_PER_PRISONER
+	reward_cargo_credits += AGS_CARGO_CREDITS_PER_PRISONER
 
 /datum/addition_goal/prisoners/proc/create_crimes_paper(turf/location, mob/living/prisoner)
 	var/datum/addition_goal_prisoner_data/data = prisoners_data[prisoner.real_name]
@@ -164,7 +164,7 @@
 	report_text += "<b>Общий прогресс запроса</b>: [progress]%<br>"
 	report_text += "<b>Ваша награда</b>:<br>"
 	reward_credits = reward_credits * (progress / 100)
-	reward_cargopoints = reward_cargopoints * (progress / 100)
+	reward_cargo_credits = reward_cargo_credits * (progress / 100)
 	var/reward_number = 1
 	if(reward_credits > 0)
 		report_text += "[reward_number]. [reward_credits] кредитов на счет станции.<br>"
@@ -172,11 +172,11 @@
 	else if(reward_credits < 0)
 		report_text += "[reward_number]. Штраф [reward_credits] кредитов со счета станции.<br>"
 		reward_number++
-	if(reward_cargopoints > 0)
-		report_text += "[reward_number]. [reward_cargopoints] очков поставки в карго.<br>"
-	else if(reward_cargopoints < 0)
-		report_text += "[reward_number]. Штраф в размере [reward_cargopoints] очков поставки в карго.<br>"
-	system.add_reward(reward_credits, reward_cargopoints)
+	if(reward_cargo_credits > 0)
+		report_text += "[reward_number]. [reward_cargo_credits] кредитов на счёт отдела снабжения.<br>"
+	else if(reward_cargo_credits < 0)
+		report_text += "[reward_number]. Штраф в размере [reward_cargo_credits] кредитов со счёта отдела снабжения.<br>"
+	system.add_reward(reward_credits, reward_cargo_credits)
 	var/paper_content = system.create_paper_content("Отчет о заключении под стражу №[request_number]", report_text, "Официальный документ, заверенный печатью Центрального командования \"Нанотрейзен\"")
 	system.print_report_on_console("Отчет [name]", paper_content, stamp = TRUE)
 
@@ -193,4 +193,4 @@
 	id = /obj/item/card/id/prisoner
 
 #undef AGS_CREDITS_PER_PRISONER
-#undef AGS_CAPRGOPOINTS_PER_PRISONER
+#undef AGS_CARGO_CREDITS_PER_PRISONER

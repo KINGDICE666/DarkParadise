@@ -29,7 +29,7 @@
 		balloon_alert(user, "данные не распознаны")
 		return
 
-	var/mob/living/pilot = connection.old_body_ref?.resolve()
+	var/mob/living/pilot = connection.get_damage_body()
 	if(isnull(pilot))
 		balloon_alert(user, "носитель не найден")
 		return

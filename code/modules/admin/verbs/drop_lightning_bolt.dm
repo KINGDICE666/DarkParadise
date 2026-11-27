@@ -180,7 +180,7 @@ ADMIN_VERB(drop_lightning_bolt, R_EVENT, "Drop lightning bolt", "Вызвать 
  */
 /datum/drop_lightning_bolt_ui/proc/prepare_bolt()
 	if(!validate_target())
-		to_chat(usr, span_warning("Ошибка: не выбрана цель или режим!"))
+		to_chat(usr, span_warning("Ошибка: не выбрана цель или режим!"), confidential = TRUE)
 		return FALSE
 
 	var/turf/target_turf = get_target_turf()
@@ -278,14 +278,14 @@ ADMIN_VERB(drop_lightning_bolt, R_EVENT, "Drop lightning bolt", "Вызвать 
 	holder.mouse_up_icon = mouse_up_icon
 	holder.mouse_down_icon = mouse_down_icon
 	holder.mouse_override_icon = mouse_up_icon
-	holder.mouse_pointer_icon = holder.mouse_override_icon
+	holder.mob?.update_mouse_pointer()
 
 /datum/click_intercept/lightning_bolt_dropper/Destroy()
 	if(holder)
 		holder.mouse_up_icon = null
 		holder.mouse_down_icon = null
 		holder.mouse_override_icon = null
-		holder.mouse_pointer_icon = initial(holder.mouse_pointer_icon)
+		holder.mob?.update_mouse_pointer()
 	dropper = null
 	return ..()
 
@@ -325,7 +325,7 @@ ADMIN_VERB(drop_lightning_bolt, R_EVENT, "Drop lightning bolt", "Вызвать 
  */
 /datum/click_intercept/lightning_bolt_dropper/proc/prepare_lightning_for_target(mob/user)
 	if(!dropper.validate_target())
-		to_chat(user, span_warning("Error: no target or mode selected!"))
+		to_chat(user, span_warning("Error: no target or mode selected!"), confidential = TRUE)
 		return FALSE
 
 	// Capture current target values locally before they change

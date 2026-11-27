@@ -87,7 +87,7 @@ ADMIN_VERB(borg_panel_in_list, R_ADMIN, "Show Borg Panel in List", "Open Borg Pa
 		if("remove_cell")
 			var/datum/robot_component/cell/C = borg.components["power cell"]
 			if(!borg.cell)
-				to_chat(usr, "There is no power cell installed!")
+				to_chat(usr, "There is no power cell installed!", confidential = TRUE)
 				return
 			borg.cell = null
 			C.wrapped = null
@@ -153,7 +153,7 @@ ADMIN_VERB(borg_panel_in_list, R_ADMIN, "Show Borg Panel in List", "Open Borg Pa
 				message_admins("[key_name_admin(user)] disabled scrambled codes on [ADMIN_LOOKUPFLW(borg)].")
 				log_admin("[key_name(user)] disabled scrambled codes on [key_name(borg)].")
 		if("rename")
-			var/new_name = sanitize(tgui_input_text(user, "What would you like to name this cyborg?", "Cyborg Reclassification", borg.real_name, encode = FALSE))
+			var/new_name = sanitize(tgui_input_text(user, "What would you like to name this cyborg?", "Cyborg Reclassification", borg.real_name))
 			if(!new_name)
 				return
 			message_admins("[key_name_admin(user)] renamed [ADMIN_LOOKUPFLW(borg)] to [new_name].")

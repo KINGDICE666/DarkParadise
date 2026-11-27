@@ -119,11 +119,14 @@
 	to_chat(user, span_notice("You have uploaded the data from [multitool]'s buffer."))
 	multitool.buffer = null
 
-/obj/machinery/computer/roboquest/emag_act(mob/user)
-	if(!emagged)
-		emagged = TRUE
-		atom_say("System override detected. Instant mech teleportation is available.")
-		playsound(src, SFX_SPARKS, 100, TRUE, SHORT_RANGE_SOUND_EXTRARANGE)
+/obj/machinery/computer/roboquest/emag_act(mob/user, obj/item/card/emag/emag_card)
+	. = ..()
+	if(obj_flags & EMAGGED)
+		return FALSE
+	obj_flags |= EMAGGED
+	atom_say("System override detected. Instant mech teleportation is available.")
+	playsound(src, SFX_SPARKS, 100, TRUE, SHORT_RANGE_SOUND_EXTRARANGE)
+	return TRUE
 
 /obj/machinery/computer/roboquest/proc/check_pad()
 	var/obj/mecha/M
@@ -179,7 +182,7 @@
 	return // Unused for now.
 
 /obj/machinery/computer/roboquest/proc/can_instant_teleport()
-	return emagged || pad?.advanced
+	return (obj_flags & EMAGGED) || pad?.advanced
 
 /obj/machinery/computer/roboquest/attack_hand(mob/user)
 	if(..())
@@ -213,7 +216,7 @@
 	data["canSend"] = canSend
 	data["checkMessage"] = checkMessage
 	data["style"] = style
-	data["cooldown"] = currentID?.bounty_penalty ? time2text((currentID.bounty_penalty-world.time), "mm:ss") : FALSE
+	data["cooldown"] = currentID?.bounty_penalty > world.time ? time2text((currentID.bounty_penalty-world.time), "mm:ss") : FALSE
 	data["instant_teleport"] = can_instant_teleport()
 	data["hasAccess"] = currentID ? (ACCESS_ROBOTICS in currentID.access) : FALSE
 	return data
@@ -237,6 +240,8 @@
 			if(!currentID || !(ACCESS_ROBOTICS in currentID.access))
 				to_chat(usr, span_warning("Доступ запрещён. Требуется доступ робототехники."))
 				return
+			if(currentID.bounty_penalty > world.time)
+				return
 			var/list/mecha_types = list("Working Mech" = WORKING_CLASS, "Medical Mech" = MEDICAL_CLASS, "Combat Mech" = COMBAT_CLASS, "Random Mech" = RANDOM_CLASS)
 			var/mecha_type = tgui_input_list(usr, "Select event type.", "Select", mecha_types)
 			if(!mecha_type || !currentID || currentID.robo_bounty)
@@ -244,7 +249,6 @@
 			pick_mecha(mecha_types[mecha_type])
 		if("RemoveTask")
 			currentID.robo_bounty = null
-			addtimer(CALLBACK(src, PROC_REF(cooldown_end), currentID), ROBOQUEST_REMOVE_COOLDOWN)
 			currentID.bounty_penalty = world.time + ROBOQUEST_REMOVE_COOLDOWN
 		if("Check")
 			if(!pad)
@@ -306,7 +310,7 @@
 				if("ntos_roboblue")
 					style = "ntos_terminal"
 				if("ntos_terminal")
-					if(emagged)
+					if(obj_flags & EMAGGED)
 						style = "syndicate" //gagaga
 					else
 						style = "ntos_roboquest"
@@ -356,9 +360,6 @@
 	paper.stamp(stamp)
 	paper.update_icon()
 	paper.name = "NT-CC-RND-[rand(10, 51)] \"Mecha request form\" "
-
-/obj/machinery/computer/roboquest/proc/cooldown_end(obj/item/card/id/penaltycard)
-	penaltycard.bounty_penalty = null
 
 /obj/machinery/computer/roboquest/proc/pick_mecha(mecha_type)
 	currentID.robo_bounty = new /datum/roboquest(mecha_type)
@@ -452,7 +453,7 @@
 			if(quest.reward[category] < 0)
 				quest.reward[category] = 0
 			console.points[category] += quest.reward[category]
-		SSshuttle.points += quest.reward["robo"] * 30
+		SSshuttle.cargo_money_account.credit(quest.reward["robo"] * ROBOQUEST_CREDITS_PER_POINT, "Выполнение заказа на экзоскелет", "Терминал Бизель №[rand(111,333)]", "Счёт Отдела снабжения")
 		if(quest.id)
 			var/datum/money_account/A = get_money_account(quest.id.associated_account_number)
 			if(A)

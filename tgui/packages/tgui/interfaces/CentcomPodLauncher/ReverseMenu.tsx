@@ -1,7 +1,6 @@
 import { Button, Section, Stack } from 'tgui-core/components';
 import { useBackend } from '../../backend';
 import { REVERSE_OPTIONS } from './constants';
-import { useTab } from './hooks';
 import type { PodLauncherData } from './types';
 
 export const ReverseMenu = (props: unknown) => {
@@ -11,9 +10,8 @@ export const ReverseMenu = (props: unknown) => {
     effectReverse,
     picking_dropoff_turf,
     reverse_option_list,
+    tabIndex,
   } = data;
-
-  const [tab, setTab] = useTab();
 
   return (
     <Section
@@ -22,8 +20,7 @@ export const ReverseMenu = (props: unknown) => {
           icon={effectReverse ? 'toggle-on' : 'toggle-off'}
           onClick={() => {
             act('effectReverse');
-            if (tab === 2) {
-              setTab(1);
+            if (tabIndex === 2) {
               act('tabSwitch', { tabIndex: 1 });
             }
           }}
@@ -58,8 +55,7 @@ export const ReverseMenu = (props: unknown) => {
               inline
               onClick={() => {
                 act('clearDropoffTurf');
-                if (tab === 2) {
-                  setTab(1);
+                if (tabIndex === 2) {
                   act('tabSwitch', { tabIndex: 1 });
                 }
               }}

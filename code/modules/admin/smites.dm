@@ -151,8 +151,8 @@
 
 /datum/smite/cold/apply_effect(mob/living/target, reason)
 	to_chat(target, span_userdanger("Вы чувствуете как холод пронизывает ваше тело! Боги наказали вас за [reason]!"))
-	target.reagents.add_reagent("frostoil", 40)
-	target.reagents.add_reagent("ice", 40)
+	target.reagents.add_reagent(/datum/reagent/consumable/frostoil, 40)
+	target.reagents.add_reagent(/datum/reagent/consumable/drink/cold/ice, 40)
 
 // MARK: Hunger
 /datum/smite/hunger
@@ -192,16 +192,16 @@
 	var/obj/item/reagent_containers/food/snacks/cookie/empty/evilcookie = new()
 	var/datum/reagent/reagent = tgui_input_list(usr, "Выберите реагент который будет находиться в печенье.", "Выбор вещества", GLOB.typecache_reagent)
 	var/amount = tgui_input_number(usr, "Выберите количество вещества в печенье.", "Выбор количества", 10, 10000, 0)
-	var/id = reagent::id ? reagent::id : "mutagen"
+	var/reagent_type = reagent || /datum/reagent/mutagen
 	evilcookie.volume = max(100, amount)
-	evilcookie.reagents.add_reagent(id, amount)
+	evilcookie.reagents.add_reagent(reagent_type, amount)
 	evilcookie.bitesize = evilcookie.volume
 	evilcookie.item_flags |= DROPDEL
 	ADD_TRAIT(evilcookie, TRAIT_NODROP, ADMIN_TRAIT)
 	target.drop_l_hand()
 	target.equip_to_slot_or_del(evilcookie, ITEM_SLOT_HAND_LEFT)
 	to_chat(target, span_userdanger("В ваших руках появляется печенье. По воле божьей, вы должны его съесть. Это наказание за [reason]!"))
-	logmsg = "an antidrop cookie with [reagent] units of [id]."
+	logmsg = "an antidrop cookie with [amount] units of [reagent_type]."
 
 // MARK: Hunter
 /datum/smite/hunter
@@ -422,7 +422,7 @@
 
 /datum/smite/pod/activate(mob/living/target, reason)
 	var/datum/centcom_podlauncher/launcher = new(usr, reason)
-	launcher.specificTarget = target
+	launcher.set_target(target)
 	launcher.ui_interact(usr)
 
 // MARK: Global hunting
@@ -461,7 +461,7 @@
 /datum/smite/brainrot_braingamage/activate(mob/living/target, reason)
 	var/datum/component = target.GetComponent(/datum/component/brainrot_braingamage)
 	if(component)
-		to_chat(usr, span_warning("Старые ограничения сняты с грешника."))
+		to_chat(usr, span_warning("Старые ограничения сняты с грешника."), confidential = TRUE)
 		to_chat(target, span_notice("Ваш мозг расслабляется. Вы снова можете нести бред без вреда для себя."))
 		qdel(component)
 		logmsg = "brainrot braindamage cure."
@@ -578,7 +578,7 @@
 
 /datum/smite/headhit/apply_effect(mob/living/target, reason)
 	if(HAS_TRAIT_FROM(target, TRAIT_AIRLOCK_HIT, ADMIN_TRAIT))
-		to_chat(usr, span_notice("Старая кара снята."))
+		to_chat(usr, span_notice("Старая кара снята."), confidential = TRUE)
 		REMOVE_TRAIT(target, TRAIT_AIRLOCK_HIT, ADMIN_TRAIT)
 		return
 

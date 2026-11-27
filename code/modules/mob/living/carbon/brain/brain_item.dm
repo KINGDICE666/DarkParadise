@@ -112,6 +112,11 @@
 		if(istype(trauma, brain_trauma_type) && trauma.resilience <= resilience)
 			return trauma
 
+/obj/item/organ/internal/brain/proc/get_trauma_distortion()
+	. = 0
+	for(var/datum/brain_trauma/trauma as anything in traumas)
+		. = max(., trauma.get_perception_distortion())
+
 /obj/item/organ/internal/brain/proc/get_traumas_type(brain_trauma_type = /datum/brain_trauma, resilience = TRAUMA_RESILIENCE_ABSOLUTE)
 	. = list()
 	for(var/datum/brain_trauma/trauma as anything in traumas)
@@ -172,6 +177,9 @@
 	else
 		actual_trauma = trauma
 
+	if(QDELETED(actual_trauma))
+		return
+
 	if(actual_trauma.brain)
 		stack_trace("brain_gain_trauma was given an already active trauma [actual_trauma.type].")
 		return
@@ -199,6 +207,19 @@
 /obj/item/organ/internal/brain/proc/remove_trauma_from_traumas(datum/brain_trauma/trauma)
 	trauma.brain = null
 	traumas -= trauma
+
+/// Лоботомия задела что-то важное: мозг получает новую стойкую травму
+/obj/item/organ/internal/brain/proc/gain_lobotomy_side_effect()
+	switch(rand(1, 3))
+		if(1)
+			gain_trauma_type(BRAIN_TRAUMA_MILD, TRAUMA_RESILIENCE_MAGIC)
+		if(2)
+			if(HAS_TRAIT(src, TRAIT_SPECIAL_TRAUMA_BOOST) && prob(50))
+				gain_trauma_type(BRAIN_TRAUMA_SPECIAL, TRAUMA_RESILIENCE_MAGIC)
+			else
+				gain_trauma_type(BRAIN_TRAUMA_SEVERE, TRAUMA_RESILIENCE_MAGIC)
+		if(3)
+			gain_trauma_type(BRAIN_TRAUMA_SPECIAL, TRAUMA_RESILIENCE_MAGIC)
 
 /obj/item/organ/internal/brain/proc/gain_trauma_type(brain_trauma_type = /datum/brain_trauma, resilience, natural_gain = FALSE)
 	var/list/possible_traumas = list()

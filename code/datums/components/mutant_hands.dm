@@ -33,7 +33,7 @@
 	// Give them a hand before registering ANYTHING just so it's clean
 	INVOKE_ASYNC(src, PROC_REF(apply_mutant_hands))
 
-	RegisterSignal(parent, list(COMSIG_CARBON_POST_ATTACH_LIMB, COMSIG_CARBON_POST_REMOVE_LIMB), PROC_REF(try_reapply_hands))
+	RegisterSignals(parent, list(COMSIG_CARBON_POST_ATTACH_LIMB, COMSIG_CARBON_POST_REMOVE_LIMB), PROC_REF(try_reapply_hands))
 	RegisterSignal(parent, COMSIG_MOB_EQUIPPED_ITEM, PROC_REF(mob_equipped_item))
 	RegisterSignal(parent, COMSIG_MOB_UNEQUIPPED_ITEM, PROC_REF(mob_dropped_item))
 

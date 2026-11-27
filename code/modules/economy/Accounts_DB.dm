@@ -3,6 +3,7 @@ GLOBAL_VAR(current_date_string)
 #define AUT_ACCLST 1
 #define AUT_ACCINF 2
 #define AUT_ACCNEW 3
+#define AUT_AUDIT 4
 
 /obj/machinery/computer/account_database
 	name = "Accounts Uplink Terminal"
@@ -114,6 +115,9 @@ GLOBAL_VAR(current_date_string)
 						"source_terminal" = T.source_terminal)))
 
 				data["transactions"] = transactions
+
+			if(AUT_AUDIT)
+				data["audit_log"] = SScapitalism.audit_log
 	return data
 
 /obj/machinery/computer/account_database/ui_act(action, list/params)
@@ -138,6 +142,9 @@ GLOBAL_VAR(current_date_string)
 		if("back")
 			detailed_account_view = null
 			current_page = AUT_ACCLST
+
+		if("view_audit")
+			current_page = AUT_AUDIT
 
 		if("toggle_suspension")
 			if(detailed_account_view)
@@ -273,3 +280,4 @@ GLOBAL_VAR(current_date_string)
 #undef AUT_ACCLST
 #undef AUT_ACCINF
 #undef AUT_ACCNEW
+#undef AUT_AUDIT

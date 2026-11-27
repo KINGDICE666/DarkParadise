@@ -1,4 +1,6 @@
 #define LAUNCHER_CKEY_PREFIX "STM"
+#define SS14_CKEY_PREFIX "ss14"
+#define SS14_NAMES_FILE "data/seeker-auth/ss14-names.json"
 
 #define LAUNCHER_UNLINKED 0
 #define LAUNCHER_PENDING 1

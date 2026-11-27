@@ -42,23 +42,27 @@
 	return (stat == UNCONSCIOUS || stat == DEAD)
 
 
-/mob/living/proc/cause_hallucination(hallucination_type, reason, duration = 30 SECONDS, affects_us = TRUE, affects_others = FALSE)
-	if(affects_us)
-		fire_eldritch_hallucination(src, duration)
-	if(affects_others)
-		for(var/mob/living/carbon/nearby in view(7, src) - src)
-			fire_eldritch_hallucination(nearby, duration)
-
-/// Fires guaranteed hallucinations on a carbon RIGHT NOW and keeps them coming for the duration.
-/proc/fire_eldritch_hallucination(mob/living/carbon/who, duration = 30 SECONDS)
-	if(!iscarbon(who))
-		return
-	INVOKE_ASYNC(who, TYPE_PROC_REF(/mob/living, hallucinate_living), pickweight(GLOB.minor_medium_hallutinations))
-	new /obj/effect/hallucination/delusion(who.loc, who, null, duration, FALSE)
-	who.Hallucinate(max(duration, 120 SECONDS))
-
 /datum/hallucination/delusion/preset/moon
+	delusion_icon_file = 'icons/mob/eldritch_mobs.dmi'
+	delusion_icon_state = "moon_mass"
+	delusion_name = "moon"
+	duration = 15 SECONDS
+	affects_others = TRUE
+	random_hallucination_weight = 0
+
+/datum/hallucination/delusion/preset/heretic
+	delusion_icon_file = 'icons/mob/eldritch_mobs.dmi'
+	delusion_icon_state = "raw_prophet"
+	delusion_name = "Heretic"
+	affects_others = TRUE
+	affects_us = FALSE
+	duration = 11 SECONDS
+	random_hallucination_weight = 0
+
 /datum/hallucination/delusion/preset/heretic/gate
+	delusion_name = "Mind Gate"
+	duration = 60 SECONDS
+	affects_us = TRUE
 
 
 /// tg AdjustAllImmobility (stun/knockdown/immobilize); master220 closest = AdjustImmobilized.
@@ -121,9 +125,6 @@
 
 /proc/dir2rustext_where(direction)
 	return "на [dir2rustext(direction)]е"
-
-/mob/proc/can_block_magic(magic_flags = MAGIC_RESISTANCE, charge_cost = 0)
-	return !can_cast_magic(magic_flags)
 
 /// tg's get_held_items() - master220 exposes hands via get_active_hand()/get_inactive_hand().
 /mob/living/proc/get_held_items()

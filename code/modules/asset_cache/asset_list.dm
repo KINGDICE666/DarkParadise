@@ -33,7 +33,6 @@ GLOBAL_LIST_EMPTY(asset_datums)
 
 	/// Whether or not this asset should be loaded in the "early assets" SS
 	var/early = FALSE
-	var/load_on_demand = FALSE
 
 	/// Whether or not this asset can be cached across rounds of the same commit under the `CACHE_ASSETS` config.
 	/// This is not a *guarantee* the asset will be cached. Not all asset subtypes respect this field, and the
@@ -200,8 +199,9 @@ GLOBAL_LIST_EMPTY(asset_datums)
 
 /// Downloads the track through yt-dlp and registers it as an asset.
 /// item_filename stays null if the download fails, so callers can detect it.
-/datum/asset/music/New(ytdl, url, sound_id)
-	var/datum/web_sound_download/download = download_web_sound(ytdl, url, sound_id)
+/datum/asset/music/New(url, sound_id)
+	var/ytdl = CONFIG_GET(string/invoke_youtubedl)
+	var/datum/web_sound_download/download = world.download_web_sound(ytdl, url, sound_id)
 	if(!download.success)
 		log_world("Could not download web sound [url]: [download.error_message]")
 		return

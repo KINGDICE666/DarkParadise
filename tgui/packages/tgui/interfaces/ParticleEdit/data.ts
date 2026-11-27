@@ -58,6 +58,8 @@ export const GeneratorTypesNoVectors = [
 export type ParticleUIData = {
   target_name: string;
   particle_data: ParticleData;
+  has_clipboard: boolean;
+  has_trail: boolean;
 };
 
 type ParticleData = {

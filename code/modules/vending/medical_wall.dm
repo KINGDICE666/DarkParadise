@@ -1,4 +1,7 @@
+#define SHIFTING_WALLMED 30
+
 /obj/machinery/vending/wallmed
+	payment_department = STATION_DEPARTMENT_MEDICAL
 	name = "NanoMed"
 	desc = "Настенный раздатчик медикаментов."
 	slogan_list = list(
@@ -52,7 +55,34 @@
 		PREPOSITIONAL = "торговом автомате NanoMed",
 	)
 
-MAPPING_DIRECTIONAL_HELPERS(/obj/machinery/vending/wallmed, 25, 30)
+MAPPING_DIRECTIONAL_HELPERS(/obj/machinery/vending/wallmed, SHIFTING_WALLMED, SHIFTING_WALLMED)
+
+/obj/machinery/vending/wallmed/add_context(atom/source, list/context, obj/item/held_item, mob/user)
+	. = ..()
+	if(!held_item)
+		return
+
+	switch(held_item.tool_behaviour)
+		if(TOOL_WRENCH)
+			context[SCREENTIP_CONTEXT_LMB] = "Закрепить на стене"
+	return CONTEXTUAL_SCREENTIP_SET
+
+/obj/machinery/vending/wallmed/wrench_act(mob/user, obj/item/item)
+	. = TRUE
+
+	if(!item.use_tool(src, user, 1 SECONDS, volume = item.tool_volume))
+		return
+
+	var/list/dir_choices = list("Север" = NORTH, "Восток" = EAST, "Юг" = SOUTH, "Запад" = WEST)
+	var/selected = tgui_input_list(user, "Выберите направление.", "Направление", dir_choices)
+	dir = dir_choices[selected]
+
+	if(dir == NORTH || dir == SOUTH)
+		pixel_x = 0
+		pixel_y = (dir == NORTH) ? SHIFTING_WALLMED : -SHIFTING_WALLMED
+	else
+		pixel_x = (dir == EAST) ? SHIFTING_WALLMED : -SHIFTING_WALLMED
+		pixel_y = 0
 
 /obj/machinery/vending/wallmed/syndicate
 	name = "SyndiWallMed"
@@ -80,3 +110,5 @@ MAPPING_DIRECTIONAL_HELPERS(/obj/machinery/vending/wallmed, 25, 30)
 		INSTRUMENTAL = "торговым автоматом SyndiWallMed",
 		PREPOSITIONAL = "торговом автомате SyndiWallMed",
 	)
+
+#undef SHIFTING_WALLMED

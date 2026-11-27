@@ -83,6 +83,7 @@
 		add_game_logs("as silicon purchased [vended_name] in [COORD(src)]", M)
 
 	SScapitalism.income_vedromat += price //For revenue statistics from the vending machine
+	SScapitalism.add_audit_entry(customer_account, price, "[name]: [vended_name]")
 	return TRUE
 
 /datum/money_account/proc/fmtBalance()

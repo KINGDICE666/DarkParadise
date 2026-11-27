@@ -13,8 +13,6 @@
 	fire_sound = 'sound/weapons/gunshots/shot.ogg'
 	accuracy = GUN_ACCURACY_SNIPER
 	recoil = GUN_RECOIL_HIGH
-	zoomable = TRUE
-	zoom_amt = 10
 
 
 /obj/item/gun/projectile/shotgun/boltaction/lionhunter/get_ru_names()
@@ -32,6 +30,7 @@
 	. = ..()
 	bolt_open = TRUE
 	pump()
+	AddComponent(/datum/component/scope, range_modifier = 3, zoom_method = ZOOM_METHOD_RIGHT_CLICK, severity = SEVERITY_GUN)
 
 
 /obj/item/gun/projectile/shotgun/boltaction/lionhunter/update_icon_state()
@@ -182,8 +181,8 @@
 
 	var/obj/item/gun/projectile/gun = firer_source_atom
 	if(istype(gun))
-		gun.zoom(living_firer, FALSE)
-		gun.azoom?.Remove(living_firer)
+		var/datum/component/scope/scope = gun.GetComponent(/datum/component/scope)
+		scope?.stop_zooming(living_firer)
 
 
 /obj/projectile/bullet/lionhunter/Exited(atom/movable/gone)

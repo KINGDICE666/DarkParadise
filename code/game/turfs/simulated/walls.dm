@@ -320,10 +320,10 @@
 
 	melting = TRUE
 
-	while(reagents.get_reagent_amount("thermite") > 0)
+	while(reagents.get_reagent_amount(/datum/reagent/thermite) > 0)
 		if(QDELETED(src))
 			return
-		reagents.remove_reagent("thermite", THERMITE_PER_SECOND)
+		reagents.remove_reagent(/datum/reagent/thermite, THERMITE_PER_SECOND)
 		if(damage_cap - damage <= DAMAGE_PER_SECOND)
 			var/turf/simulated/floor/plating/our_floor = burn_down()
 			our_floor.burn_tile()
@@ -422,7 +422,7 @@
 
 /turf/simulated/wall/welder_act(mob/user, obj/item/I)
 	. = TRUE
-	if(reagents?.get_reagent_amount("thermite") && I.use_tool(src, user, volume = I.tool_volume))
+	if(reagents?.get_reagent_amount(/datum/reagent/thermite) && I.use_tool(src, user, volume = I.tool_volume))
 		thermitemelt(user)
 		return
 	if(rotting)
@@ -519,7 +519,7 @@
 			visible_message(span_warning("[user] плавит [declent_ru(ACCUSATIVE)]!"), span_italics("Слышно шипение пара."))
 			return TRUE
 
-	else if(istype(I, /obj/item/twohanded/required/zombie_claw))
+	else if(istype(I, /obj/item/zombie_claw))
 		to_chat(user, span_notice("Вы начинаете раздирать стену когтями."))
 		var/delay = isdiamond ? 2 MINUTES : 1 MINUTES
 		if(do_after(user, delay * I.toolspeed, src, category = DA_CAT_TOOL, max_interact_count = 1))

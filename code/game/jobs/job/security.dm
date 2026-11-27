@@ -1,4 +1,5 @@
 /datum/job/head_of_staff/hos
+	bounty_types = CIV_JOB_SEC
 	title = JOB_TITLE_HOS
 	flag = JOB_FLAG_HOS
 	department = STATION_DEPARTMENT_SECURITY
@@ -72,6 +73,7 @@
 	paycheck = PAYCHECK_CREW
 
 /datum/job/security/warden
+	bounty_types = CIV_JOB_SEC
 	title = JOB_TITLE_WARDEN
 	flag = JOB_FLAG_WARDEN
 	total_positions = 1
@@ -118,6 +120,7 @@
 	implant_variant = /obj/item/organ/internal/cyberimp/eyes/hud/security
 
 /datum/job/security/detective
+	bounty_types = CIV_JOB_SEC
 	title = JOB_TITLE_DETECTIVE
 	flag = JOB_FLAG_DETECTIVE
 	total_positions = 2
@@ -175,6 +178,7 @@
 	H.force_gene_block(GLOB.soberblock, TRUE, TRUE)
 
 /datum/job/security/officer
+	bounty_types = CIV_JOB_SEC
 	title = JOB_TITLE_OFFICER
 	flag = JOB_FLAG_OFFICER
 	total_positions = 6

@@ -437,6 +437,8 @@ class ChatRenderer {
     // Insert messages
     const fragment = document.createDocumentFragment();
     const countByType = {};
+    const prependedMessages: Array<any> = [];
+    const prependedVisible: Array<any> = [];
     let node;
     for (const payload of batch) {
       const message = createMessage(payload);
@@ -581,11 +583,25 @@ class ChatRenderer {
       }
       countByType[message.type] += 1;
       // TODO: Detect duplicates
-      this.messages.push(message);
+      if (prepend) {
+        prependedMessages.push(message);
+      } else {
+        this.messages.push(message);
+      }
       if (canPageAcceptType(this.page, message.type)) {
         fragment.appendChild(node);
-        this.visibleMessages.push(message);
+        if (prepend) {
+          prependedVisible.push(message);
+        } else {
+          this.visibleMessages.push(message);
+        }
       }
+    }
+    if (prependedMessages.length > 0) {
+      this.messages = [...prependedMessages, ...this.messages];
+    }
+    if (prependedVisible.length > 0) {
+      this.visibleMessages = [...prependedVisible, ...this.visibleMessages];
     }
     if (node) {
       const firstChild = this.rootNode!.childNodes[0];
@@ -700,12 +716,7 @@ class ChatRenderer {
     let cssText = '';
     const styleSheets = document.styleSheets;
     for (let i = 0; i < styleSheets.length; i++) {
-      let cssRules: CSSRuleList;
-      try {
-        cssRules = styleSheets[i].cssRules;
-      } catch {
-        continue;
-      }
+      const cssRules = styleSheets[i].cssRules;
       for (let i = 0; i < cssRules.length; i++) {
         const rule = cssRules[i];
         if (rule && typeof rule.cssText === 'string') {
@@ -727,7 +738,6 @@ class ChatRenderer {
       '<!doctype html>\n' +
       '<html>\n' +
       '<head>\n' +
-      '<meta charset="utf-8">\n' +
       '<title>SS13 Chat Log</title>\n' +
       '<style>\n' +
       cssText +

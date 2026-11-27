@@ -5,7 +5,7 @@ import { useEffect } from 'react';
 import { store } from '../events/store';
 import { settingsLoadedAtom } from '../settings/atoms';
 import { chatLoadedAtom, currentPageAtom, versionAtom } from './atom';
-import { MESSAGE_SAVE_INTERVAL, STORAGE_LOAD_TIMEOUT } from './constants';
+import { CHAT_RESTORE_WAIT, MESSAGE_SAVE_INTERVAL } from './constants';
 import { saveChatToStorage } from './helpers';
 import { startChatStateMigration } from './migration';
 import { createMessage } from './model';
@@ -27,16 +27,29 @@ export function useChatPersistence() {
   /** Loads chat + chat settings */
   useEffect(() => {
     if (!loaded && settingsLoaded) {
-      async function fetchChat(): Promise<void> {
-        console.log('Initializing chat');
-        await loadChatFromStorage();
-
+      const showChat = () => {
         if (!chatRenderer.page) {
           chatRenderer.changePage(store.get(currentPageAtom));
         }
-
-        setLoaded(true);
         chatRenderer.onStateLoaded();
+      };
+
+      const showTimer = setTimeout(() => {
+        console.warn('Chat storage is slow, showing chat without history');
+        showChat();
+      }, CHAT_RESTORE_WAIT);
+
+      async function fetchChat(): Promise<void> {
+        console.log('Initializing chat');
+        try {
+          await loadChatFromStorage();
+        } catch (error) {
+          console.error('Failed to restore chat from storage:', error);
+        } finally {
+          clearTimeout(showTimer);
+          setLoaded(true);
+          showChat();
+        }
       }
 
       fetchChat();
@@ -55,19 +68,10 @@ export function useChatPersistence() {
   }, [loaded]);
 
   async function loadChatFromStorage(): Promise<void> {
-    const restored = await Promise.race([
-      Promise.all([storage.get('chat-state'), storage.getChatMessages()]),
-      new Promise<null>((resolve) =>
-        setTimeout(() => resolve(null), STORAGE_LOAD_TIMEOUT),
-      ),
+    const [state, messages] = await Promise.all([
+      storage.get('chat-state'),
+      storage.getChatMessages(),
     ]);
-
-    if (!restored) {
-      console.warn('Chat storage did not respond, starting without history');
-      return;
-    }
-
-    const [state, messages] = restored;
 
     surfaceStorageDiagnostics(storage.diagnostics);
 

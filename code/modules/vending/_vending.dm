@@ -233,6 +233,7 @@
 	var/aggressive = FALSE
 	/// How many credits does this vending machine have? 20% of all sales go to this pool, and are given freely when the machine is restocked, or successfully tilted. Lost on deconstruction.
 	var/credits_contained = 0
+	var/payment_department = STATION_DEPARTMENT_SERVICE
 	/**
 	  * Is this item on station or not
 	  *
@@ -267,6 +268,20 @@
 		INSTRUMENTAL = "торговым автоматом",
 		PREPOSITIONAL = "торговом автомате",
 	)
+
+/obj/machinery/vending/add_context(atom/source, list/context, obj/item/held_item, mob/user)
+	context[SCREENTIP_CONTEXT_LMB] = "Посмотреть содержимое"
+	if(!held_item)
+		return CONTEXTUAL_SCREENTIP_SET
+
+	switch(held_item.tool_behaviour)
+		if(TOOL_SCREWDRIVER)
+			context[SCREENTIP_CONTEXT_LMB] = "[panel_open ? "Закрыть" : "Открыть"] панель"
+		if(TOOL_WRENCH)
+			context[SCREENTIP_CONTEXT_LMB] = "[anchored ? "Ослабить" : "Затянуть"] болты"
+		if(TOOL_CROWBAR)
+			context[SCREENTIP_CONTEXT_LMB] = "Разобрать"
+	return CONTEXTUAL_SCREENTIP_SET
 
 /**
  * Initialize the vending machine
@@ -330,6 +345,7 @@
 		)
 
 	update_icon(UPDATE_OVERLAYS)
+	register_context()
 
 /obj/machinery/vending/click_alt(mob/user)
 	if(!tilted)
@@ -511,30 +527,38 @@
 		for(var/product_key in products)
 			product_to_category[product_key] = category
 
-	for(var/typepath in productlist)
+	var/static/list/product_templates = list()
+	for(var/obj/item/typepath as anything in productlist)
 		var/amount = productlist[typepath]
 		if(isnull(amount))
 			amount = 0
 
-		var/obj/item/item = new typepath(src)
+		var/datum/data/vending_product/template = product_templates[typepath]
+		if(!template)
+			template = new
+			var/obj/item/item = new typepath(src)
+			template.name = DECLENT_RU_CAP(item, NOMINATIVE)
+			template.short_name = capitalize(item.get_short_name())
+			template.desc = item.desc
+			template.colorable = !!(item.greyscale_config && item.greyscale_colors)
+			qdel(item)
+			product_templates[typepath] = template
+
 		var/datum/data/vending_product/new_record = new /datum/data/vending_product()
-		new_record.name = DECLENT_RU_CAP(item, NOMINATIVE)
-		new_record.short_name = capitalize(item.get_short_name())
-		new_record.desc = item.desc
-		qdel(item)
+		new_record.name = template.name
+		new_record.short_name = template.short_name
+		new_record.desc = template.desc
+		new_record.colorable = template.colorable
 		new_record.product_path = typepath
 		if(!start_empty)
 			new_record.amount = amount
 		new_record.max_amount = amount
 
-		var/custom_price = initial(item.custom_price)
 		if(!premium)
-			new_record.price = custom_price || default_price
+			new_record.price = initial(typepath.custom_price) || default_price
 		else
-			var/custom_premium_price = initial(item.custom_premium_price)
-			new_record.price = custom_premium_price || default_premium_price
+			new_record.price = initial(typepath.custom_premium_price) || default_premium_price
 
-		new_record.colorable = !!(item.greyscale_config && item.greyscale_colors)
 		new_record.category = product_to_category[typepath]
 		recordlist += new_record
 
@@ -954,10 +978,14 @@
 	inserted_item = null
 	SStgui.update_uis(src)
 
-/obj/machinery/vending/emag_act(mob/user)
-	emagged = TRUE
+/obj/machinery/vending/emag_act(mob/user, obj/item/card/emag/emag_card)
+	. = ..()
+	if(obj_flags & EMAGGED)
+		return FALSE
+	obj_flags |= EMAGGED
 	if(user)
 		balloon_alert(user, "взломано")
+	return TRUE
 
 /obj/machinery/vending/attack_ai(mob/user)
 	return attack_hand(user)
@@ -1192,7 +1220,7 @@
 		to_chat(usr, "Товар \"[product_record.name]\" закончился!")
 		flick_vendor_overlay(FLICK_VEND)
 		return
-	if(!allowed(usr) && !usr.can_admin_interact() && !emagged && scan_id)
+	if(!allowed(usr) && !usr.can_admin_interact() && !(obj_flags & EMAGGED) && scan_id)
 		balloon_alert(usr, "в доступе отказано!")
 		flick_vendor_overlay(FLICK_DENY)
 		return
@@ -1223,15 +1251,16 @@
 
 	currently_vending = product_record
 	var/paid = FALSE
+	var/datum/money_account/revenue_account = GLOB.department_accounts[payment_department] || GLOB.vendor_account
 
 	if(is_cash(usr.get_active_hand()))
 		var/obj/item/stack/spacecash/cash = usr.get_active_hand()
-		paid = pay_with_cash(cash, usr, currently_vending.price, currently_vending.name)
+		paid = pay_with_cash(cash, usr, currently_vending.price, currently_vending.name, revenue_account)
 	else if(get_card_account(usr))
 		// Because this uses H.get_id_card(), it will attempt to use:
 		// active hand, inactive hand, wear_id, pda, and then w_uniform ID in that order
 		// this is important because it lets people buy stuff with someone else's ID by holding it while using the vendor
-		paid = pay_with_card(usr, currently_vending.price, currently_vending.name)
+		paid = pay_with_card(usr, currently_vending.price, currently_vending.name, revenue_account)
 	else if(usr.can_advanced_admin_interact())
 		to_chat(usr, span_notice("[DECLENT_RU_CAP(src, NOMINATIVE)] выдаёт товар в результате вмешательства администратора."))
 		paid = TRUE
@@ -1250,7 +1279,7 @@
 		vend_ready = TRUE
 
 /obj/machinery/vending/proc/vend(datum/data/vending_product/product_record, mob/user, list/greyscale_colors)
-	if(!allowed(user) && !user.can_admin_interact() && !emagged && scan_id)	//For SECURE VENDING MACHINES YEAH
+	if(!allowed(user) && !user.can_admin_interact() && !(obj_flags & EMAGGED) && scan_id)	//For SECURE VENDING MACHINES YEAH
 		to_chat(user, span_warning("В доступе отказано!"))//Unless emagged of course
 		flick_vendor_overlay(FLICK_DENY)
 		vend_ready = TRUE

@@ -3,7 +3,12 @@
 		return
 
 	if(!SSdbcore.IsConnected())
-		to_chat(usr, span_warning("Failed to establish database connection"))
+		to_chat(usr, span_warning("Failed to establish database connection"), confidential = TRUE)
+		return
+
+	if(IsAdminAdvancedProcCall())
+		to_chat(usr, span_boldannounceooc("Admin edit blocked: Advanced ProcCall detected."))
+		log_and_message_admins("attempted to edit admin ranks via advanced proc-call")
 		return
 
 	if(!adm_ckey || !new_rank)
@@ -33,7 +38,7 @@
 
 		var/logtxt = "Added new admin [adm_ckey] to rank [new_rank] with permissions [rights2text(new_rigths, " ")]"
 		log_admin_modification(logtxt)
-		to_chat(usr, span_notice("New admin added."))
+		to_chat(usr, span_notice("New admin added."), confidential = TRUE)
 		return
 
 	if(isnull(admin_id) || !isnum(admin_id))
@@ -51,14 +56,19 @@
 
 	var/logtxt = "Edited the rank of [adm_ckey] to [new_rank] with permissions [rights2text(new_rigths, " ")]"
 	log_admin_modification(logtxt)
-	to_chat(usr, span_notice("Admin rank changed."))
+	to_chat(usr, span_notice("Admin rank changed."), confidential = TRUE)
 
 /datum/admins/proc/admin_rank_only_modification(adm_ckey, new_rank)
 	if(!check_rights(R_PERMISSIONS))
 		return
 
+	if(IsAdminAdvancedProcCall())
+		to_chat(usr, span_boldannounceooc("Admin edit blocked: Advanced ProcCall detected."))
+		log_and_message_admins("attempted to edit admin ranks via advanced proc-call")
+		return
+
 	if(!SSdbcore.IsConnected())
-		to_chat(usr, span_warning("Failed to establish database connection"))
+		to_chat(usr, span_warning("Failed to establish database connection"), confidential = TRUE)
 		return
 
 	if(!adm_ckey || !new_rank)
@@ -89,11 +99,11 @@
 
 	var/logtxt = "Edited the rank of [adm_ckey] to [new_rank]"
 	log_admin_modification(logtxt)
-	to_chat(usr, span_notice("Admin rank changed."))
+	to_chat(usr, span_notice("Admin rank changed."), confidential = TRUE)
 
 /datum/admins/proc/admin_permission_modification(adm_ckey, new_permission)
 	if(IsAdminAdvancedProcCall())
-		to_chat(usr, span_boldannounceooc("Admin edit blocked: Advanced ProcCall detected."))
+		to_chat(usr, span_boldannounceooc("Admin edit blocked: Advanced ProcCall detected."), confidential = TRUE)
 		log_and_message_admins("attempted to edit admin ranks via advanced proc-call")
 		return
 
@@ -101,7 +111,7 @@
 		return
 
 	if(!SSdbcore.IsConnected())
-		to_chat(usr, span_warning("Failed to establish database connection"))
+		to_chat(usr, span_warning("Failed to establish database connection"), confidential = TRUE)
 		return
 
 	if(!adm_ckey || isnull(new_permission))
@@ -134,11 +144,11 @@
 
 	var/logtxt = "Updated permission [rights2text(new_permission, " ")] (flags = [new_permission]) to admin [adm_ckey]"
 	log_admin_modification(logtxt)
-	to_chat(usr, span_notice("Permission Updated."))
+	to_chat(usr, span_notice("Permission Updated."), confidential = TRUE)
 
 /datum/admins/proc/update_rank_to_db(ckey, new_rank)
 	if(IsAdminAdvancedProcCall())
-		to_chat(usr, span_boldannounceooc("Admin edit blocked: Advanced ProcCall detected."))
+		to_chat(usr, span_boldannounceooc("Admin edit blocked: Advanced ProcCall detected."), confidential = TRUE)
 		log_and_message_admins("attempted to edit admin ranks via advanced proc-call")
 		return
 
@@ -238,7 +248,7 @@ td, th {
 </colgroup>
 <thead>
 <tr class='title'>
-<th>CKEY <a class='small' href='byond://?src=[UID()];editrights=add'>\[+\]</a></th>
+<th>CKEY <a class='small' href='byond://?src=[UID()];[HrefToken()];editrights=add'>\[+\]</a></th>
 <th>RANK</th>
 <th>PERMISSIONS</th>
 </tr>
@@ -254,9 +264,9 @@ td, th {
 		if(!rights)
 			rights = NONE_SELECT
 		output += {"<tr>
-<td style='min-width: 20%;'>[adm_ckey] <a class='small' href='byond://?src=[UID()];editrights=remove;ckey=[adm_ckey]'>\[-\]</a></td>
-<td slyle='min-width: 20%;'><a href='byond://?src=[UID()];editrights=rank;ckey=[adm_ckey]'>[rank]</a></td>
-<td style='min-width: 60%;'><a class='small' href='byond://?src=[UID()];editrights=permissions;ckey=[adm_ckey]'>[rights]</a></td>
+<td style='min-width: 20%;'>[adm_ckey] <a class='small' href='byond://?src=[UID()];[HrefToken()];editrights=remove;ckey=[adm_ckey]'>\[-\]</a></td>
+<td slyle='min-width: 20%;'><a href='byond://?src=[UID()];[HrefToken()];editrights=rank;ckey=[adm_ckey]'>[rank]</a></td>
+<td style='min-width: 60%;'><a class='small' href='byond://?src=[UID()];[HrefToken()];editrights=permissions;ckey=[adm_ckey]'>[rights]</a></td>
 </tr>"}
 
 	output += {"
@@ -280,14 +290,19 @@ td, th {
 	if(!check_rights(R_PERMISSIONS))
 		log_and_message_admins("attempted to edit the admin permissions without sufficient rights.")
 		return
+
+	if(!alert(usr, "Вы действительно хотите начать операцию с админскими правами?", "Внимание!", "Да", "Отмена") == "Да")
+		return
+
 	var/adm_ckey
 	if(task == "add")
 		var/new_ckey = ckey(tgui_input_text(usr, "Сикей нового админа", "Добавление админа", null, encode=FALSE))
+		new_ckey = ckey(new_ckey)
 		if(!new_ckey)	return
 		if(new_ckey in GLOB.admin_datums)
 			to_chat(usr, "<span style='color: red;'>Ошибка: Topic 'editrights': [new_ckey] уже админ!</span>", confidential = TRUE)
 			return
-		adm_ckey = new_ckey
+		adm_ckey = ckey(new_ckey)
 		task = "rank"
 	else if(task != "show")
 		adm_ckey = ckey(ckey)

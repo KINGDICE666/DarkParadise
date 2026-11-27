@@ -1,4 +1,5 @@
 /obj/machinery/vending/robotics
+	payment_department = STATION_DEPARTMENT_SCIENCE
 	name = "Robotech Deluxe"
 	desc = "Все, что вам нужно для создания вашей собственной армии роботов."
 	icon_state = "robotics_off"

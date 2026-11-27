@@ -4,6 +4,7 @@
 	health = new_max
 
 	true_spawn = FALSE
+	QDEL_NULL(internal_gps)
 	achievement_type = null
 	crusher_achievement_type = null
 	score_achievement_type = null

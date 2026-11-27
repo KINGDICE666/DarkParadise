@@ -860,7 +860,7 @@
 	if(HAS_TRAIT(src, TRAIT_NO_DECAY))
 		return
 
-	if(reagents?.has_reagent("formaldehyde")) //embalming fluid stops decay
+	if(reagents?.has_reagent(/datum/reagent/formaldehyde)) //embalming fluid stops decay
 		return
 
 	if(decaytime <= 6000) //10 minutes for decaylevel1 -- stinky
@@ -949,7 +949,7 @@
 /mob/living/carbon/human/proc/can_heartattack()
 	if(HAS_TRAIT(src, TRAIT_NO_BLOOD) && !dna.species.forced_heartattack)
 		return FALSE
-	if(HAS_TRAIT(src, TRAIT_NO_INTORGANS))
+	if(HAS_TRAIT(src, TRAIT_NO_INTORGANS) || HAS_TRAIT(src, TRAIT_I_WANT_BRAINS))
 		return FALSE
 	return TRUE
 
@@ -976,7 +976,7 @@
 	return TRUE
 
 /mob/living/carbon/human/handle_heartattack()
-	if(!can_heartattack() || !undergoing_cardiac_arrest() || reagents.has_reagent("corazone"))
+	if(!can_heartattack() || !undergoing_cardiac_arrest() || reagents.has_reagent(/datum/reagent/medicine/corazone))
 		return
 	if(getOxyLoss())
 		adjustBrainLoss(3)

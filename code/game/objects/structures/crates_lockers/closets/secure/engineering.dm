@@ -11,6 +11,7 @@
 	new /obj/item/storage/backpack/duffel/engineering(src)
 	new /obj/item/areaeditor/blueprints/ce(src)
 	new /obj/item/storage/box/permits(src)
+	new /obj/item/storage/box/stickers/chief_engineer(src)
 	new /obj/item/clothing/glasses/welding/superior(src)
 	new /obj/item/tank/jetpack/suit(src)
 	new /obj/item/cartridge/ce(src)

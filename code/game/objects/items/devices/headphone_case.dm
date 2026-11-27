@@ -208,7 +208,7 @@ GLOBAL_VAR_INIT(headphone_case_fetch_cooldown, 0)
 	CLIENT_COOLDOWN_START(GLOB, headphone_case_fetch_cooldown, HEADPHONE_GLOBAL_FETCH_COOLDOWN)
 
 	var/youtubedl = CONFIG_GET(string/invoke_youtubedl)
-	var/datum/web_sound_info/sound_info = get_web_sound_info(youtubedl, url)
+	var/datum/web_sound_info/sound_info = world.get_web_sound_info(youtubedl, url)
 	if(QDELETED(src) || QDELETED(user) || !powered)
 		return
 	if(!sound_info.success)
@@ -226,7 +226,7 @@ GLOBAL_VAR_INIT(headphone_case_fetch_cooldown, 0)
 
 	var/datum/track/track = GLOB.headphone_case_tracks[sound_info.id]
 	if(!track)
-		var/datum/web_sound_download/download = download_web_sound(youtubedl, url, sound_info.id)
+		var/datum/web_sound_download/download = world.download_web_sound(youtubedl, url, sound_info.id)
 		if(QDELETED(src) || QDELETED(user) || !powered)
 			return
 		if(!download.success || !fexists(download.file_path))

@@ -533,7 +533,7 @@
 	name = "cargo winter coat"
 	icon_state = "wintercoat_cargo"
 	item_state = "coatcargo"
-	allowed = list(/obj/item/flashlight, /obj/item/tank/internals/emergency_oxygen, /obj/item/storage/fancy/cigarettes, /obj/item/clothing/mask/cigarette, /obj/item/lighter, /obj/item/rcs, /obj/item/stack/packageWrap, /obj/item/stack/wrapping_paper, /obj/item/destTagger, /obj/item/pen, /obj/item/paper, /obj/item/stamp)
+	allowed = list(/obj/item/flashlight, /obj/item/tank/internals/emergency_oxygen, /obj/item/storage/fancy/cigarettes, /obj/item/clothing/mask/cigarette, /obj/item/lighter, /obj/item/rcs, /obj/item/stack/packageWrap, /obj/item/stack/wrapping_paper, /obj/item/destTagger, /obj/item/universal_scanner, /obj/item/pen, /obj/item/paper, /obj/item/stamp)
 	hoodtype = /obj/item/clothing/head/hooded/winterhood/cargo
 
 /obj/item/clothing/head/hooded/winterhood/cargo
@@ -568,7 +568,7 @@
 	name = "quartermaster winter coat"
 	icon_state = "wintercoat_qm"
 	item_state = "coatqm"
-	allowed = list(/obj/item/flashlight, /obj/item/tank/internals/emergency_oxygen, /obj/item/storage/fancy/cigarettes, /obj/item/clothing/mask/cigarette, /obj/item/lighter, /obj/item/rcs, /obj/item/stack/packageWrap, /obj/item/stack/wrapping_paper, /obj/item/destTagger, /obj/item/pen, /obj/item/paper, /obj/item/stamp, /obj/item/gun/projectile/shotgun)
+	allowed = list(/obj/item/flashlight, /obj/item/tank/internals/emergency_oxygen, /obj/item/storage/fancy/cigarettes, /obj/item/clothing/mask/cigarette, /obj/item/lighter, /obj/item/rcs, /obj/item/stack/packageWrap, /obj/item/stack/wrapping_paper, /obj/item/destTagger, /obj/item/universal_scanner, /obj/item/pen, /obj/item/paper, /obj/item/stamp, /obj/item/gun/projectile/shotgun)
 	hoodtype = /obj/item/clothing/head/hooded/winterhood/qm
 
 /obj/item/clothing/head/hooded/winterhood/qm
@@ -576,6 +576,39 @@
 /*
  * Misc
  */
+
+/obj/item/clothing/suit/wellworn_shirt_skub
+	name = "pro-skub shirt"
+	desc = "Поношенная, на удивление удобная футболка, провозглашающая вашу позицию за скаб. К чёрту антискабовцев."
+	icon_state = "wellworn_shirt_pro_skub"
+	item_state = "w_suit"
+	gender = FEMALE
+	body_parts_covered = UPPER_TORSO
+
+/obj/item/clothing/suit/wellworn_shirt_skub/get_ru_names()
+	return alist(
+		NOMINATIVE = "футболка за скаб",
+		GENITIVE = "футболки за скаб",
+		DATIVE = "футболке за скаб",
+		ACCUSATIVE = "футболку за скаб",
+		INSTRUMENTAL = "футболкой за скаб",
+		PREPOSITIONAL = "футболке за скаб",
+	)
+
+/obj/item/clothing/suit/wellworn_shirt_skub/anti
+	name = "anti-skub shirt"
+	desc = "Поношенная, на удивление удобная футболка, провозглашающая вашу позицию против скаба. К чёрту скабовцев."
+	icon_state = "wellworn_shirt_anti_skub"
+
+/obj/item/clothing/suit/wellworn_shirt_skub/anti/get_ru_names()
+	return alist(
+		NOMINATIVE = "футболка против скаба",
+		GENITIVE = "футболки против скаба",
+		DATIVE = "футболке против скаба",
+		ACCUSATIVE = "футболку против скаба",
+		INSTRUMENTAL = "футболкой против скаба",
+		PREPOSITIONAL = "футболке против скаба",
+	)
 
 //hoodies
 /obj/item/clothing/suit/hooded/hoodie
@@ -928,6 +961,24 @@
 	. = ..()
 	AddElement(/datum/element/right_click_mapper/attack_self, "Застегнуть/Расстегнуть [declent_ru(ACCUSATIVE)]")
 
+/obj/item/clothing/suit/jacket/samurai
+	name = "samurai jacket"
+	desc = "Коричневая кожаная куртка с голубой подсветкой воротника и красной маской на спине."
+	gender = FEMALE
+	icon_state = "samurai"
+	item_state = "samurai"
+	actions_types = list(/datum/action/item_action/zipper)
+
+/obj/item/clothing/suit/jacket/samurai/get_ru_names()
+	return alist(
+		NOMINATIVE = "куртка \"Самурай\"",
+		GENITIVE = "куртки \"Самурай\"",
+		DATIVE = "куртке \"Самурай\"",
+		ACCUSATIVE = "куртку \"Самурай\"",
+		INSTRUMENTAL = "курткой \"Самурай\"",
+		PREPOSITIONAL = "куртке \"Самурай\"",
+	)
+
 /obj/item/clothing/suit/jacket/pilot
 	name = "security bomber jacket"
 	desc = "A stylish and worn-in armoured black bomber jacket emblazoned with the NT Security crest on the left breast. Looks rugged."
@@ -1107,14 +1158,14 @@
 	if(on)
 		var/mob/living/carbon/human/user = src.loc
 		if(user && ishuman(user) && (user.wear_suit == src))
-			if(user.reagents.get_reagent_amount("stimulants") < 15)
-				user.reagents.add_reagent("stimulants", 15)
-			if(user.reagents.get_reagent_amount("adminordrazine") < 15)
-				user.reagents.add_reagent("adminordrazine", 15)
-			if(user.reagents.get_reagent_amount("nanites") < 15)
-				user.reagents.add_reagent("nanites", 15)
-			if(user.reagents.get_reagent_amount("syndicate_nanites") < 15)
-				user.reagents.add_reagent("syndicate_nanites", 15)
+			if(user.reagents.get_reagent_amount(/datum/reagent/medicine/stimulants) < 15)
+				user.reagents.add_reagent(/datum/reagent/medicine/stimulants, 15)
+			if(user.reagents.get_reagent_amount(/datum/reagent/medicine/adminordrazine) < 15)
+				user.reagents.add_reagent(/datum/reagent/medicine/adminordrazine, 15)
+			if(user.reagents.get_reagent_amount(/datum/reagent/medicine/adminordrazine/nanites) < 15)
+				user.reagents.add_reagent(/datum/reagent/medicine/adminordrazine/nanites, 15)
+			if(user.reagents.get_reagent_amount(/datum/reagent/medicine/syndicate_nanites) < 15)
+				user.reagents.add_reagent(/datum/reagent/medicine/syndicate_nanites, 15)
 	else
 		STOP_PROCESSING(SSobj, src)
 
@@ -1288,7 +1339,7 @@
 	icon_state = "suragi_jacket_carg"
 	item_state = "suragi_jacket_carg"
 	armor = list(MELEE = 5, BULLET = 0, LASER = 0,ENERGY = 0, BOMB = 0, BIO = 0, FIRE = 0, ACID = 0)
-	allowed = list(/obj/item/flashlight, /obj/item/tank/internals/emergency_oxygen, /obj/item/storage/fancy/cigarettes, /obj/item/clothing/mask/cigarette, /obj/item/lighter, /obj/item/rcs, /obj/item/stack/packageWrap, /obj/item/stack/wrapping_paper, /obj/item/destTagger, /obj/item/pen, /obj/item/paper, /obj/item/stamp)
+	allowed = list(/obj/item/flashlight, /obj/item/tank/internals/emergency_oxygen, /obj/item/storage/fancy/cigarettes, /obj/item/clothing/mask/cigarette, /obj/item/lighter, /obj/item/rcs, /obj/item/stack/packageWrap, /obj/item/stack/wrapping_paper, /obj/item/destTagger, /obj/item/universal_scanner, /obj/item/pen, /obj/item/paper, /obj/item/stamp)
 
 /obj/item/clothing/suit/storage/suragi_jacket/atmos
 	name = "Atmospherics Suragi Jacket"
@@ -1463,11 +1514,13 @@
 
 /obj/item/clothing/suit/towel
 	name = "towel"
-	desc = "A soft cotton towel."
+	desc = "Мягкое хлопковое полотенце."
 	icon_state = "towel_long"
 	item_state = "towel"
+	item_flags = SKIP_ATTACK_MESSAGE
 	body_parts_covered = LOWER_TORSO | UPPER_TORSO
 	var/drop_amount = 3
+	var/wet_stacks_removed = 5
 	sprite_sheets = list(
 		SPECIES_DRASK = 'icons/mob/clothing/species/drask/suit.dmi',
 		SPECIES_GREY = 'icons/mob/clothing/species/grey/suit.dmi',
@@ -1483,12 +1536,22 @@
 		SPECIES_VOX = 'icons/mob/clothing/species/vox/suit.dmi',
 	)
 
+/obj/item/clothing/suit/towel/get_ru_names()
+	return alist(
+		NOMINATIVE = "полотенце",
+		GENITIVE = "полотенца",
+		DATIVE = "полотенцу",
+		ACCUSATIVE = "полотенце",
+		INSTRUMENTAL = "полотенцем",
+		PREPOSITIONAL = "полотенце",
+	)
+
 /obj/item/clothing/suit/towel/Initialize(mapload)
 	. = ..()
 	AddComponent(/datum/component/spraycan_paintable)
 
 /obj/item/clothing/suit/towel/attack_self(mob/living/carbon/user)
-	if(!istype(user) || !user.wetlevel)
+	if(!istype(user) || !user.get_wet_stacks())
 		return ..()
 
 	INVOKE_ASYNC(src, PROC_REF(wipe_dry), user, user)
@@ -1496,22 +1559,39 @@
 /obj/item/clothing/suit/towel/afterattack(mob/living/carbon/target, mob/user, proximity_flag, list/modifiers, status)
 	. = ..()
 
-	if(!istype(target) || !target.wetlevel)
+	if(!istype(target) || !target.get_wet_stacks())
 		return
 
 	INVOKE_ASYNC(src, PROC_REF(wipe_dry), target, user)
 
 /obj/item/clothing/suit/towel/proc/wipe_dry(mob/living/carbon/target, mob/user)
-	user.visible_message(span_warning("[user] begins to wipe [target == user ? target.p_themselves() : target] with [src]."))
-
-	if(!do_after(user, 5 SECONDS, target))
+	if(QDELETED(target) || QDELETED(user) || QDELETED(src))
 		return
 
-	if(!istype(target) || !target.wetlevel)
-		return
+	if(target == user)
+		user.visible_message(
+			span_warning("[user] вытира[PLUR_ET_YUT(user)] себя [declent_ru(INSTRUMENTAL)]."),
+			span_notice("Вы вытираетесь [declent_ru(INSTRUMENTAL)]."),
+		)
+	else
+		user.visible_message(
+			span_warning("[user] начина[PLUR_ET_YUT(user)] вытирать [target.declent_ru(ACCUSATIVE)] [declent_ru(INSTRUMENTAL)]."),
+			span_notice("Вы начинаете вытирать [target.declent_ru(ACCUSATIVE)] [declent_ru(INSTRUMENTAL)]."),
+			ignored_mobs = target,
+		)
+		target.balloon_alert(target, "вас вытирают")
 
-	target.wetlevel = 0
-	to_chat(user, span_notice("You wiped [target == user ? "yourself" : target] dry."))
+	while(!QDELETED(target) && !QDELETED(user) && !QDELETED(src) && target.get_wet_stacks() > 0)
+		if(!do_after(user, 2.5 SECONDS, target))
+			return
+		if(QDELETED(target) || QDELETED(user) || QDELETED(src))
+			return
+		var/wet_stacks_before = target.get_wet_stacks()
+		target.adjust_wet_stacks(-wet_stacks_removed)
+		if(target.get_wet_stacks() >= wet_stacks_before)
+			return
+
+	to_chat(user, span_notice("Вы вытерли [target == user ? "себя" : target.declent_ru(ACCUSATIVE)] досуха."))
 
 /obj/item/clothing/suit/towel/attackby(obj/item/I, mob/user, params)
 	. = ..()
@@ -1523,7 +1603,7 @@
 	var/obj/item/stack/sheet/cloth/cloth = new(drop_location(), drop_amount)
 	transfer_fingerprints_to(cloth)
 	cloth.add_fingerprint(user)
-	to_chat(user, span_notice("You tear [src] up."))
+	to_chat(user, span_notice("Вы разрываете [declent_ru(ACCUSATIVE)] на куски."))
 	qdel(src)
 
 /obj/item/clothing/suit/towel/alt
@@ -1746,3 +1826,16 @@
 		INSTRUMENTAL = "заза-лорд бомбером",
 		PREPOSITIONAL = "заза-лорд бомбере",
 	)
+
+/obj/item/clothing/suit/red_jacket
+	name = "red jacket"
+	desc = "Стильная красная короткая куртка."
+	icon_state = "red_jacket"
+	item_state = "red_jacket"
+	body_parts_covered = UPPER_TORSO|ARMS
+	ignore_suitadjust = FALSE
+	adjust_flavour = "unbutton"
+
+/obj/item/clothing/suit/red_jacket/ComponentInitialize()
+	. = ..()
+	AddElement(/datum/element/right_click_mapper/attack_self, "Застегнуть/Расстегнуть [declent_ru(ACCUSATIVE)]")

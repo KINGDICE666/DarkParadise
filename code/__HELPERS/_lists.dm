@@ -822,6 +822,18 @@
 	var/middle = length(L) / 2 + 1
 	return mergeAtoms(sortAtom(L.Copy(0,middle)), sortAtom(L.Copy(middle)), order)
 
+/proc/insert_atom_sorted(list/atom/sorted_atoms, atom/new_atom)
+	var/low = 1
+	var/high = length(sorted_atoms) + 1
+	while(low < high)
+		var/middle = (low + high) >> 1
+		var/atom/middle_atom = sorted_atoms[middle]
+		if(sorttext(middle_atom?.name, new_atom.name) == 1)
+			low = middle + 1
+		else
+			high = middle
+	sorted_atoms.Insert(low, new_atom)
+
 // MARK: TODO: REF
 //Mergsort: does the actual sorting and returns the results back to sortAtom
 /proc/mergeAtoms(list/atom/L, list/atom/R, order = 1)

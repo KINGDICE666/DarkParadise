@@ -66,7 +66,9 @@
 /obj/machinery/station_map/tactical/Initialize(mapload)
 	. = ..()
 	var/obj/item/implant/tacmap/nuclear/implant = loc
-	var/datum/antagonist/nuclear_operative/operative = implant.imp_in.mind.has_antag_datum(/datum/antagonist/nuclear_operative)
+	if(!istype(implant) || !implant.imp_in)
+		return
+	var/datum/antagonist/nuclear_operative/operative = implant.imp_in.mind?.has_antag_datum(/datum/antagonist/nuclear_operative)
 	tactical_team = operative?.nuclear_team
 	for(var/level in 1 to world.maxz)
 		if(is_station_level(level))

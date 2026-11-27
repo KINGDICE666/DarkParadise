@@ -57,6 +57,12 @@
 	var/emp_proof = FALSE
 	/// Will it skip pain messages?
 	var/hidden_pain = FALSE
+	/// Should this organ be destroyed on removal?
+	var/destroy_on_removal = FALSE
+
+	/// What was the last pain message that was sent?
+	var/last_pain_message
+	COOLDOWN_DECLARE(pain_cd)
 
 /obj/item/organ/Initialize(mapload)
 	. = ..()
@@ -130,6 +136,11 @@
 /obj/item/organ/proc/update_health()
 	return
 
+/obj/item/organ/ComponentInitialize()
+	. = ..()
+	if(emp_proof)
+		AddElement(/datum/element/empprotection, EMP_PROTECT_SELF)
+
 /obj/item/organ/proc/emp_shielded(severity)
 	if(!owner || !HAS_TRAIT(owner, TRAIT_COMBAT_EXOFRAME_EMP_SHIELD))
 		return FALSE
@@ -138,6 +149,11 @@
 		return FALSE
 	owner.adjust_nutrition(-nutrition_cost)
 	return TRUE
+
+/obj/item/organ/emp_act(severity)
+	. = ..()
+	if(. & EMP_PROTECT_SELF)
+		return
 
 /obj/item/organ/proc/necrotize(silent = FALSE, ignore_vital_death = FALSE)
 	if(status & (ORGAN_ROBOT|ORGAN_DEAD))
@@ -222,6 +238,10 @@
 			handle_germs()
 		return TRUE
 
+/// Шанс, что орган внутри этого атома пропустит такт порчи
+/atom/proc/get_organ_preservation_chance()
+	return 0
+
 /obj/item/organ/proc/is_preserved()
 	var/static/list/preserved_holders = list(
 		/obj/machinery/smartfridge/secure/medbay/organ,
@@ -243,6 +263,10 @@
 	if(istype(loc, /mob/living/simple_animal/hostile/headslug) || istype(loc, /obj/item/organ/internal/body_egg/changeling_egg))
 		germ_level = 0 // weird stuff might happen, best to be safe
 		return TRUE
+
+	var/preservation_chance = loc?.get_organ_preservation_chance()
+	if(preservation_chance)
+		return prob(preservation_chance)
 
 	if(isturf(loc))
 		var/is_in_freezer = FALSE
@@ -437,6 +461,9 @@
 		owner.death()
 
 	owner = null
+	if(destroy_on_removal && !QDELETED(src))
+		qdel(src)
+		return
 	return src
 
 /obj/item/organ/proc/replaced(mob/living/carbon/human/target, special = ORGAN_MANIPULATION_DEFAULT)
@@ -512,3 +539,16 @@
 		else
 			blood_dna["UNKNOWN DNA"] = "X*"
 		transfer_blood_dna(blood_dna)
+
+// A proc to send a pain message to the owner.
+/obj/item/organ/proc/custom_pain(message)
+	if(!owner.has_pain() || !message)
+		return
+
+	var/msg = span_userdanger("[message]")
+
+	// Anti message spam checks
+	if(msg != last_pain_message || !COOLDOWN_FINISHED(src, pain_cd))
+		last_pain_message = msg
+		to_chat(owner, msg)
+		COOLDOWN_START(src, pain_cd, 10 SECONDS)

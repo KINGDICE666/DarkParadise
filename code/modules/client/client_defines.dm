@@ -125,11 +125,13 @@
 	var/datum/geoip_data/geoip = null
 
 	var/account_ckey
+	var/seeker_client = FALSE
 	var/launcher_claimed_ckey
 	var/launcher_link_target
 	var/steam_id = null
 	var/launcher_nickname = null
 	var/launcher_state = LAUNCHER_UNLINKED
+	var/ss14_name
 
 	var/ntnet_code
 	var/ntnet_code_expires = 0
@@ -167,7 +169,7 @@
 	var/datum/view_data/view_size
 
 	/// our current tab
-	var/stat_tab = STATPANEL_STATUS
+	var/stat_tab
 
 	/// List of all tabs
 	var/list/panel_tabs = list()
@@ -325,6 +327,9 @@
 
 	var/datum/escape_menu/escape_menu
 	var/datum/tgui_window/emote_panel
+
+	/// Images of the path created by navigate().
+	var/list/navigation_images = list()
 
 /client/vv_edit_var(var_name, var_value)
 	if(var_name == NAMEOF(src, tos_consent))

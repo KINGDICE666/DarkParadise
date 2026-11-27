@@ -177,7 +177,7 @@
 		admin_client.mouse_up_icon = 'icons/effects/mouse_pointers/supplypod_pickturf.dmi'
 		admin_client.mouse_down_icon = 'icons/effects/mouse_pointers/supplypod_pickturf_down.dmi'
 		admin_client.mouse_override_icon = admin_client.mouse_up_icon
-		admin_client.mouse_pointer_icon = admin_client.mouse_override_icon
+		admin_client.mob?.update_mouse_pointer()
 		admin_client.click_intercept = src
 
 		winset(admin_client, SKIN_MAPWINDOW_MAP, "right-click=true")
@@ -236,12 +236,12 @@
 		if(PRECISE_MODE_MARK)
 			var/client/admin_client = user.client
 			admin_client.mark_datum(target)
-			to_chat(user, span_notice("Отмеченный объект: [icon2html(target, user)] [span_bold("[target]")]"))
+			to_chat(user, span_notice("Отмеченный объект: [icon2html(target, user)] [span_bold("[target]")]"), confidential = TRUE)
 			toggle_precise_mode(PRECISE_MODE_OFF)
 			SStgui.update_uis(src)
 
 		if(PRECISE_MODE_COPY)
-			to_chat(user, span_notice("Выбранный объект: [icon2html(target, user)] [span_bold("[target]")]"))
+			to_chat(user, span_notice("Выбранный объект: [icon2html(target, user)] [span_bold("[target]")]"), confidential = TRUE)
 			selected_atom = target
 			toggle_precise_mode(PRECISE_MODE_OFF)
 			SStgui.update_uis(src)

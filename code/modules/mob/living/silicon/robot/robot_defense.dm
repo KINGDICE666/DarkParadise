@@ -50,6 +50,19 @@
 /mob/living/silicon/robot/attack_hand(mob/living/carbon/human/user)
 	add_fingerprint(user)
 
+	if(user.a_intent == INTENT_DISARM)
+		for(var/obj/item/gripper/gripper in get_all_slots())
+			if(!gripper.gripped_item)
+				continue
+			var/obj/item/gripped_item = gripper.gripped_item
+			gripper.drop_gripped_item(silent = TRUE)
+			user.do_attack_animation(src, ATTACK_EFFECT_DISARM)
+			user.put_in_any_hand_if_possible(gripped_item)
+			balloon_alert_to_viewers("предмет выбит!")
+			add_attack_logs(user, src, "Knocked [gripped_item] out of gripper")
+			playsound(loc, 'sound/weapons/pierce.ogg', 50, TRUE, -1)
+			return
+
 	if(opened && !wiresexposed && !issilicon(user))
 		if(cell)
 			cell.update_icon()

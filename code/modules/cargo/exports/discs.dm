@@ -2,7 +2,7 @@
 	cost = CARGO_CRATE_VALUE * 0.25
 	k_elasticity = 0
 	sales_market = EXPORT_NONE
-	unit_name = "new research point"
+	unit_name = "новые научные данные"
 	export_types = list(/obj/item/disk/tech_disk)
 	var/static/list/tech_levels = list()
 
@@ -26,7 +26,7 @@
 	cost = CARGO_CRATE_VALUE * 0.25
 	k_elasticity = 0
 	sales_market = EXPORT_NONE
-	unit_name = "new design"
+	unit_name = "новые чертежи"
 	export_types = list(/obj/item/disk/design_disk)
 	var/static/list/tech_levels = list()
 

@@ -71,7 +71,10 @@
 			result |= REVERSE_DIR(dir)
 	return result
 
-/obj/structure/logistics_construct/proc/rotate()
+/obj/structure/logistics_construct/proc/rotate(mob/user)
+	if(user && (user.incapacitated || HAS_TRAIT(user, TRAIT_HANDS_BLOCKED)))
+		to_chat(user, span_warning("You can't do that right now!"))
+		return FALSE
 	if(anchored)
 		return
 	setDir(turn(dir, -90))
@@ -86,7 +89,10 @@
 			pipe_type = initial(temp.flip_type)
 	update_appearance(UPDATE_ICON_STATE)
 
-/obj/structure/logistics_construct/proc/flip()
+/obj/structure/logistics_construct/proc/flip(mob/user)
+	if(user && (user.incapacitated || HAS_TRAIT(user, TRAIT_HANDS_BLOCKED)))
+		to_chat(user, span_warning("You can't do that right now!"))
+		return FALSE
 	if(anchored)
 		return
 	setDir(turn(dir, 180))

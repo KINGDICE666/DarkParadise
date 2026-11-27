@@ -13,6 +13,7 @@
 	new /obj/item/storage/backpack/cargo(src)
 	new /obj/item/clothing/suit/storage/cargotech(src)
 	new /obj/item/qm_quest_tablet/cargotech(src)
+	new /obj/item/universal_scanner(src)
 
 /obj/structure/closet/secure_closet/quartermaster
 	name = "quartermaster's locker"
@@ -31,6 +32,7 @@
 	new /obj/item/cartridge/quartermaster(src)
 	new /obj/item/stamp/granted(src)	//added here deleted on maps
 	new /obj/item/stamp/denied(src)
+	new /obj/item/universal_scanner(src)
 	new /obj/item/storage/garmentbag/quartermaster(src)
 	new /obj/item/gun/energy/gun/mini(src)
 	new /obj/item/clothing/accessory/holster(src)

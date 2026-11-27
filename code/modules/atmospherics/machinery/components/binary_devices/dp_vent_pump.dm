@@ -29,8 +29,7 @@
 	asign_new_area(get_area(src))
 
 /obj/machinery/atmospherics/binary/dp_vent_pump/Destroy()
-	current_area?.air_vents -= src
-	current_area = null
+	asign_new_area(null)
 	return ..()
 
 /obj/machinery/atmospherics/binary/dp_vent_pump/proc/asign_new_area(area/area)
@@ -38,6 +37,8 @@
 	if(cached_current_area)
 		cached_current_area.air_vents -= src
 		current_area = null
+		for(var/obj/machinery/vent as anything in cached_current_area.air_vents)
+			vent.update_appearance(UPDATE_NAME)
 
 	if(!area)
 		return

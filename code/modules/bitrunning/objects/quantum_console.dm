@@ -95,7 +95,7 @@
 	else if(tgui_alert(user, "Включить HRDM для домена «[chosen_domain.name]»? Награды удвоены; смерть аватара убивает оператора в капсуле!", "Диск HRDM", list("Включить", "Отмена")) != "Включить")
 		return ITEM_INTERACT_SUCCESS
 
-	if(QDELETED(src) || QDELETED(server) || QDELETED(tool) || !user.Adjacent(src) || !user.is_in_hands(tool) || user.incapacitated() || !allowed(user) || !is_operational())
+	if(QDELETED(src) || QDELETED(server) || QDELETED(tool) || !user.Adjacent(src) || !user.is_in_hands(tool) || user.incapacitated || !allowed(user) || !is_operational())
 		return ITEM_INTERACT_SUCCESS
 	if(find_server() != server || !server.is_operational() || !server.is_ready || server.hardcore || server.domain_entered || server.domain_complete || length(server.avatar_connection_refs))
 		return ITEM_INTERACT_SUCCESS

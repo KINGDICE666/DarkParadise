@@ -103,7 +103,7 @@
  * * on_behalf_of - The new object to set as a parent.
  */
 /datum/looping_sound/proc/start(on_behalf_of)
-	GLOB.looping_sounds += src
+	GLOB.looping_sounds |= src
 
 	if(on_behalf_of)
 		set_parent(on_behalf_of)

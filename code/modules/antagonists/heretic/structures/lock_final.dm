@@ -98,8 +98,8 @@
 	return FALSE
 
 /obj/structure/lock_tear/Destroy(force)
-	if(ascendee)
-		ascendee = null
+	GLOB.poi_list -= src
+	ascendee = null
 
 	return ..()
 

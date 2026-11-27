@@ -1,4 +1,5 @@
 /obj/machinery/vending/medical
+	payment_department = STATION_DEPARTMENT_MEDICAL
 	name = "NanoMed Plus"
 	desc = "Медицинский раздатчик веществ."
 	icon_state = "med_off"

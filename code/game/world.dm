@@ -24,16 +24,7 @@ GLOBAL_DATUM(test_runner, /datum/test_runner)
 		enable_debugging()
 
 	load_configuration()
-	if(CONFIG_GET(flag/web_guest_login))
-		var/web_auth_result = "native adapter is missing"
-		if(fexists("./libdpwebauth.so"))
-			try
-				web_auth_result = CALL_EXT("./libdpwebauth.so", "initialize")("data/web-auth.sock")
-			catch(var/exception/error)
-				web_auth_result = error.name
-		if(web_auth_result != "ok")
-			CONFIG_SET(flag/web_guest_login, FALSE)
-			log_world("Web guest login disabled: [web_auth_result]")
+	initialize_seeker_auth()
 	// Right off the bat, load up the DB
 	SSdbcore.CheckSchemaVersion() // This doesnt just check the schema version, it also connects to the db! This needs to happen super early! I cannot stress this enough!
 	SSdbcore.SetRoundID() // Set the round ID here
@@ -110,7 +101,13 @@ GLOBAL_LIST_EMPTY(world_topic_handlers)
 
 /world/Topic(T, addr, master, key)
 	TGS_TOPIC
-	log_misc("WORLD/TOPIC: \"[T]\", from:[addr], master:[master], key:[key == CONFIG_GET(string/comms_password) ? "*secret*" : key]")
+	var/list/input = params2list(T)
+	var/logged_query = T
+	if(input["key"])
+		var/list/logged_input = input.Copy()
+		logged_input["key"] = "SECRET"
+		logged_query = list2params(logged_input)
+	log_misc("WORLD/TOPIC: \"[logged_query]\", from:[addr], master:[master], key:[key == CONFIG_GET(string/comms_password) ? "*secret*" : key]")
 
 	// Handle spam prevention
 	if(!(addr in CONFIG_GET(str_list/topic_filtering_whitelist)))
@@ -122,8 +119,6 @@ GLOBAL_LIST_EMPTY(world_topic_handlers)
 		// Lock the user out and cancel their topic if needed
 		if(sph.check_lockout())
 			return
-
-	var/list/input = params2list(T)
 
 	var/datum/world_topic_handler/wth
 
@@ -306,6 +301,7 @@ GLOBAL_LIST_EMPTY(world_topic_handlers)
 	GLOB.sql_log = "[GLOB.log_directory]/sql.log"
 	GLOB.mapmanip_log = "[GLOB.log_directory]/mapmanip.log"
 	GLOB.signal_log = "[GLOB.log_directory]/signal.log"
+	GLOB.circuit_log = "[GLOB.log_directory]/circuit.log"
 
 	start_log(GLOB.world_game_log)
 	start_log(GLOB.world_href_log)
@@ -316,6 +312,7 @@ GLOBAL_LIST_EMPTY(world_topic_handlers)
 	start_log(GLOB.sql_log)
 	start_log(GLOB.mapmanip_log)
 	start_log(GLOB.signal_log)
+	start_log(GLOB.circuit_log)
 
 	#ifdef REFERENCE_TRACKING
 	GLOB.gc_log = "[GLOB.log_directory]/gc_debug.log"

@@ -122,9 +122,9 @@
 			continue
 
 		if(HAS_TRAIT(M, TRAIT_WEAK_EARS))
-			ears.internal_receive_damage(10)
+			C.sound_damage(10)
 
-		ears.internal_receive_damage(5 * pressure_factor)
+		C.sound_damage(5 * pressure_factor)
 		if(ears.damage >= 15)
 			to_chat(M, span_warning("У вас начинает очень сильно звенеть в ушах!"))
 			if(prob(ears.damage - 5))

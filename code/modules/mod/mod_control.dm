@@ -77,8 +77,6 @@
 	var/mob/living/carbon/human/wearer
 	/// Internal storage in a modsuit.
 	var/obj/item/storage/backpack/modstorage/bag
-	/// Is it EMP proof?
-	var/emp_proof = FALSE
 	/// List of overlays the mod has. Needs to be cut onremoval / module deactivation
 	var/list/mod_overlays = list()
 	/// Is the jetpack on so we should make ion effects?
@@ -373,7 +371,7 @@
 
 /obj/item/mod/control/click_alt(mob/user)
 	. = ..()
-	if(!ishuman(user) || !Adjacent(user) || user.incapacitated(FALSE, TRUE) || !bag)
+	if(!ishuman(user) || !Adjacent(user) || user.incapacitated || !bag)
 		return
 	bag.forceMove(user)
 	bag.show_to(user)
@@ -407,17 +405,23 @@
 		return req_access.Copy()
 	return ..()
 
-/obj/item/mod/control/emag_act(mob/user)
+/obj/item/mod/control/emag_act(mob/user, obj/item/card/emag/emag_card)
+	. = ..()
 	locked = !locked
 	balloon_alert(user, "доступ [locked ? "требуется" : "не требуется"]")
+	return TRUE
 
 /obj/item/mod/control/emp_act(severity)
 	. = ..()
+	if(active && wearer)
+		to_chat(wearer, span_warning("Зафиксирован [severity > 1 ? "слабый" : "мощный"] всплеск ЭМИ!"))
+	if(. & EMP_PROTECT_SELF)
+		return .
+	for(var/obj/item/mod/module/module as anything in modules)
+		module.emp_act(severity)
 	if(!active || !wearer)
-		return
-	to_chat(wearer, span_warning("Зафиксирован [severity > 1 ? "слабый" : "мощный"] всплеск ЭМИ!"))
-	if(emp_proof)
-		return
+		return .
+
 	selected_module?.on_deactivation(display_message = TRUE)
 	wearer.apply_damage(10 / severity, BURN) //Test this with ion shotguns.
 	to_chat(wearer, span_danger("Костюм начинает резко нагреваться от ЭМИ, обжигая вас!"))

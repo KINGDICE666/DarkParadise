@@ -148,7 +148,7 @@ export function ItemListDisplay(props: ListProps) {
             <Stack.Item>
               <Stack wrap g={0.5}>
                 {group.items.map((item) => (
-                  <Stack.Item key={item.name}>
+                  <Stack.Item key={item.path}>
                     <ItemDisplay
                       item={item}
                       active={

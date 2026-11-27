@@ -14,6 +14,7 @@ import {
 import { createSearch } from 'tgui-core/string';
 import { useBackend } from '../backend';
 import { Window } from '../layouts';
+import { LOGISTICS_MODE_SEND, type LogisticsMode } from './common/logistics';
 
 type DropdownEntry = {
   value: string;
@@ -31,7 +32,7 @@ type Stock = {
 type Node = {
   uid: string;
   name: string;
-  mode: string;
+  mode: LogisticsMode;
   self: boolean;
   icon?: string;
   icon_state?: string;
@@ -55,11 +56,12 @@ type DisplayStock = Stock & {
 
 type LogisticsData = {
   name: string;
-  mode: string;
+  mode: LogisticsMode;
   connected: boolean;
   allow_export: boolean;
   notify_status: boolean;
   sound_notify: boolean;
+  blocked: boolean;
   uid: string;
   fill_percent: number | null;
   network_id: number | null;
@@ -88,6 +90,7 @@ export const Logistics = (_props: unknown) => {
     allow_export,
     notify_status,
     sound_notify,
+    blocked,
     fill_percent,
     network_id,
     local_stock = [],
@@ -223,7 +226,10 @@ export const Logistics = (_props: unknown) => {
       dest: destUid,
       wanted: JSON.stringify(wanted),
     });
-    setBuffer([]);
+    // A blocked interface refuses the order on the server side, so keep the draft for the player.
+    if (!blocked) {
+      setBuffer([]);
+    }
   };
 
   return (
@@ -236,11 +242,11 @@ export const Logistics = (_props: unknown) => {
                 <Box className="Logistics__StatusCell">
                   <Box color="label">Режим</Box>
                   <Box>
-                    {mode === 'send' ? 'Отправка' : 'Приём'}{' '}
+                    {mode === LOGISTICS_MODE_SEND ? 'Отправка' : 'Приём'}{' '}
                     <Button
                       icon="info"
                       tooltip={
-                        mode === 'send'
+                        mode === LOGISTICS_MODE_SEND
                           ? 'Режим отправка устанавливает высший приоритет на отправку заказов.'
                           : 'Режим приём устанавливает нисший приоритет на отправку заказов. Товар будет отправлен только в случае отсутствия в интерфейсах с режимом отправки.'
                       }
@@ -286,8 +292,15 @@ export const Logistics = (_props: unknown) => {
                 </Box>
                 <Box className="Logistics__StatusCell">
                   <Box color="label">Подключение</Box>
-                  <Box color={connected ? 'good' : 'bad'}>
-                    {connected ? 'подключён' : 'не подключён'}
+                  <Box
+                    color={blocked ? 'bad' : connected ? 'good' : 'bad'}
+                    bold={blocked}
+                  >
+                    {blocked
+                      ? 'ЗАБЛОКИРОВАН'
+                      : connected
+                        ? 'подключён'
+                        : 'не подключён'}
                   </Box>
                 </Box>
                 <Box className="Logistics__StatusCell">
@@ -534,7 +547,7 @@ const NodeColumn = (props: {
             {selected === 'any'
               ? 'любой источник'
               : selectedNode
-                ? `${selectedNode.mode === 'send' ? 'отправка' : 'приём'} · ${formatFill(selectedNode.fill_percent)}`
+                ? `${selectedNode.mode === LOGISTICS_MODE_SEND ? 'отправка' : 'приём'} · ${formatFill(selectedNode.fill_percent)}`
                 : 'выберите устройство'}
           </Box>
         </Stack.Item>

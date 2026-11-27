@@ -16,6 +16,10 @@
 	var/icon_closed = "lockbox"
 	var/icon_broken = "lockbox+b"
 
+/obj/item/storage/lockbox/Initialize(mapload)
+	. = ..()
+	AddElement(/datum/element/cuffable_item)
+
 /obj/item/storage/lockbox/update_icon_state()
 	if(broken)
 		icon_state = icon_broken
@@ -82,16 +86,18 @@
 		to_chat(usr, span_notice("[src] is locked!"))
 	return FALSE
 
-/obj/item/storage/lockbox/emag_act(mob/user)
-	if(!broken)
-		add_attack_logs(user, src, "emagged")
-		broken = TRUE
-		locked = FALSE
-		desc = "It appears to be broken."
-		update_icon()
-		if(user)
-			to_chat(user, span_notice("You unlock \the [src]."))
-		origin_tech = null //wipe out any origin tech if it's unlocked in any way so you can't double-dip tech levels at R&D.
+/obj/item/storage/lockbox/emag_act(mob/user, obj/item/card/emag/emag_card)
+	. = ..()
+	if(broken)
+		return FALSE
+	broken = TRUE
+	locked = FALSE
+	desc = "It appears to be broken."
+	update_icon()
+	origin_tech = null //wipe out any origin tech if it's unlocked in any way so you can't double-dip tech levels at R&D.
+	if(user)
+		to_chat(user, span_notice("You unlock \the [src]."))
+	return TRUE
 
 /obj/item/storage/lockbox/hear_message(mob/living/M, msg)
 	return
@@ -243,3 +249,39 @@
 		return ATTACK_CHAIN_BLOCKED_ALL
 	return ..()
 
+
+/obj/item/storage/lockbox/order
+	name = "order lockbox"
+	desc = "Защищённый кейс для мелких личных заказов. Открыть его может только владелец счёта, с которого оплачен заказ."
+	req_access = list()
+	storage_slots = 10
+	max_w_class = WEIGHT_CLASS_BULKY
+	max_combined_w_class = 40
+	var/datum/money_account/buyer_account
+
+/obj/item/storage/lockbox/order/get_ru_names()
+	return alist(
+		NOMINATIVE = "кейс заказа",
+		GENITIVE = "кейса заказа",
+		DATIVE = "кейсу заказа",
+		ACCUSATIVE = "кейс заказа",
+		INSTRUMENTAL = "кейсом заказа",
+		PREPOSITIONAL = "кейсе заказа",
+	)
+
+/obj/item/storage/lockbox/order/Initialize(mapload, datum/money_account/buyer_account)
+	. = ..()
+	src.buyer_account = buyer_account
+
+/obj/item/storage/lockbox/order/Destroy()
+	buyer_account = null
+	return ..()
+
+/obj/item/storage/lockbox/order/examine(mob/user)
+	. = ..()
+	if(buyer_account)
+		. += span_notice("Покупатель: [buyer_account.owner_name].")
+
+/obj/item/storage/lockbox/order/check_access(obj/item/I)
+	var/obj/item/card/id/id_card = I?.GetID()
+	return id_card && id_card.associated_account_number == buyer_account?.account_number

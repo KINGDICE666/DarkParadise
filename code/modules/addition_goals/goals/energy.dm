@@ -1,7 +1,7 @@
 // Energy support addition goal shuttle
 
 #define AGS_CREDITS_PER_SMES 15000
-#define AGS_CAPRGOPOINTS_PER_SMES 100
+#define AGS_CARGO_CREDITS_PER_SMES 2500
 #define AGS_FINE_CREDITS_PER_SMES 50000
 
 /datum/addition_goal/energy_support
@@ -28,7 +28,7 @@
 		Для развертывания мобильного СКАНа, необходимо установить его рядом с узлом энергосети и подключить с помощью гаечного ключа.<br>
 		Награда за выполнение:<br>
 		1. [smes_count * AGS_CREDITS_PER_SMES] кредитов на счет станции.<br>
-		2. [smes_count * AGS_CAPRGOPOINTS_PER_SMES] очков поставки в карго.<br>"}
+		2. [smes_count * AGS_CARGO_CREDITS_PER_SMES] кредитов на счёт отдела снабжения.<br>"}
 
 /datum/addition_goal/energy_support/complete_goal(datum/controller/subsystem/addition_goals/system)
 	var/shuttle_turfs = system.get_shuttle_turfs()
@@ -52,7 +52,7 @@
 	report_text += "<b>Ваша награда</b>:<br>"
 
 	reward_credits = round(smes_count * AGS_CREDITS_PER_SMES * progress / 100, 1)
-	reward_cargopoints = round(smes_count * AGS_CAPRGOPOINTS_PER_SMES * progress / 100, 1)
+	reward_cargo_credits = round(smes_count * AGS_CARGO_CREDITS_PER_SMES * progress / 100, 1)
 	if(smes_in_shuttle < smes_count)
 		var/not_found_count = smes_count - smes_in_shuttle
 		reward_credits -= not_found_count * AGS_FINE_CREDITS_PER_SMES
@@ -64,17 +64,17 @@
 	else if(reward_credits < 0)
 		report_text += "[reward_number]. Штраф [reward_credits] кредитов со счета станции.<br>"
 		reward_number++
-	if(reward_cargopoints > 0)
-		report_text += "[reward_number]. [reward_cargopoints] очков поставки в карго.<br>"
-	else if(reward_cargopoints < 0)
-		report_text += "[reward_number]. Штраф в размере [reward_cargopoints] очков поставки в карго.<br>"
-	if(reward_credits == 0 && reward_cargopoints == 0)
+	if(reward_cargo_credits > 0)
+		report_text += "[reward_number]. [reward_cargo_credits] кредитов на счёт отдела снабжения.<br>"
+	else if(reward_cargo_credits < 0)
+		report_text += "[reward_number]. Штраф в размере [reward_cargo_credits] кредитов со счёта отдела снабжения.<br>"
+	if(reward_credits == 0 && reward_cargo_credits == 0)
 		report_text += "Отсутствует.<br>"
 
-	system.add_reward(reward_credits, reward_cargopoints)
+	system.add_reward(reward_credits, reward_cargo_credits)
 	var/paper_content = system.create_paper_content("Отчет о поставке энергии №[request_number]", report_text, "Официальный документ, заверенный печатью Центрального командования \"Нанотрейзен\"")
 	system.print_report_on_console("Отчет [name]", paper_content, stamp = TRUE)
 
 #undef AGS_CREDITS_PER_SMES
-#undef AGS_CAPRGOPOINTS_PER_SMES
+#undef AGS_CARGO_CREDITS_PER_SMES
 #undef AGS_FINE_CREDITS_PER_SMES

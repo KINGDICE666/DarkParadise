@@ -270,3 +270,15 @@
 #define HYPERTORUS_DANGER 3 // Integrity < 50%
 #define HYPERTORUS_EMERGENCY 4 // Integrity < 25%
 #define HYPERTORUS_MELTING 5 // Pretty obvious.
+
+/// Сколько единиц урона заживляет одна единица синт-плоти в автодоке. У авто-мендера 1.5 брута и 1.5 ожогов.
+#define AUTODOC_DAMAGE_PER_UNIT 1.5
+/// Сколько урона в секунду заживляет регенерация автодока при базовых манипуляторах
+#define AUTODOC_REGENERATION_RATE 2
+#define AUTODOC_MODE_SLOW "slow"
+#define AUTODOC_MODE_MEDIUM "medium"
+#define AUTODOC_MODE_FAST "fast"
+#define AUTODOC_MODE_OVERDRIVE "overdrive"
+#define AUTODOC_MODULE_ORGANS "organs"
+#define AUTODOC_MODULE_LOBOTOMY "lobotomy"
+#define AUTODOC_MODULE_IMPLANTS "implants"

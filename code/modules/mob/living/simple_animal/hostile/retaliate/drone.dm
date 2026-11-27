@@ -102,6 +102,7 @@
 		update_icons()
 
 /mob/living/simple_animal/hostile/malf_drone/emp_act(severity)
+	. = ..()
 	adjustHealth(100 / severity) // takes the same damage as a mining drone from emp
 
 /mob/living/simple_animal/hostile/malf_drone/drop_loot()
@@ -183,9 +184,12 @@
 	. = ..()
 	update_icon()
 
-/mob/living/simple_animal/bot/ed209/combat_drone/emag_act(mob/user)
+/mob/living/simple_animal/bot/ed209/combat_drone/emag_act(mob/user, obj/item/card/emag/emag_card)
 	. = ..()
+	if(!.)
+		return .
 	update_icon()
+	return TRUE
 
 /mob/living/simple_animal/bot/ed209/combat_drone/start_cuffing(mob/living/carbon/C)
 	shootAt(C)
