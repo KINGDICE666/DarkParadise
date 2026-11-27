@@ -242,15 +242,13 @@
 
 /obj/item/mod/module/rad_protection/on_part_activation()
 	AddComponent(/datum/component/geiger_sound)
-	ADD_TRAIT(mod.wearer, TRAIT_BYPASS_EARLY_IRRADIATED_CHECK, UID())
-	RegisterSignal(mod.wearer, COMSIG_IN_RANGE_OF_IRRADIATION, PROC_REF(on_pre_potential_irradiation))
+	RegisterSignal(src, COMSIG_RADIATION_DETECTED, PROC_REF(on_radiation_detected))
 	for(var/obj/item/part in mod.get_parts(all = TRUE))
 		ADD_TRAIT(part, TRAIT_RADIATION_PROTECTED_CLOTHING, MODSUIT_TRAIT)
 
 /obj/item/mod/module/rad_protection/on_part_deactivation(deleting = FALSE)
 	qdel(GetComponent(/datum/component/geiger_sound))
-	REMOVE_TRAIT(mod.wearer, TRAIT_BYPASS_EARLY_IRRADIATED_CHECK, UID())
-	UnregisterSignal(mod.wearer, COMSIG_IN_RANGE_OF_IRRADIATION)
+	UnregisterSignal(src, COMSIG_RADIATION_DETECTED)
 	for(var/obj/item/part in mod.get_parts(all = TRUE))
 		REMOVE_TRAIT(part, TRAIT_RADIATION_PROTECTED_CLOTHING, MODSUIT_TRAIT)
 
@@ -261,10 +259,10 @@
 	.["health_max"] = mod.wearer?.getMaxHealth() || 0
 	.["loss_tox"] = mod.wearer?.getToxLoss() || 0
 
-/obj/item/mod/module/rad_protection/proc/on_pre_potential_irradiation(datum/source, datum/radiation_pulse_information/pulse_information, insulation_to_target)
+/obj/item/mod/module/rad_protection/proc/on_radiation_detected(datum/source, rads, turf/source_turf)
 	SIGNAL_HANDLER
 
-	perceived_threat_level = get_perceived_radiation_danger(pulse_information, insulation_to_target)
+	perceived_threat_level = get_perceived_radiation_danger(rads)
 	addtimer(VARSET_CALLBACK(src, perceived_threat_level, null), TIME_WITHOUT_RADIATION_BEFORE_RESET, TIMER_UNIQUE | TIMER_OVERRIDE)
 
 // MARK: Grappling hook

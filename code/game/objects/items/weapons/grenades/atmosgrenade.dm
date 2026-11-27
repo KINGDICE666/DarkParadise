@@ -43,15 +43,14 @@
 	desc = "An advanced grenade that releases a harmful stream of gluons inducing radiation in those nearby. These gluon streams will also make victims feel exhausted, and induce shivering. This extreme coldness will also wet any nearby floors."
 	icon_state = "gluon"
 	var/freeze_range = 4
-	var/rad_range = 4
-	var/rad_threshold = RAD_EXTREME_INSULATION
+	var/rads = 120
 	var/stamina_damage = 30
 	var/temp_adjust = -230
 
 /obj/item/grenade/gluon/prime()
 	update_mob()
 	playsound(loc, 'sound/effects/empulse.ogg', 50, TRUE)
-	radiation_pulse(src, max_range = rad_range, threshold = rad_threshold, chance = 100)
+	radiation_pulse(src, rads)
 	for(var/turf/simulated/floor/floor_turf in view(freeze_range, loc))
 		floor_turf.MakeSlippery(TURF_WET_PERMAFROST, 2 MINUTES)
 		for(var/mob/living/carbon/victim in floor_turf)

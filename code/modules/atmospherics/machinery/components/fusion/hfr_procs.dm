@@ -580,11 +580,7 @@
 		)
 
 	if(rad_pulse)
-		radiation_pulse(
-			source = loc,
-			max_range = rad_pulse_size,
-			threshold = 0.05,
-		)
+		radiation_pulse(src, rad_pulse_size * 30)
 
 	if(em_pulse)
 		empulse(

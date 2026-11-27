@@ -607,7 +607,7 @@ GLOBAL_LIST_INIT(sand_recipes, list(\
 
 /obj/item/coin/uranium/ComponentInitialize()
 	. = ..()
-	AddElement(/datum/element/radioactive, chance = URANIUM_IRRADIATION_CHANCE)
+	AddElement(/datum/element/radioactive, RAD_PULSE_URANIUM_ITEM)
 
 /obj/item/coin/clown
 	cmineral = "bananium"

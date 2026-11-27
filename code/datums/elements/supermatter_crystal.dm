@@ -184,7 +184,7 @@
 			)
 			playsound(atom_source, 'sound/effects/supermatter.ogg', 150, TRUE)
 			consume(atom_source, item)
-			radiation_pulse(atom_source, max_range = 3, threshold = 0.1, chance = 50)
+			radiation_pulse(atom_source, 100)
 			return
 		else
 			cig.light()
@@ -193,7 +193,7 @@
 				"[span_danger("Time seems to slow to a crawl as you touch \the [atom_source] with \the [item].")]\n[span_notice("\The [item] flashes alight with an eerie energy as you nonchalantly lift your hand away from \the [atom_source]. Damn.")]",
 			)
 			playsound(atom_source, 'sound/effects/supermatter.ogg', 50, TRUE)
-			radiation_pulse(atom_source, max_range = 1, threshold = 0, chance = 100)
+			radiation_pulse(atom_source, 200)
 			return
 
 	if(user.drop_item_ground(item))
@@ -206,7 +206,7 @@
 		consume(atom_source, item)
 		playsound(get_turf(atom_source), 'sound/effects/supermatter.ogg', 50, TRUE)
 
-		radiation_pulse(atom_source, max_range = 3, threshold = 0.1, chance = 50)
+		radiation_pulse(atom_source, 100)
 		return
 
 	if(atom_source.Adjacent(user)) //if the item is stuck to the person, kill the person too instead of eating just the item.
@@ -331,7 +331,6 @@
 	var/object_size = 0
 	var/matter_increase = 0
 	var/damage_increase = 0
-	var/radiation_range = 6
 	var/effects_calculated = FALSE
 
 	if(isliving(consumed_object))
@@ -369,7 +368,6 @@
 
 		if(is_nuke)
 			object_size = 10
-			radiation_range *= 2
 			matter_increase += 10000
 			damage_increase += 110
 			effects_calculated = TRUE
@@ -386,7 +384,7 @@
 			matter_increase += min(0.5 * real_consumed_object.max_integrity, 1000)
 
 	//Some poor sod got eaten, go ahead and irradiate people nearby.
-	radiation_pulse(atom_source, max_range = radiation_range, threshold = 1.2 / max(object_size, 1), chance = 10 * object_size)
+	radiation_pulse(atom_source, 30 * object_size)
 	for(var/mob/living/near_mob in range(10))
 		atom_source.investigate_log("has irradiated [key_name(near_mob)] after consuming [consumed_object].", INVESTIGATE_ENGINE)
 		if(HAS_TRAIT(near_mob, TRAIT_RADIMMUNE) || issilicon(near_mob))

@@ -558,6 +558,9 @@
 		M.fakevomit()
 	return ..() | update_flags
 
+#define POTASS_IODIDE_RADS_REMOVED 4
+#define PEN_ACID_RADS_REMOVED 10
+
 /datum/reagent/medicine/potass_iodide
 	name = "Йодид калия"
 	id = "potass_iodide"
@@ -566,13 +569,11 @@
 	color = "#B4DCBE"
 	taste_description = "очищения"
 	metabolization_rate = 2 * REAGENTS_METABOLISM
-	metabolized_traits = list(TRAIT_HALT_RADIATION_EFFECTS)
+	metabolized_traits = list(TRAIT_HALT_RADIATION_EFFECTS, TRAIT_RADIATION_RESISTANT)
 
 /datum/reagent/medicine/potass_iodide/on_mob_life(mob/living/affected_mob)
-	var/update_flags = STATUS_UPDATE_NONE
-	if(HAS_TRAIT(affected_mob, TRAIT_IRRADIATED))
-		update_flags |= affected_mob.adjustToxLoss(-1 * REM, updating_health = FALSE)
-	return ..() | update_flags
+	affected_mob.adjust_radiation_dose(-POTASS_IODIDE_RADS_REMOVED * REM)
+	return ..()
 
 /datum/reagent/medicine/pen_acid
 	name = "Пентетовая кислота"
@@ -588,6 +589,7 @@
 /datum/reagent/medicine/pen_acid/on_mob_life(mob/living/affected_mob)
 	var/update_flags = STATUS_UPDATE_NONE
 	update_flags |= affected_mob.adjustToxLoss(-2 * REM, updating_health = FALSE)
+	affected_mob.adjust_radiation_dose(-PEN_ACID_RADS_REMOVED * REM)
 	return ..() | update_flags
 
 /datum/reagent/medicine/sal_acid
@@ -1873,3 +1875,6 @@
 				limb.unnecrotize()
 				break
 	return ..()
+
+#undef POTASS_IODIDE_RADS_REMOVED
+#undef PEN_ACID_RADS_REMOVED

@@ -15,19 +15,14 @@
 
 	/// The length of the cooldown between radiation pulses
 	var/cooldown_time = 5 SECONDS
-	/// How far the radiation pulses aggregate with other radiation pulses (see: [proc/radiation_pulse])
-	var/range = 1
-	/// How much radiation protection threshold is passed to the radiation pulse (see: [proc/radiation_pulse])
-	var/threshold = RAD_MEDIUM_INSULATION
-	var/chance = DEFAULT_RADIATION_CHANCE
+	/// Сила импульсов (см. [proc/radiation_pulse])
+	var/rads = 1
 	/// Optional - What is shown on examine of the parent?
 	var/examine_text
 
 /datum/component/radioactive_emitter/Initialize(
 	cooldown_time = 5 SECONDS,
-	range = 1,
-	threshold = RAD_MEDIUM_INSULATION,
-	chance = DEFAULT_RADIATION_CHANCE,
+	rads = 1,
 	examine_text,
 )
 
@@ -35,9 +30,7 @@
 		return COMPONENT_INCOMPATIBLE
 
 	src.cooldown_time = max(cooldown_time, MIN_PULSE_COOLDOWN)
-	src.range = range
-	src.threshold = threshold
-	src.chance = chance
+	src.rads = rads
 	src.examine_text = examine_text
 
 	// We process on fastprocess even though we're on a cooldown based system.
@@ -58,9 +51,7 @@
 	datum/component/new_comp,
 	i_am_original,
 	cooldown_time = 5 SECONDS,
-	range = 1,
-	threshold = RAD_NO_INSULATION,
-	chance = DEFAULT_RADIATION_CHANCE,
+	rads = 1,
 	examine_text,
 )
 
@@ -69,9 +60,7 @@
 
 	// Only care about modifying our rad wave argument.
 	src.cooldown_time = cooldown_time
-	src.range = range
-	src.threshold = threshold
-	src.chance = chance
+	src.rads = rads
 	// Don't touch examine text or whatever else.
 
 /datum/component/radioactive_emitter/process(seconds_per_tick)
@@ -79,7 +68,7 @@
 		return
 
 	COOLDOWN_START(src, rad_pulse_cooldown, cooldown_time)
-	radiation_pulse(parent, range, threshold, chance)
+	radiation_pulse(parent, rads)
 
 /datum/component/radioactive_emitter/proc/on_examine(datum/source, mob/user, list/examine_list)
 	SIGNAL_HANDLER
