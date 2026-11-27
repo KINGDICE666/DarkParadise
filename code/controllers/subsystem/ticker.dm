@@ -169,6 +169,9 @@ SUBSYSTEM_DEF(ticker)
 			if(SSmapping.next_map)
 				to_chat(world, "<b>Следующая карта — [SSmapping.next_map.name]!</b>")
 
+			if(CONFIG_GET(flag/allow_vote_gamemode))
+				SSvote.queue_vote(/datum/vote/gamemode, "Mode Rotation")
+
 			SSachievements.save_achievements_to_db()
 
 /datum/controller/subsystem/ticker/Recover()
@@ -787,6 +790,7 @@ SUBSYSTEM_DEF(ticker)
 		to_chat(world, span_boldannounceooc("Администрация отложила окончание раунда."))
 		return
 
+	var/wait_for_votes = isnull(delay)
 	if(!isnull(delay))
 		// Delay time was present. Use that.
 		delay = max(0, delay)
@@ -797,7 +801,7 @@ SUBSYSTEM_DEF(ticker)
 	to_chat(world, span_boldannounceooc("Перезагрузка мира через [delay/10] секунд[DECL_U_Y_0(delay/10)]. [reason]"))
 
 	real_reboot_time = world.time + delay
-	UNTIL(world.time > real_reboot_time) // Hold it here
+	UNTIL(world.time > real_reboot_time && !(wait_for_votes && SSvote.has_pending_votes())) // Hold it here
 
 	// And if we re-delayed, bail again
 	if(delay_end)

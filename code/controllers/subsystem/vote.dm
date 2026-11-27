@@ -17,6 +17,7 @@ SUBSYSTEM_DEF(vote)
 	var/list/voting = list()
 	/// World.time we started our last vote
 	var/last_vote_time = -INFINITY
+	var/list/queued_votes = list()
 
 /datum/controller/subsystem/vote/Initialize()
 	for(var/vote_type in valid_subtypesof(/datum/vote))
@@ -31,11 +32,22 @@ SUBSYSTEM_DEF(vote)
 
 // Called by master_controller
 /datum/controller/subsystem/vote/fire()
+	if(!current_vote && length(queued_votes))
+		var/vote_type = queued_votes[1]
+		var/vote_initiator_name = queued_votes[vote_type]
+		queued_votes -= vote_type
+		initiate_vote(vote_type, vote_initiator_name, forced = TRUE)
 	if(!current_vote)
 		return
 	current_vote.time_remaining = round((current_vote.started_time + CONFIG_GET(number/vote_period) - world.time) / 10)
 	if(current_vote.time_remaining < 0)
 		end_vote()
+
+/datum/controller/subsystem/vote/proc/queue_vote(vote_type, vote_initiator_name)
+	queued_votes[vote_type] = vote_initiator_name
+
+/datum/controller/subsystem/vote/proc/has_pending_votes()
+	return current_vote || length(queued_votes)
 
 /// Ends the current vote.
 /datum/controller/subsystem/vote/proc/end_vote()

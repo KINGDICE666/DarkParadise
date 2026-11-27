@@ -93,21 +93,29 @@
 	count_method = VOTE_COUNT_METHOD_MULTI
 	allow_dead_vote = TRUE
 	display_statistics = FALSE
-	print_results = FALSE
-	hide_winner = TRUE
 
 /datum/vote/gamemode/create_vote(mob/vote_creator)
 	. = ..()
 	for(var/mode in config.votable_modes)
-		choices[mode] = 0
+		choices[config.mode_names[mode]] = 0
 
 /datum/vote/gamemode/finalize_vote(result)
 	if(!result)
 		return
 
-	if(GLOB.master_mode != result)
-		GLOB.master_mode = "secret"
-		GLOB.secret_force_mode = result
+	var/winner_tag
+	for(var/mode in config.votable_modes)
+		if(config.mode_names[mode] == result)
+			winner_tag = mode
+			break
+
+	if(SSticker.current_state == GAME_STATE_FINISHED)
+		world.save_mode(winner_tag)
+		to_chat(world, span_interface("<b>Режим следующего раунда: [result]</b>"))
+		return
+
+	if(winner_tag)
+		GLOB.master_mode = winner_tag
 
 	if(!SSticker.ticker_going)
 		SSticker.ticker_going = TRUE
@@ -127,7 +135,7 @@
 	if(. != VOTE_AVAILABLE)
 		return .
 
-	if(SSticker?.mode)
+	if(SSticker.mode && SSticker.current_state != GAME_STATE_FINISHED)
 		return "Голосование за режим запущено после выбора игрового режима!"
 
 	if(SSticker.current_state < GAME_STATE_PREGAME)

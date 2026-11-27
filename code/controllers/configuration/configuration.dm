@@ -346,5 +346,3 @@ GLOBAL_LIST_EMPTY(overflow_whitelist)
 			mode_required_players[config_tag] = minplayers_conf[config_tag]
 		if(config_tag in probabilities_conf)
 			probabilities[config_tag] = probabilities_conf[config_tag]
-
-	votable_modes += "secret"

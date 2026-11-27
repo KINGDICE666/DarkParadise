@@ -17,12 +17,13 @@
 /datum/game_mode
 	var/name = "invalid"
 	var/config_tag = null
+	var/forced_job = null
 	/// All heretic minds for the round (tg heretic port).
 	var/list/heretics = list()
 	/// Probablity for this mode in secret mode type.
 	var/probability = 0
 	/// Whether this mode can be voted by players.
-	var/votable = TRUE
+	var/votable = FALSE
 	/// See nuclearbomb.dm and malfunction.dm
 	var/station_was_nuked = FALSE
 	/// See nuclearbomb.dm and malfunction.dm
