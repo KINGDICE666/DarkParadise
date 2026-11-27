@@ -42,6 +42,11 @@ SUBSYSTEM_DEF(ghost_spawns)
  * * role_cleanname - The name override to display to clients
  */
 /datum/controller/subsystem/ghost_spawns/proc/poll_candidates(question = "Вы хотите сыграть за особую роль?", role, antag_age_check = FALSE, poll_time = 30 SECONDS, ignore_respawnability = FALSE, min_hours = 0, flash_window = TRUE, check_antaghud = TRUE, source, role_cleanname, reason)
+	var/datum/candidate_poll/poll = start_candidate_poll(question, role, antag_age_check, poll_time, ignore_respawnability, min_hours, flash_window, check_antaghud, source, role_cleanname, reason)
+	UNTIL(poll.finished)
+	return poll.signed_up
+
+/datum/controller/subsystem/ghost_spawns/proc/start_candidate_poll(question = "Вы хотите сыграть за особую роль?", role, antag_age_check = FALSE, poll_time = 30 SECONDS, ignore_respawnability = FALSE, min_hours = 0, flash_window = TRUE, check_antaghud = TRUE, source, role_cleanname, reason)
 	var/mob/mob_source = source
 	if(role == ROLE_SENTIENT && istype(mob_source))
 		log_debug("Polling candidates for sentient mob `[mob_source.type]` for [poll_time / 10] seconds")
@@ -143,9 +148,7 @@ SUBSYSTEM_DEF(ghost_spawns)
 		START_PROCESSING(SSprocessing, A)
 		A.process()
 
-	// Sleep until the time is up
-	UNTIL(P.finished)
-	return P.signed_up
+	return P
 
 /**
  * Returns whether an observer is eligible to be an event mob

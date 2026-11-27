@@ -197,7 +197,7 @@ GLOBAL_DATUM_INIT(multispin_words, /regex, regex("like a record baby|как пл
 
 	var/list/mob/living/listeners = list()
 	for(var/mob/living/L in get_hearers_in_view(8, speaker))
-		if(!HAS_TRAIT(L, TRAIT_DEAF) && !L.null_rod_check() && (include_speaker || L != speaker) && L.stat != DEAD)
+		if(!HAS_TRAIT(L, TRAIT_DEAF) && !L.can_block_magic() && (include_speaker || L != speaker) && L.stat != DEAD)
 			if(ishuman(L))
 				var/mob/living/carbon/human/H = L
 				if(H.check_ear_prot() >= HEARING_PROTECTION_TOTAL)
@@ -209,7 +209,7 @@ GLOBAL_DATUM_INIT(multispin_words, /regex, regex("like a record baby|как пл
 
 	if(speaker.mind)
 		//Holy characters are very good at speaking with the voice of god
-		if(speaker.mind.isholy)
+		if(HAS_MIND_TRAIT(speaker, TRAIT_HOLY))
 			power_multiplier *= 2
 		//Command staff has authority
 		if(speaker.mind.assigned_role in GLOB.command_positions)
@@ -291,7 +291,7 @@ GLOBAL_DATUM_INIT(multispin_words, /regex, regex("like a record baby|как пл
 	else if((findtext(message, GLOB.hallucinate_words)))
 		for(var/V in listeners)
 			var/mob/living/L = V
-			new /obj/effect/hallucination/delusion(get_turf(L),L,duration=150 * power_multiplier,skip_nearby=0)
+			L.cause_hallucination(get_random_valid_hallucination_subtype(/datum/hallucination/delusion/preset), "vocal cords hallucination", duration = 150 * power_multiplier, skip_nearby = FALSE)
 		. = VOICE_OF_GOD_MEME
 
 	//WAKE UP

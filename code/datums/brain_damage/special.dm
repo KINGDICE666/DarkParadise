@@ -12,12 +12,12 @@
 
 /datum/brain_trauma/special/godwoken/on_gain()
 	if(owner.mind)
-		owner.mind.isholy = TRUE
+		ADD_TRAIT(owner.mind, TRAIT_HOLY, TRAUMA_TRAIT)
 	return ..()
 
 /datum/brain_trauma/special/godwoken/on_lose(silent)
-	if(owner.mind && owner.mind.assigned_role != JOB_TITLE_CHAPLAIN)
-		owner.mind.isholy = FALSE
+	if(owner.mind)
+		REMOVE_TRAIT(owner.mind, TRAIT_HOLY, TRAUMA_TRAIT)
 	return ..()
 
 /datum/brain_trauma/special/godwoken/on_life()

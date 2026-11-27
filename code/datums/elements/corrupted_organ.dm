@@ -32,7 +32,7 @@
 /// When we're taken out of someone, do something spooky
 /datum/element/corrupted_organ/proc/on_removed(atom/organ, mob/living/remover, mob/living/carbon/loser)
 	SIGNAL_HANDLER
-	if(loser.reagents.has_reagent("holywater") || loser.can_block_magic(MAGIC_RESISTANCE|MAGIC_RESISTANCE_HOLY) || prob(20))
+	if(loser.reagents.has_reagent(/datum/reagent/holywater) || loser.can_block_magic(MAGIC_RESISTANCE|MAGIC_RESISTANCE_HOLY) || prob(20))
 		return
 
 	// TODO(heretic-port): haunted_item component needs the tg basic-mob AI subsystem (task #7) — until ported,

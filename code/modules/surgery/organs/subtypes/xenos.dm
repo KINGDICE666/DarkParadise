@@ -19,12 +19,12 @@
 	if(length(alien_powers))
 		for(var/power_to_remove in alien_powers)
 			var/datum/action/cooldown/spell/actual_spell = locate(power_to_remove) in user.actions
-			actual_spell.Remove(user)
+			actual_spell?.Remove(user)
 	. = ..()
 
 /obj/item/organ/internal/xenos/prepare_eat()
 	var/obj/object = ..()
-	object.reagents.add_reagent("sacid", 10)
+	object.reagents.add_reagent(/datum/reagent/acid, 10)
 	return object
 
 //XENOMORPH ORGANS
@@ -187,7 +187,7 @@
 
 /obj/item/organ/internal/xenos/plasmavessel/prepare_eat()
 	var/obj/S = ..()
-	S.reagents.add_reagent("plasma", stored_plasma/10)
+	S.reagents.add_reagent(/datum/reagent/plasma, stored_plasma/10)
 	return S
 
 /obj/item/organ/internal/xenos/plasmavessel/on_life()
@@ -320,7 +320,8 @@
 
 /obj/item/organ/internal/xenos/hivenode/remove(mob/living/carbon/M, special = ORGAN_MANIPULATION_DEFAULT)
 	M.faction -= "alien"
-	M.remove_language(/datum/language/xenocommon, source = UID())
+	if(!QDELETED(M))
+		M.remove_language(/datum/language/xenocommon, source = UID())
 	REMOVE_TRAIT(M, TRAIT_XENO_HIVEMIND, UID())
 	. = ..()
 

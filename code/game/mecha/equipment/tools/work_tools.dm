@@ -379,7 +379,7 @@
 /obj/item/mecha_parts/mecha_equipment/multimodule/attackby(obj/item/I, mob/user, params)
 	if(istype(I, /obj/item/storage/bible))
 		var/obj/item/mecha_parts/mecha_equipment/extinguisher/extinguisher = locate() in src
-		if(extinguisher?.reagents && user.mind?.isholy)
+		if(extinguisher?.reagents && user.mind && HAS_MIND_TRAIT(user, TRAIT_HOLY))
 			var/obj/item/storage/bible/bible = I
 			bible.add_holy_water(user, extinguisher)
 			return ATTACK_CHAIN_PROCEED
@@ -536,7 +536,7 @@
 
 /obj/item/mecha_parts/mecha_equipment/extinguisher/Initialize(mapload)
 	create_reagents(1000)
-	reagents.add_reagent("water", 1000)
+	reagents.add_reagent(/datum/reagent/water, 1000)
 	. = ..()
 
 /obj/item/mecha_parts/mecha_equipment/extinguisher/action(atom/target, list/modifiers) //copypasted from extinguisher. TODO: Rewrite from scratch.
@@ -774,11 +774,14 @@
 		selected_item = selected
 		occupant_message("Switched to [selected_item]")
 
-/obj/item/mecha_parts/mecha_equipment/eng_toolset/emag_act(mob/user)
-	if(!emagged)
-		var/obj/item/emag_thing = new emag_item
-		items_list.Add(emag_thing)
-		ADD_TRAIT(emag_thing, TRAIT_NODROP, type)
-		emagged = TRUE
-		user.visible_message(span_warning("Sparks fly out of [name]"), span_notice("You short out the safeties on [name]."))
-		playsound(loc, 'sound/effects/sparks4.ogg', 50, TRUE)
+/obj/item/mecha_parts/mecha_equipment/eng_toolset/emag_act(mob/user, obj/item/card/emag/emag_card)
+	. = ..()
+	if(obj_flags & EMAGGED)
+		return FALSE
+	obj_flags |= EMAGGED
+	var/obj/item/emag_thing = new emag_item
+	items_list.Add(emag_thing)
+	ADD_TRAIT(emag_thing, TRAIT_NODROP, type)
+	playsound(loc, SFX_SPARKS, 50, TRUE)
+	user.visible_message(span_warning("Sparks fly out of [name]"), span_notice("You short out the safeties on [name]."))
+	return TRUE

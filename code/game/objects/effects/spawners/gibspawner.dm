@@ -63,9 +63,5 @@
 	return ..()
 
 /obj/effect/gibspawner/human/bodypartless
-	gibtypes = list(/obj/effect/decal/cleanable/blood/gibs, /obj/effect/decal/cleanable/blood/gibs/core, /obj/effect/decal/cleanable/blood/gibs, /obj/effect/decal/cleanable/blood/gibs/core, /obj/effect/decal/cleanable/blood/gibs, /obj/effect/decal/cleanable/blood/gibs/torso)
-	gibamounts = list(1, 1, 1, 1, 1, 1)
-
-/obj/effect/gibspawner/human/bodypartless/Initialize(mapload, datum/dna/mob_dna)
-	gibdirections = list(list(NORTH, NORTHEAST, NORTHWEST), list(SOUTH, SOUTHEAST, SOUTHWEST), list(WEST, NORTHWEST, SOUTHWEST), list(EAST, NORTHEAST, SOUTHEAST), GLOB.alldirs, list())
-	return ..()
+	gibtypes = list(/obj/effect/decal/cleanable/blood/gibs, /obj/effect/decal/cleanable/blood/gibs/core, /obj/effect/decal/cleanable/blood/gibs, /obj/effect/decal/cleanable/blood/gibs/core, /obj/effect/decal/cleanable/blood/gibs, /obj/effect/decal/cleanable/blood/gibs/torso, /obj/effect/decal/cleanable/blood/gibs)
+	gibamounts = list(1, 1, 1, 1, 1, 1, 0)

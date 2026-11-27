@@ -142,7 +142,7 @@
 	plantname = "Bombanana Tree"
 	product = /obj/item/reagent_containers/food/snacks/grown/banana/bombanana
 	mutatelist = list()
-	reagents_add = list("vitamin" = 0.1)
+	reagents_add = list(/datum/reagent/consumable/nutriment/vitamin = 0.1)
 
 /obj/item/seeds/banana/bombanana/get_ru_names()
 	return alist(

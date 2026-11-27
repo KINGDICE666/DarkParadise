@@ -371,7 +371,7 @@ GLOBAL_LIST_EMPTY(fax_constructor_drafts)
 			var/obj/item/paper/created_paper = build_paper()
 			created_paper.forceMove(get_turf(user))
 			log_admin("[key_name(user)] created a paper form '[created_paper.name]' at [AREACOORD(user)]: [strip_html_properly(created_paper.info)]")
-			message_admins("[key_name_admin(user)] created a paper form '[created_paper.name]' at [ADMIN_COORDJMP(user)] (<a href='byond://?_src_=holder;AdminFaxView=[created_paper.UID()]'>VIEW</a>).")
+			message_admins("[key_name_admin(user)] created a paper form '[created_paper.name]' at [ADMIN_COORDJMP(user)] (<a href='byond://?_src_=holder;[HrefToken()];AdminFaxView=[created_paper.UID()]'>VIEW</a>).")
 			return FALSE
 		if("send")
 			send_fax(user)

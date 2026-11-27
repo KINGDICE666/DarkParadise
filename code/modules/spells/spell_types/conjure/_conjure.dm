@@ -77,7 +77,7 @@
 	return TRUE
 
 /datum/action/cooldown/spell/conjure/limit_summons/post_summon(atom/summoned_object, atom/cast_on)
-	RegisterSignal(summoned_object, list(COMSIG_QDELETING, COMSIG_LIVING_DEATH), PROC_REF(delete_copy))
+	RegisterSignals(summoned_object, list(COMSIG_QDELETING, COMSIG_LIVING_DEATH), PROC_REF(delete_copy))
 	number_of_summons++
 
 /datum/action/cooldown/spell/conjure/limit_summons/proc/delete_copy(datum/source)

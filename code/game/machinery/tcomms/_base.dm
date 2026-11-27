@@ -295,7 +295,7 @@ GLOBAL_LIST_EMPTY(tcomms_machines)
 	if(tcm.data == SIGNALTYPE_INTERCOM && !bad_connection)
 
 		for(var/obj/item/radio/intercom/R in GLOB.all_radios["[new_connection.frequency]"])
-			if(R.receive_range(display_freq, tcm.zlevels) > -1)
+			if(R.can_receive(display_freq, tcm.zlevels))
 				radios += R
 
 	// --- Broadcast only to intercoms and station-bounced radios ---
@@ -307,7 +307,7 @@ GLOBAL_LIST_EMPTY(tcomms_machines)
 			if(istype(R, /obj/item/radio/headset))
 				continue
 
-			if(R.receive_range(display_freq, tcm.zlevels) > -1)
+			if(R.can_receive(display_freq, tcm.zlevels))
 				radios += R
 
 	// --- Broadcast to ALL radio devices ---
@@ -315,21 +315,22 @@ GLOBAL_LIST_EMPTY(tcomms_machines)
 	else if(!bad_connection)
 
 		for(var/obj/item/radio/R in GLOB.all_radios["[new_connection.frequency]"])
-			if(R.receive_range(display_freq, tcm.zlevels) > -1)
+			if(R.can_receive(display_freq, tcm.zlevels))
 				radios += R
 
 	// Add syndie radios for intercepts if its a regular department frequency
 		for(var/antag_freq in SSradio.ANTAG_FREQS)
 			var/datum/radio_frequency/antag_connection = SSradio.return_frequency(antag_freq)
 			for(var/obj/item/radio/R in GLOB.all_radios["[antag_connection.frequency]"])
-				if(R.receive_range(display_freq, tcm.zlevels) > -1)
+				if(R.can_receive(display_freq, tcm.zlevels))
 					// Only add if it wasnt there already
 					radios |= R
 
 	// Get a list of mobs who can hear from the radios we collected.
-	var/list/receive = get_hearers_in_radio_ranges(radios) | GLOB.permanent_radio_listeners
-	if(!length(receive))
-		return TRUE
+	var/list/receive = list()
+	for(var/obj/item/radio/radio in radios)
+		receive |= radio.deliver()
+	receive |= GLOB.permanent_radio_listeners
 
 	SSblackbox.LogBroadcast(display_freq)
 

@@ -126,7 +126,7 @@
 	active_power_usage = power_usage
 
 /obj/machinery/power/emitter/click_alt(mob/user)
-	if(user.incapacitated() || HAS_TRAIT(user, TRAIT_HANDS_BLOCKED))
+	if(user.incapacitated || HAS_TRAIT(user, TRAIT_HANDS_BLOCKED))
 		to_chat(user, span_warning("You can't do that right now!"))
 		return CLICK_ACTION_BLOCKING
 
@@ -192,6 +192,7 @@
 	update_appearance()
 
 /obj/machinery/power/emitter/emp_act(severity) // Emitters are hardened but still might have issues
+	. = ..()
 	return TRUE
 
 /obj/machinery/power/emitter/attack_animal(mob/living/simple_animal/user)
@@ -306,7 +307,7 @@
 
 	if(item.GetID() || is_pda(item))
 		add_fingerprint(user)
-		if(emagged)
+		if(obj_flags & EMAGGED)
 			to_chat(user, span_warning("The lock seems to be broken."))
 			return ATTACK_CHAIN_PROCEED
 		if(!allowed(user))
@@ -375,16 +376,18 @@
 	default_deconstruction_crowbar(user, item)
 	return TRUE
 
-/obj/machinery/power/emitter/emag_act(mob/user)
-	if(!emagged)
-		add_attack_logs(user, src, "emagged")
-		locked = FALSE
-		emagged = TRUE
-		if(user)
-			user.visible_message(
-				span_warning("[user] emags the [src]."),
-				span_warning("You short out the lock."),
-			)
+/obj/machinery/power/emitter/emag_act(mob/user, obj/item/card/emag/emag_card)
+	. = ..()
+	if(obj_flags & EMAGGED)
+		return FALSE
+	obj_flags |= EMAGGED
+	locked = FALSE
+	if(user)
+		user.visible_message(
+			span_warning("[user] emags the [src]."),
+			span_warning("You short out the lock."),
+		)
+	return TRUE
 
 /obj/machinery/power/emitter/wrench_act(mob/living/user, obj/item/item)
 	. = TRUE

@@ -120,7 +120,8 @@
 	host?.client?.images -= current_image
 	client?.images -= current_image
 	remove_image_from_clients(indicator_image, group_clients())
-	host?.imaginary_group -= src
+	if(host?.imaginary_group)
+		host.imaginary_group -= src
 	host = null
 	current_image = null
 	indicator_image = null

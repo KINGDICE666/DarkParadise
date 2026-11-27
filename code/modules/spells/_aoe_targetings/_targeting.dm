@@ -7,6 +7,11 @@
 	owner = new_owner
 	parent = spell
 
+/datum/aoe_targeting/Destroy(force)
+	owner = null
+	parent = null
+	return ..()
+
 
 /datum/aoe_targeting/proc/get_targets(atom/center, aoe_radius)
 	RETURN_TYPE(/list)

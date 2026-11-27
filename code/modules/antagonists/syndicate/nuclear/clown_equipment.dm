@@ -154,7 +154,7 @@
 	var/list/modifiers = params2list(params)
 	if(modifiers[SHIFT_CLICK] || modifiers[CTRL_CLICK] || modifiers[ALT_CLICK] || modifiers[RIGHT_CLICK] || modifiers[MIDDLE_CLICK])
 		return
-	if(!cannon_user.is_in_active_hand(src) || cannon_user.in_throw_mode || cannon_user.incapacitated() || !cannon_user.loc?.allow_click())
+	if(!cannon_user.is_in_active_hand(src) || cannon_user.in_throw_mode || cannon_user.incapacitated || !cannon_user.loc?.allow_click())
 		return
 	if(!isturf(object) && !isturf(object?.loc))
 		return
@@ -170,7 +170,7 @@
 
 /obj/item/pneumatic_cannon/pie/selfcharge/proc/fire_pie()
 	var/atom/target = target_ref?.resolve()
-	if(!target || !cannon_user || !cannon_user.is_in_active_hand(src) || cannon_user.incapacitated() || cannon_user.in_throw_mode || !length(loadedItems))
+	if(!target || !cannon_user || !cannon_user.is_in_active_hand(src) || cannon_user.incapacitated || cannon_user.in_throw_mode || !length(loadedItems))
 		return NONE
 	Fire(cannon_user, target)
 	return AUTOFIRE_CONTINUE

@@ -88,10 +88,10 @@
 	return pocket.contents
 
 /obj/item/organ/internal/headpocket/emp_act(severity)
-	if(emp_shielded(severity))
+	. = ..()
+	if(. & EMP_PROTECT_SELF)
 		return
 	pocket.emp_act(severity)
-	..()
 
 /obj/item/organ/internal/headpocket/hear_message(mob/living/M as mob, msg)
 	pocket.hear_message(M, msg)

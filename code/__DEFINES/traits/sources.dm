@@ -9,6 +9,7 @@
 #define CULT_TRAIT "cult"
 #define CLOCK_TRAIT "clockwork_cult"
 #define DEVIL_TRAIT "devil"
+#define ZOMBIE_TRAIT "zombie"
 #define INNATE_TRAIT "innate"
 #define EAR_DAMAGE "ear_damage"
 #define EYE_DAMAGE "eye_damage"
@@ -33,8 +34,6 @@
 #define REVENANT_TRAIT "revenant"
 /// (B)admins only.
 #define ADMIN_TRAIT "admin"
-
-#define CMAGGED "clown_emag"
 
 #define NO_HITSCAN_TURRET_TRAIT "no-hitscan-in-turret"
 #define ABSTRACT_ITEM_TRAIT "abstract-item"
@@ -233,4 +232,3 @@
 
 #define VIRTUAL_ENTITY_TRAIT "virtual_entity"
 
-#define ZOMBIE_TRAIT "zombie"

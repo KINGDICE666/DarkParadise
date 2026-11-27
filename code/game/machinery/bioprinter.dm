@@ -92,7 +92,7 @@
 	if(!is_operational() || panel_open)
 		balloon_alert(user, "аппарат недоступен!")
 		return ITEM_INTERACT_BLOCKING
-	var/protein = used.reagents.get_reagent_amount("protein")
+	var/protein = used.reagents.get_reagent_amount(/datum/reagent/consumable/nutriment/protein)
 	var/biomass_gain = protein / BIOPRINTER_PROTEIN_PER_MEAT * BIOPRINTER_MEAT_YIELD
 	if(biomass_gain <= 0)
 		balloon_alert(user, "нет пригодного белка!")

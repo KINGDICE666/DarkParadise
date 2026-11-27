@@ -9,6 +9,7 @@
 	var/notify_status = FALSE
 	var/sound_notify = FALSE
 	var/interface_name
+	var/orders_blocked = FALSE
 
 /datum/component/logistics_interface/Initialize(obj/item/logistics_interface/installed_board)
 	if(!ismachinery(parent))
@@ -18,17 +19,12 @@
 	var/obj/machinery/machine = parent
 	board = installed_board
 	mode = board?.mode || LOGISTICS_MODE_SEND
-	adapter = make_adapter(machine)
+	adapter = machine.create_logistics_adapter()
 	if(!adapter)
 		return COMPONENT_INCOMPATIBLE
-	interface_name = machine.name
-
-/datum/component/logistics_interface/proc/make_adapter(obj/machinery/machine)
-	if(istype(machine, /obj/machinery/smartfridge))
-		return new /datum/logistics_adapter/smartfridge(machine)
-	if(machine.GetComponent(/datum/component/material_container))
-		return new /datum/logistics_adapter/material_container(machine)
-	return null
+	var/zone = get_area_name(machine)
+	var/type_name = machine.declent_ru(NOMINATIVE)
+	interface_name = zone ? "[zone] - [type_name]" : type_name
 
 /datum/component/logistics_interface/RegisterWithParent()
 	RegisterSignal(parent, COMSIG_ATOM_EXAMINE, PROC_REF(on_examine))
@@ -165,6 +161,20 @@
 	var/atom/host = parent
 	return host.ui_status(user, state)
 
+/datum/component/logistics_interface/ui_state(mob/user)
+	if(issilicon(user))
+		if(isAI(user))
+			var/mob/living/silicon/ai/ai_user = user
+			if(!ai_user.lacks_power() || ai_user.apc_override)
+				return GLOB.always_state
+		if(isrobot(user))
+			return GLOB.always_state
+	if(ishuman(user))
+		for(var/obj/machinery/computer/logistics_core/console in range(1, user))
+			if(!console.stat)
+				return GLOB.always_state
+	return ..()
+
 /datum/component/logistics_interface/ui_interact(mob/user, datum/tgui/ui)
 	ui = SStgui.try_update_ui(user, src, ui)
 	if(!ui)
@@ -175,11 +185,12 @@
 /datum/component/logistics_interface/ui_data(mob/user)
 	var/list/data = list()
 	data["name"] = interface_name
-	data["mode"] = (mode == LOGISTICS_MODE_SEND) ? "send" : "receive"
+	data["mode"] = mode
 	data["connected"] = !!linked_pipe
 	data["allow_export"] = allow_export
 	data["notify_status"] = notify_status
 	data["sound_notify"] = sound_notify
+	data["blocked"] = orders_blocked
 	data["uid"] = UID()
 	data["fill_percent"] = adapter ? adapter.get_fill_percent() : null
 	data["network_id"] = net ? net.net_id : null
@@ -196,41 +207,14 @@
 	var/list/datum/component/logistics_interface/ordered_interfaces = list()
 
 	for(var/datum/component/logistics_interface/interface as anything in net.interfaces)
-		var/obj/machinery/other = interface.parent
-		var/list/node_stock = list()
-		if(interface.adapter)
-			for(var/list/entry as anything in interface.adapter.list_stock())
-				var/stock_id = entry["id"]
-				var/amount = entry["amount"]
-				node_stock += list(list(
-					"id" = stock_id,
-					"name" = entry["name"],
-					"amount" = amount,
-					"icon" = entry["icon"],
-					"icon_state" = entry["icon_state"],
-				))
-				net_amounts[stock_id] += amount
-				if(!net_names[stock_id])
-					net_names[stock_id] = entry["name"]
-				if(!net_icons[stock_id])
-					net_icons[stock_id] = list("icon" = entry["icon"], "icon_state" = entry["icon_state"])
 		ordered_interfaces += interface
-		node_entries += list(list(
-			"uid" = interface.UID(),
-			"name" = interface.interface_name,
-			"mode" = (interface.mode == LOGISTICS_MODE_SEND) ? "send" : "receive",
-			"self" = (interface == src),
-			"icon" = other.icon,
-			"icon_state" = other.icon_state,
-			"fill_percent" = interface.adapter ? interface.adapter.get_fill_percent() : null,
-			"stock" = node_stock,
-		))
+		node_entries += list(interface.ui_node_data(src, net_amounts, net_names, net_icons))
 
-	for(var/stock_id in net_amounts)
+	for(var/stock_id, net_amount in net_amounts)
 		data["net_stock"] += list(list(
 			"id" = stock_id,
 			"name" = net_names[stock_id] || logistics_stock_display_name(stock_id),
-			"amount" = net_amounts[stock_id],
+			"amount" = net_amount,
 			"icon" = net_icons[stock_id]["icon"],
 			"icon_state" = net_icons[stock_id]["icon_state"],
 		))
@@ -273,6 +257,9 @@
 			sound_notify = !sound_notify
 			return TRUE
 		if("create_request")
+			if(orders_blocked)
+				to_chat(usr, span_warning("Интерфейс заблокирован."))
+				return TRUE
 			if(!net)
 				to_chat(usr, span_warning("Нет подключения к логистической сети."))
 				return TRUE
@@ -282,8 +269,8 @@
 			if(!islist(wanted) || !length(wanted))
 				return TRUE
 			var/list/cleaned = list()
-			for(var/stock_id in wanted)
-				var/amount = text2num(wanted[stock_id])
+			for(var/stock_id, requested_amount in wanted)
+				var/amount = text2num(requested_amount)
 				if(!amount || amount < 1)
 					continue
 				if(!istext(stock_id) || !length(stock_id))
@@ -307,3 +294,33 @@
 				return TRUE
 			net.create_request(source, dest, cleaned, usr, src)
 			return TRUE
+
+/datum/component/logistics_interface/proc/ui_node_data(datum/component/logistics_interface/viewer, list/net_amounts, list/net_names, list/net_icons)
+	var/obj/machinery/other = parent
+	var/list/node_stock = list()
+	if(adapter)
+		for(var/list/entry as anything in adapter.list_stock())
+			var/stock_id = entry["id"]
+			var/amount = entry["amount"]
+			node_stock += list(list(
+				"id" = stock_id,
+				"name" = entry["name"],
+				"amount" = amount,
+				"icon" = entry["icon"],
+				"icon_state" = entry["icon_state"],
+			))
+			net_amounts[stock_id] += amount
+			if(!net_names[stock_id])
+				net_names[stock_id] = entry["name"]
+			if(!net_icons[stock_id])
+				net_icons[stock_id] = list("icon" = entry["icon"], "icon_state" = entry["icon_state"])
+	return list(
+		"uid" = UID(),
+		"name" = interface_name,
+		"mode" = mode,
+		"self" = (src == viewer),
+		"icon" = other.icon,
+		"icon_state" = other.icon_state,
+		"fill_percent" = adapter ? adapter.get_fill_percent() : null,
+		"stock" = node_stock,
+	)

@@ -1,3 +1,7 @@
+/datum/gear/towel
+	index_name = "towel"
+	path = /obj/item/clothing/suit/towel/short
+
 /datum/gear/dice
 	index_name = "a d20"
 	path = /obj/item/dice/d20
@@ -208,7 +212,7 @@
 	path = /obj/item/reagent_containers/cup/glass/flask/barflask
 
 /datum/gear/mug/department
-	subtype_path = /datum/gear/mug/department
+	abstract_type = /datum/gear/mug/department
 	subtype_cost_overlap = FALSE
 
 /datum/gear/mug/department/eng

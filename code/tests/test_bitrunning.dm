@@ -63,9 +63,9 @@
 	var/supply_freq = SSradio.return_frequency(SUP_FREQ).frequency
 
 	TEST_ASSERT(istype(avatar_headset, /obj/item/radio/headset/headset_cargo/virtual), "the avatar was not given a virtual headset")
-	TEST_ASSERT(avatar_headset.receive_range(supply_freq, list(crewman.z)) > -1, "the avatar cannot hear the station on its virtual headset")
-	TEST_ASSERT(crew_headset.receive_range(supply_freq, list(0)) > -1, "the station cannot hear a domain broadcast")
-	TEST_ASSERT_EQUAL(crew_headset.receive_range(supply_freq, list(avatar.z)), -1, "an ordinary headset started hearing across z-levels")
+	TEST_ASSERT(avatar_headset.can_receive(supply_freq, list(crewman.z)), "the avatar cannot hear the station on its virtual headset")
+	TEST_ASSERT(crew_headset.can_receive(supply_freq, list(0)), "the station cannot hear a domain broadcast")
+	TEST_ASSERT(!crew_headset.can_receive(supply_freq, list(avatar.z)), "an ordinary headset started hearing across z-levels")
 
 	var/list/console_data = console.ui_data(pilot)
 	TEST_ASSERT(console_data["connected"], "the console reported no server in its interface data")
@@ -230,7 +230,7 @@
 	glitch.mind_initialize()
 	glitch.mind.add_antag_datum(/datum/antagonist/bitrunning_glitch/cyber_police)
 	server.add_threats(glitch)
-	server.emagged = TRUE
+	server.obj_flags |= EMAGGED
 
 	server.station_spawn(glitch, forge)
 

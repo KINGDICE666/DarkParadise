@@ -67,6 +67,7 @@
 	ADD_TRAIT(src, TRAIT_DRONE_BINARY, INNATE_TRAIT)
 	if(radio)
 		radio.wires.cut(WIRE_RADIO_TRANSMIT)
+	AddElement(/datum/element/empprotection, EMP_PROTECT_ALL)
 
 	//Shhhh it's a secret. No one needs to know about infinite power for clockwork drone
 	cell = new /obj/item/stock_parts/cell/high/slime(src)
@@ -191,11 +192,8 @@
 /mob/living/silicon/robot/cogscarab/pick_module()
 	return
 
-/mob/living/silicon/robot/cogscarab/emag_act()
-	return
-
-/mob/living/silicon/robot/cogscarab/emp_act(severity)
-	return
+/mob/living/silicon/robot/cogscarab/robot_emag_hack(mob/user, obj/item/card/emag/emag_card)
+	return FALSE
 
 /mob/living/silicon/robot/cogscarab/ratvar_act(weak)
 	if(!isclocker(src))

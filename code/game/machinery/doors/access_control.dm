@@ -36,20 +36,24 @@
 				"id" = access))
 	current_door_accesses_list = door_accesses_list
 
-/obj/item/access_control/emag_act(mob/user)
-	emagged = TRUE
+/obj/item/access_control/emag_act(mob/user, obj/item/card/emag/emag_card)
+	. = ..()
+	if(obj_flags & EMAGGED)
+		return FALSE
+	obj_flags |= EMAGGED
 	update_icon(UPDATE_ICON_STATE)
+	return TRUE
 
 /obj/item/access_control/update_icon_state()
-	icon_state = "access-control[emagged ? "-smoked" : ""]"
+	icon_state = "access-control[(obj_flags & EMAGGED) ? "-smoked" : ""]"
 
 /obj/item/access_control/attack_self(mob/user)
-	if(!ishuman(user) && !isrobot(user) || emagged)
+	if(!ishuman(user) && !isrobot(user) || (obj_flags & EMAGGED))
 		return ..()
 
 	if(ishuman(user))
 		var/mob/living/carbon/human/H = user
-		if(H.getBrainLoss() >= MAX_BRAIN_DAMAGE || HAS_TRAIT(H, TRAIT_DUMB))
+		if(!H.check_brain_for_complex_interactions())
 			to_chat(user, span_warning("You forget how to use [src]."))
 			return
 	ui_interact(user)
@@ -82,7 +86,7 @@
 		return
 
 	. = TRUE
-	if(emagged)
+	if(obj_flags & EMAGGED)
 		return
 	// Mostly taken from the RCD code
 	switch(action)

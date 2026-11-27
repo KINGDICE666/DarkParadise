@@ -60,6 +60,8 @@
 	var/list/mobs_viewing
 	/// Increase "w_class" of storage when something inside it
 	var/dynamic_storage_size = FALSE
+	// "w_class" of storage when something inside it
+	var/storage_with_item_size = WEIGHT_CLASS_BULKY
 
 /obj/item/storage/Initialize(mapload)
 	. = ..()
@@ -93,7 +95,7 @@
 	closer.master_ref = WEAKREF(src)
 
 	orient2hud()
-
+	RegisterSignal(src, COMSIG_MOUSEDROP_ONTO, PROC_REF(on_mouse_drop_dragged))
 
 /obj/item/storage/ComponentInitialize()
 	. = ..()
@@ -129,12 +131,14 @@
 		playsound(loc, SFX_RUSTLE, 50, TRUE, -5)
 		target.handle_item_insertion(thing, user)
 
-/obj/item/storage/mouse_drop_dragged(atom/over_object, mob/user, src_location, over_location, params)
+/obj/item/storage/proc/on_mouse_drop_dragged(atom/source, atom/over_object, mob/user)
+	SIGNAL_HANDLER
+
 	if(!isliving(user))
 		return
 
 	// Stops inventory actions in a mech, while ventcrawling and while being incapacitated
-	if(ismecha(user.loc) || is_ventcrawling(user) || user.incapacitated())
+	if(ismecha(user.loc) || is_ventcrawling(user) || user.incapacitated)
 		return
 
 	if(over_object == user && IsReachableBy(user)) // this must come before the screen objects only block
@@ -144,23 +148,17 @@
 	if(isstorage(over_object))
 		var/obj/item/storage = over_object
 		if(!(storage.item_flags & IN_STORAGE))
-			dump_storage(user, over_object)
+			INVOKE_ASYNC(src, PROC_REF(dump_storage), user, over_object)
 			return
 
 	if(ismodcontrol(over_object))
 		var/obj/item/mod/control/mod = over_object
 		if(mod.bag && !(mod.item_flags & IN_STORAGE))
-			dump_storage(user, mod.bag)
+			INVOKE_ASYNC(src, PROC_REF(dump_storage), user, mod.bag)
 		return
 
 	if(istype(src, /obj/item/storage/lockbox) || (!istable(over_object) && !isfloorturf(over_object)) \
-		|| !length(contents) || loc != user || user.incapacitated() || !over_object.IsReachableBy(user))
-		return
-
-	if(tgui_alert(user, "Опустошить содержимое [declent_ru(GENITIVE)] на [over_object.declent_ru(ACCUSATIVE)]?", "Подтверждение", list("Да", "Нет")) != "Да")
-		return
-
-	if(!user || !over_object || user.incapacitated() || loc != user || !over_object.IsReachableBy(user))
+		|| !length(contents) || loc != user || user.incapacitated || !over_object.IsReachableBy(user))
 		return
 
 	if(user.s_active == src)
@@ -176,6 +174,7 @@
 		remove_from_storage(item, object_turf)
 
 	update_appearance() // For content-sensitive icons
+	return COMPONENT_CANCEL_MOUSEDROP_ONTO
 
 /obj/item/storage/click_alt(mob/user)
 	if(isobserver(user))
@@ -907,6 +906,7 @@ GAME_PROC_SRC(/obj/item/storage, toggle_gathering_mode, usr, "Режим сбо�
 	var/turf/current_turf = get_turf(src)
 	for(var/obj/item/item in contents)
 		remove_from_storage(item, current_turf)
+		item.scatter_atom()
 		CHECK_TICK
 
 /**
@@ -918,7 +918,9 @@ GAME_PROC_SRC(/obj/item/storage, toggle_gathering_mode, usr, "Режим сбо�
 	return // Override
 
 /obj/item/storage/emp_act(severity)
-	..()
+	. = ..()
+	if(. & EMP_PROTECT_CONTENTS)
+		return
 	for(var/i in contents)
 		var/atom/A = i
 		A.emp_act(severity)

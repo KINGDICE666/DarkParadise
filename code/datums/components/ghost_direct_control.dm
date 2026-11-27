@@ -53,7 +53,8 @@
 	LAZYADD(GLOB.mob_spawners[format_text("[initial(mob_parent.name)]")], mob_parent)
 
 	if(poll_candidates)
-		INVOKE_ASYNC(src, PROC_REF(request_ghost_control), poll_question, role_name || "[parent]", poll_length, antag_age_check, check_antaghud)
+		awaiting_ghosts = TRUE
+		request_ghost_direct_control(WEAKREF(src), ban_type, poll_question, role_name || "[parent]", poll_length, antag_age_check, check_antaghud)
 
 /datum/component/ghost_direct_control/RegisterWithParent()
 	. = ..()
@@ -95,20 +96,29 @@
 		return
 	examine_text += span_boldnotice("Вы можете взять под контроль это существо, нажав на него.")
 
-/// Send out a request for a brain
-/datum/component/ghost_direct_control/proc/request_ghost_control(poll_question, role_name, poll_length, age_check, check_ahud)
-	awaiting_ghosts = TRUE
-	var/list/possible_ghosts = SSghost_spawns.poll_candidates(
+/proc/request_ghost_direct_control(datum/weakref/control_ref, ban_type, poll_question, role_name, poll_length, age_check, check_ahud)
+	set waitfor = FALSE
+	usr = null
+	var/datum/candidate_poll/poll = SSghost_spawns.start_candidate_poll(
 		question = poll_question,
 		role = ban_type,
 		poll_time = poll_length,
 		antag_age_check = age_check,
 		check_antaghud = check_ahud,
-		source = parent,
+		source = ghost_direct_control_parent(control_ref),
 		role_cleanname = role_name
 	)
-	var/mob/chosen_one = (length(possible_ghosts))? pick(possible_ghosts): null
+	UNTIL(poll.finished)
+	var/datum/component/ghost_direct_control/control = control_ref.resolve()
+	control?.poll_finished(poll.signed_up)
+
+/proc/ghost_direct_control_parent(datum/weakref/control_ref)
+	var/datum/component/ghost_direct_control/control = control_ref.resolve()
+	return control?.parent
+
+/datum/component/ghost_direct_control/proc/poll_finished(list/possible_ghosts)
 	awaiting_ghosts = FALSE
+	var/mob/chosen_one = length(possible_ghosts) ? pick(possible_ghosts) : null
 	if(isnull(chosen_one))
 		return
 	assume_direct_control(chosen_one)

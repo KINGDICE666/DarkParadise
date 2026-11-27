@@ -252,17 +252,17 @@
 	patient.cure_all_traumas(TRAUMA_RESILIENCE_ABSOLUTE)
 	qdel(event)
 
-	patient.reagents.add_reagent("bath_salts", 5)
+	patient.reagents.add_reagent(/datum/reagent/bath_salts, 5)
 	TEST_ASSERT(patient.has_trauma_type(/datum/brain_trauma/special/psychotic_brawling/bath_salts, TRAUMA_RESILIENCE_ABSOLUTE), "bath salts did not induce chemical psychosis")
-	patient.reagents.del_reagent("bath_salts")
+	patient.reagents.del_reagent(/datum/reagent/bath_salts)
 	TEST_ASSERT(!patient.has_trauma_type(/datum/brain_trauma/special/psychotic_brawling/bath_salts, TRAUMA_RESILIENCE_ABSOLUTE), "the chemical psychosis outlived the bath salts")
 
-	patient.reagents.add_reagent("beepskysmash", 5)
+	patient.reagents.add_reagent(/datum/reagent/consumable/ethanol/beepsky_smash, 5)
 	TEST_ASSERT(patient.has_trauma_type(/datum/brain_trauma/special/beepsky, TRAUMA_RESILIENCE_ABSOLUTE), "beepsky smash conjured no securitron")
-	patient.reagents.del_reagent("beepskysmash")
+	patient.reagents.del_reagent(/datum/reagent/consumable/ethanol/beepsky_smash)
 	TEST_ASSERT(!patient.has_trauma_type(/datum/brain_trauma/special/beepsky, TRAUMA_RESILIENCE_ABSOLUTE), "the securitron outlived the beepsky smash")
 
-	TEST_ASSERT(GLOB.chemical_reagents_list["neurine"], "neurine is not a registered reagent")
+	TEST_ASSERT(GLOB.chemical_reagents_list[/datum/reagent/medicine/neurine], "neurine is not a registered reagent")
 
 /datum/unit_test/room_test/phobia_sight/Run()
 	var/mob/living/carbon/human/patient = allocate(/mob/living/carbon/human)

@@ -41,3 +41,7 @@
 /datum/action/cooldown/spell/list_target/New(Target, original)
 	. = ..()
 	targeting = new targeting_type(owner, src)
+
+/datum/action/cooldown/spell/list_target/Destroy()
+	QDEL_NULL(targeting)
+	return ..()

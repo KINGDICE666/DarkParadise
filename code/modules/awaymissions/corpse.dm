@@ -682,7 +682,7 @@ GLOBAL_VAR_INIT(off_mob_spawns, FALSE)
 	suit = /obj/item/clothing/suit/armor/vest
 	belt = /obj/item/storage/belt/bandolier/full
 	shoes = /obj/item/clothing/shoes/color/black
-	glasses = /obj/item/clothing/glasses/sunglasses/reagent
+	glasses = /obj/item/clothing/glasses/science/sunglasses
 	id = /obj/item/card/id
 
 /obj/effect/mob_spawn/human/beach
@@ -800,7 +800,7 @@ GLOBAL_VAR_INIT(off_mob_spawns, FALSE)
 	back = /obj/item/storage/backpack
 	shoes = /obj/item/clothing/shoes/color/black
 	suit = /obj/item/clothing/suit/armor/vest
-	glasses = /obj/item/clothing/glasses/sunglasses/reagent
+	glasses = /obj/item/clothing/glasses/science/sunglasses
 
 //For dead simple mobs
 

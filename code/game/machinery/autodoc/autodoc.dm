@@ -1,5 +1,5 @@
-#define AUTODOC_FUEL "synthflesh"
-#define AUTODOC_PAINKILLER "hydrocodone"
+#define AUTODOC_FUEL /datum/reagent/medicine/synthflesh
+#define AUTODOC_PAINKILLER /datum/reagent/medicine/hydrocodone
 /// Сколько обезболивающего вводится за раз
 #define AUTODOC_PAINKILLER_DOSE 3
 /// Объём бака на один уровень каждой матрицы
@@ -131,13 +131,13 @@
 	if(patient_icon)
 		. += mutable_appearance(patient_icon)
 	if(occupant)
-		. += emagged ? "glass_emag" : "glass"
+		. += (obj_flags & EMAGGED) ? "glass_emag" : "glass"
 	if(panel_open)
 		. += "panel"
 	if(stat & (BROKEN|NOPOWER))
 		return
 	if(running)
-		. += emagged ? "arms_overdrive" : "arms"
+		. += (obj_flags & EMAGGED) ? "arms_overdrive" : "arms"
 	var/indicator = "indicator"
 	if(running)
 		indicator = "indicator_active"
@@ -168,7 +168,7 @@
 	return mode_settings[mode]
 
 /obj/machinery/autodoc/proc/get_failure_chance(datum/autodoc_procedure/procedure)
-	if(emagged)
+	if(obj_flags & EMAGGED)
 		return 100
 	if(procedure && !procedure.invasive)
 		return 0
@@ -233,7 +233,7 @@
 	return first_order.paid
 
 /obj/machinery/autodoc/proc/is_locked()
-	return emagged && running && !(stat & (NOPOWER|BROKEN))
+	return (obj_flags & EMAGGED) && running && !(stat & (NOPOWER|BROKEN))
 
 /obj/machinery/autodoc/proc/update_beeping()
 	var/should_play = running && !(stat & (NOPOWER|BROKEN))
@@ -255,7 +255,7 @@
 /obj/machinery/autodoc/process(seconds_per_tick)
 	if(stat & (NOPOWER|BROKEN))
 		return
-	if(emagged && occupant)
+	if((obj_flags & EMAGGED) && occupant)
 		process_malfunction()
 	if(!running)
 		return
@@ -269,9 +269,9 @@
 		remove_order(order)
 		stop_if_queue_empty()
 		return
-	if(emagged && prob(AUTODOC_WORK_SOUND_CHANCE))
+	if((obj_flags & EMAGGED) && prob(AUTODOC_WORK_SOUND_CHANCE))
 		play_operation_sound('sound/weapons/circsawhit.ogg', 50)
-	if(order.procedure.continuous && !emagged)
+	if(order.procedure.continuous && !(obj_flags & EMAGGED))
 		process_regeneration(order, organ, seconds_per_tick)
 		return
 	if(!order.paid && !begin_order(order, organ))
@@ -327,7 +327,7 @@
 /obj/machinery/autodoc/proc/begin_order(datum/autodoc_order/order, obj/item/organ/organ)
 	order.cost = get_order_cost(order.procedure, organ)
 	order.duration = get_order_duration(order.procedure, organ)
-	if(emagged)
+	if(obj_flags & EMAGGED)
 		order.cost = min(order.cost, get_fuel())
 		order.duration = min(order.duration, AUTODOC_EMAG_MAX_DURATION)
 	if(get_fuel() < order.cost)
@@ -345,7 +345,7 @@
 /obj/machinery/autodoc/proc/manage_pain(obj/item/organ/organ)
 	if(occupant.stat == DEAD || HAS_TRAIT(occupant, TRAIT_NO_PAIN))
 		return
-	if(emagged)
+	if(obj_flags & EMAGGED)
 		occupant.custom_pain("Манипуляторы [declent_ru(GENITIVE)] вскрывают [organ.declent_ru(ACCUSATIVE)] наживую!")
 		INVOKE_ASYNC(occupant, TYPE_PROC_REF(/mob, emote), "scream")
 		return
@@ -353,7 +353,7 @@
 		occupant.reagents.add_reagent(AUTODOC_PAINKILLER, AUTODOC_PAINKILLER_DOSE)
 
 /obj/machinery/autodoc/proc/complete_order(datum/autodoc_order/order, obj/item/organ/organ)
-	if(prob(emagged ? get_failure_chance(order.procedure) : order.failure_chance))
+	if(prob((obj_flags & EMAGGED) ? get_failure_chance(order.procedure) : order.failure_chance))
 		fail_order(order, organ)
 		return
 	order.procedure.perform(organ, src)
@@ -365,7 +365,7 @@
 	order.procedure.on_failure(organ)
 	playsound(loc, 'sound/machines/buzz-sigh.ogg', 30, TRUE)
 	Shake(1, 0, 0.3 SECONDS)
-	if(emagged)
+	if(obj_flags & EMAGGED)
 		do_sparks(1, TRUE, src)
 	else
 		atom_say("Срыв процедуры: [order.procedure.name], [order.organ_name]. Процедура снята.")
@@ -373,7 +373,7 @@
 	stop_if_queue_empty()
 
 /obj/machinery/autodoc/proc/harm_organ(obj/item/organ/organ)
-	var/multiplier = emagged ? AUTODOC_EMAG_HARM_MULTIPLIER : 1
+	var/multiplier = (obj_flags & EMAGGED) ? AUTODOC_EMAG_HARM_MULTIPLIER : 1
 	if(!isexternalorgan(organ))
 		organ.internal_receive_damage(AUTODOC_HARM_ORGAN * multiplier)
 		return
@@ -398,7 +398,7 @@
 	SStgui.update_uis(src)
 
 /obj/machinery/autodoc/proc/stop_if_queue_empty()
-	if(running && !emagged && !length(queue))
+	if(running && !(obj_flags & EMAGGED) && !length(queue))
 		set_running(FALSE)
 
 /obj/machinery/autodoc/proc/abort_order(datum/autodoc_order/order)
@@ -495,7 +495,7 @@
 	return FALSE
 
 /obj/machinery/autodoc/relaymove(mob/user)
-	if(user.incapacitated())
+	if(user.incapacitated)
 		return
 	if(is_locked())
 		to_chat(user, span_userdanger("Крышка [declent_ru(GENITIVE)] заблокирована!"))
@@ -511,10 +511,11 @@
 		go_out()
 	return ..()
 
-/obj/machinery/autodoc/emag_act(mob/user)
-	if(emagged)
-		return
-	emagged = TRUE
+/obj/machinery/autodoc/emag_act(mob/user, obj/item/card/emag/emag_card)
+	. = ..()
+	if(obj_flags & EMAGGED)
+		return FALSE
+	obj_flags |= EMAGGED
 	mode = AUTODOC_MODE_OVERDRIVE
 	do_sparks(3, TRUE, src)
 	playsound(src, SFX_SPARKS, 75, TRUE, SHORT_RANGE_SOUND_EXTRARANGE)
@@ -525,6 +526,7 @@
 		process_malfunction()
 	update_icon(UPDATE_OVERLAYS)
 	SStgui.update_uis(src)
+	return TRUE
 
 /obj/machinery/autodoc/attack_ai(mob/user)
 	return attack_hand(user)
@@ -611,7 +613,7 @@
 /obj/machinery/autodoc/mouse_drop_receive(atom/movable/dropped, mob/user, params)
 	if(!ishuman(dropped) || dropped.loc == user)
 		return
-	if(user.incapacitated() || HAS_TRAIT(user, TRAIT_HANDS_BLOCKED))
+	if(user.incapacitated || HAS_TRAIT(user, TRAIT_HANDS_BLOCKED))
 		return
 	if(get_dist(user, src) > 1 || get_dist(user, dropped) > 1)
 		return
@@ -665,7 +667,7 @@
 	update_icon(UPDATE_OVERLAYS)
 	playsound(loc, 'sound/machines/door_close.ogg', 30, TRUE)
 	to_chat(patient, span_boldnotice("Над вами смыкается крышка [declent_ru(GENITIVE)], и манипуляторы приходят в движение."))
-	if(emagged && !(stat & (NOPOWER|BROKEN)))
+	if((obj_flags & EMAGGED) && !(stat & (NOPOWER|BROKEN)))
 		process_malfunction()
 	SStgui.update_uis(src)
 
@@ -715,11 +717,11 @@
 		"running" = running,
 		"powered" = !(stat & (NOPOWER|BROKEN)),
 		"autoEject" = auto_eject,
-		"emagged" = emagged,
+		"emagged" = (obj_flags & EMAGGED),
 		"locked" = is_locked(),
 		"operating" = is_operating(),
-		"hasAccess" = emagged || allowed(user),
-		"controlsLocked" = emagged || !allowed(user),
+		"hasAccess" = (obj_flags & EMAGGED) || allowed(user),
+		"controlsLocked" = (obj_flags & EMAGGED) || !allowed(user),
 		"mode" = mode,
 		"speedMod" = round(speed_mod / settings["duration"], 0.01),
 		"costMod" = round(cost_mod, 0.01),
@@ -904,11 +906,11 @@
 	if(stat & (NOPOWER|BROKEN))
 		return
 	var/static/list/emag_allowed_actions = list("set_mode", "tray_eject")
-	if(emagged && !(action in emag_allowed_actions) && (action != "eject" || is_locked()))
+	if((obj_flags & EMAGGED) && !(action in emag_allowed_actions) && (action != "eject" || is_locked()))
 		playsound(loc, 'sound/machines/buzz-two.ogg', 40, TRUE)
 		balloon_alert(usr, "управление заблокировано!")
 		return
-	if(!emagged && (action != "eject" || is_operating()) && !allowed(usr))
+	if(!(obj_flags & EMAGGED) && (action != "eject" || is_operating()) && !allowed(usr))
 		playsound(loc, 'sound/machines/buzz-two.ogg', 40, TRUE)
 		balloon_alert(usr, "доступ запрещён!")
 		return
@@ -971,7 +973,7 @@
 		if("set_mode")
 			var/new_mode = params["mode"]
 			var/static/list/normal_modes = list(AUTODOC_MODE_SLOW, AUTODOC_MODE_MEDIUM, AUTODOC_MODE_FAST)
-			if(!(new_mode in normal_modes) && !(emagged && new_mode == AUTODOC_MODE_OVERDRIVE))
+			if(!(new_mode in normal_modes) && !((obj_flags & EMAGGED) && new_mode == AUTODOC_MODE_OVERDRIVE))
 				return FALSE
 			if(running)
 				playsound(loc, 'sound/machines/buzz-two.ogg', 40, TRUE)

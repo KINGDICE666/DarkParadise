@@ -342,6 +342,7 @@
 				deal_damage(50)
 
 /obj/spacepod/emp_act(severity)
+	. = ..()
 	occupant_sanity_check()
 	cargo_hold.emp_act(severity)
 
@@ -352,9 +353,9 @@
 		COOLDOWN_START(src, cooldown_emp, 80 SECONDS / severity)
 
 	switch(severity)
-		if(1)
+		if(EMP_HEAVY)
 			message_to_riders(span_warning("Консоль челнока мигает: ОБНАРУЖЕНА МОЩНАЯ ЭМИ-ВОЛНА!"))
-		if(2)
+		if(EMP_LIGHT)
 			message_to_riders(span_warning("Консоль челнока мигает: ОБНАРУЖЕНА ЭМИ-ВОЛНА!"))
 
 /obj/spacepod/proc/play_sound_to_riders(mysound)
@@ -764,7 +765,7 @@
 	update_icons()
 
 /obj/spacepod/proc/toggle_internal_tank(mob/user)
-	if(user.incapacitated() || HAS_TRAIT(user, TRAIT_HANDS_BLOCKED))
+	if(user.incapacitated || HAS_TRAIT(user, TRAIT_HANDS_BLOCKED))
 		return
 
 	if(user != pilot)
@@ -796,13 +797,13 @@
 		return 1
 
 /obj/spacepod/mouse_drop_receive(mob/living/dropping, mob/living/user, params)
-	if(user == pilot || (user in passengers) || !isliving(user) || user.incapacitated() || HAS_TRAIT(user, TRAIT_HANDS_BLOCKED))
+	if(user == pilot || (user in passengers) || !isliving(user) || user.incapacitated || HAS_TRAIT(user, TRAIT_HANDS_BLOCKED))
 		return
 
 	if(isliving(dropping))
 		occupant_sanity_check()
 
-		if(dropping != user && unlocked && (dropping.stat == DEAD || dropping.incapacitated()))
+		if(dropping != user && unlocked && (dropping.stat == DEAD || dropping.incapacitated))
 			if(length(passengers) >= max_passengers && !pilot)
 				to_chat(user, span_danger("<b>Этот человек не может управлять челноком!</b>"))
 				return
@@ -843,7 +844,7 @@
 		balloon_alert(user, "нет места!")
 
 /obj/spacepod/proc/enter_pod(mob/user)
-	if(!ishuman(user) || user.incapacitated() || HAS_TRAIT(user, TRAIT_HANDS_BLOCKED))
+	if(!ishuman(user) || user.incapacitated || HAS_TRAIT(user, TRAIT_HANDS_BLOCKED))
 		return FALSE
 
 	if(equipment_system.lock_system && !unlocked)
@@ -933,7 +934,7 @@
 	to_chat(user, span_notice("Вы выбрались из [declent_ru(GENITIVE)]."))
 
 /obj/spacepod/proc/lock_pod(mob/user)
-	if(user.incapacitated() || HAS_TRAIT(user, TRAIT_HANDS_BLOCKED))
+	if(user.incapacitated || HAS_TRAIT(user, TRAIT_HANDS_BLOCKED))
 		return
 
 	if((user in passengers) && user != pilot)
@@ -948,7 +949,7 @@
 		to_chat(user, span_warning("Вы [unlocked ? "разблокировали" : "заблокировали"] двери."))
 
 /obj/spacepod/proc/toggleDoors(mob/user)
-	if(user.incapacitated() || HAS_TRAIT(user, TRAIT_HANDS_BLOCKED))
+	if(user.incapacitated || HAS_TRAIT(user, TRAIT_HANDS_BLOCKED))
 		return
 
 	if(user != pilot)
@@ -981,7 +982,7 @@
 	to_chat(user, span_warning("Рядом нет шлюзов."))
 
 /obj/spacepod/proc/fireWeapon(mob/user)
-	if(user.incapacitated() || HAS_TRAIT(user, TRAIT_HANDS_BLOCKED))
+	if(user.incapacitated || HAS_TRAIT(user, TRAIT_HANDS_BLOCKED))
 		return
 
 	if(user != pilot)
@@ -995,7 +996,7 @@
 	equipment_system.weapon_system.fire_weapons()
 
 /obj/spacepod/proc/unload(mob/user)
-	if(user.incapacitated() || HAS_TRAIT(user, TRAIT_HANDS_BLOCKED))
+	if(user.incapacitated || HAS_TRAIT(user, TRAIT_HANDS_BLOCKED))
 		return
 
 	if(user != pilot)
@@ -1009,7 +1010,7 @@
 	equipment_system.cargo_system.unload()
 
 /obj/spacepod/proc/toggleLights(mob/user)
-	if(user.incapacitated() || HAS_TRAIT(user, TRAIT_HANDS_BLOCKED))
+	if(user.incapacitated || HAS_TRAIT(user, TRAIT_HANDS_BLOCKED))
 		return
 
 	if(user != pilot)
@@ -1026,7 +1027,7 @@
 	visible_message("Прожекторы [lights ? "включены" : "выключены"].")
 
 /obj/spacepod/proc/checkSeat(mob/user)
-	if(user.incapacitated() || HAS_TRAIT(user, TRAIT_HANDS_BLOCKED))
+	if(user.incapacitated || HAS_TRAIT(user, TRAIT_HANDS_BLOCKED))
 		return
 
 	to_chat(user, span_notice("Вы начинаете искать потерянные вещи под сиденьем."))
@@ -1047,7 +1048,7 @@
 		to_chat(user, span_notice("Вы решаете не обыскивать [declent_ru(ACCUSATIVE)]."))
 
 /obj/spacepod/proc/startScan(mob/user)
-	if(user.incapacitated() || HAS_TRAIT(user, TRAIT_HANDS_BLOCKED))
+	if(user.incapacitated || HAS_TRAIT(user, TRAIT_HANDS_BLOCKED))
 		return
 
 	if(user != pilot)

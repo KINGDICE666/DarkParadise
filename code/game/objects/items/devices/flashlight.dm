@@ -94,7 +94,7 @@
 	if(!on || user.zone_selected != BODY_ZONE_PRECISE_EYES)
 		return ..()
 
-	if((HAS_TRAIT(user, TRAIT_CLUMSY) || HAS_TRAIT(user, TRAIT_DUMB) || user.getBrainLoss() >= 60) && prob(50))	//too dumb to use flashlight properly
+	if((HAS_TRAIT(user, TRAIT_CLUMSY) && prob(50) || !user.check_brain_for_complex_interactions()))	//too dumb to use flashlight properly
 		return ..()	//just hit them in the head
 
 	. = ATTACK_CHAIN_PROCEED
@@ -713,7 +713,7 @@
 			var/mob/mob_target = target
 			add_attack_logs(user, mob_target, "Hit with EMP-light")
 		balloon_alert(user, "осталось [emp_cur_charges] использовани[DECL_E_YA_J(emp_cur_charges)]")
-		target.emp_act(1)
+		target.emp_act(EMP_HEAVY)
 	else
 		balloon_alert(user, "перезарядка!")
 

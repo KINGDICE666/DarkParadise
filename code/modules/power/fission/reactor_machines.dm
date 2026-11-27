@@ -199,9 +199,6 @@
 
 	COOLDOWN_DECLARE(fabrication_timer)
 
-/obj/machinery/nuclear_rod_fabricator/upgraded
-	upgraded = TRUE
-
 /obj/machinery/nuclear_rod_fabricator/get_ru_names()
 	return alist(
 		NOMINATIVE = "фабрикатор ядерных стержней",
@@ -211,6 +208,9 @@
 		INSTRUMENTAL = "фабрикатором ядерных стержней",
 		PREPOSITIONAL = "фабрикаторе ядерных стержней",
 	)
+
+/obj/machinery/nuclear_rod_fabricator/upgraded
+	upgraded = TRUE
 
 /obj/machinery/nuclear_rod_fabricator/Initialize(mapload)
 	. = ..()
@@ -272,7 +272,7 @@
 /obj/machinery/nuclear_rod_fabricator/proc/check_mat(obj/item/nuclear_rod/being_built, material)
 	var/amount = materials.amount(material)
 	if(!amount)
-		visible_message(span_warning("Something has gone very wrong. Alert a developer."))
+		visible_message(span_warning("Что-то пошло не так. Сообщите разработчикам."))
 		return
 	else
 		amount /= max(1, (being_built.materials[material] * efficiency_coeff))
@@ -380,7 +380,7 @@
 /obj/machinery/nuclear_rod_fabricator/ui_interact(mob/user, datum/tgui/ui = null)
 	ui = SStgui.try_update_ui(user, src, ui)
 	if(!ui)
-		ui = new(user, src, "NuclearRodFabricator", name)
+		ui = new(user, src, "NuclearRodFabricator", DECLENT_RU_CAP(src, NOMINATIVE))
 		ui.open()
 
 /obj/machinery/nuclear_rod_fabricator/ui_act(action, list/params, datum/tgui/ui, datum/ui_state/state)

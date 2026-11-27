@@ -9,7 +9,7 @@
 	exclude_types = list(/obj/item/reagent_containers/food/snacks/grown)
 
 /datum/export/food/get_base_cost(obj/item/reagent_containers/food/snacks/dish)
-	var/nutriment = dish.reagents?.get_reagent_amount("nutriment") + dish.reagents?.get_reagent_amount("protein") + dish.reagents?.get_reagent_amount("vitamin")
+	var/nutriment = dish.reagents?.get_reagent_amount(/datum/reagent/consumable/nutriment) + dish.reagents?.get_reagent_amount(/datum/reagent/consumable/nutriment/protein) + dish.reagents?.get_reagent_amount(/datum/reagent/consumable/nutriment/vitamin)
 	return min(cost + nutriment * FOOD_EXPORT_NUTRIMENT_PRICE, FOOD_EXPORT_MAX_PRICE)
 
 /datum/export/produce
