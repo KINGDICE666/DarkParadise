@@ -64,7 +64,6 @@
 	var/current_plane_offset = 0
 
 	var/atom/movable/screen/holomap/holomap
-	var/atom/movable/screen/holomap/mini_holomap
 
 	var/atom/movable/screen/button_palette/toggle_palette
 	var/atom/movable/screen/palette_scroll/down/palette_down
@@ -174,7 +173,6 @@
 	QDEL_NULL(screentip_text)
 
 	QDEL_NULL(holomap)
-	QDEL_NULL(mini_holomap)
 	return ..()
 
 /datum/hud/proc/client_refresh(datum/source)

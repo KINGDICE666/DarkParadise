@@ -1993,23 +1993,6 @@
 	icon_state = "bar"
 	},
 /area/mine/living_quarters)
-"fJ" = (
-/obj/docking_port/stationary{
-	area_type = /area/lavaland/surface/outdoors;
-	dir = 8;
-	dwidth = 3;
-	height = 5;
-	id = "mining_away";
-	name = "lavaland mine";
-	turf_type = /turf/simulated/floor/plating/asteroid/basalt/lava_land_surface;
-	width = 7
-	},
-/obj/effect/mapping_helpers/no_lava,
-/obj/machinery/landing_beacon{
-	dock_name = "Лаваленд, шахта"
-	},
-/turf/simulated/floor/plating/asteroid/basalt/lava_land_surface,
-/area/lavaland/surface/outdoors)
 "fK" = (
 /obj/structure/table,
 /obj/machinery/reagentgrinder,
@@ -2951,6 +2934,17 @@
 /obj/structure/stone_tile/slab/cracked,
 /turf/simulated/floor/plating/asteroid/basalt/lava_land_surface,
 /area/lavaland/surface/outdoors)
+"jE" = (
+/obj/machinery/optable,
+/obj/machinery/atmospherics/unary/vent_scrubber/on,
+/obj/item/tank/internals/anesthetic,
+/obj/item/clothing/mask/breath/medical,
+/obj/machinery/shower/directional/north,
+/turf/simulated/floor/plasteel{
+	dir = 1;
+	icon_state = "darkblue"
+	},
+/area/mine/living_quarters)
 "jF" = (
 /obj/structure/stone_tile/surrounding_tile,
 /obj/structure/stone_tile/surrounding_tile{
@@ -5731,6 +5725,23 @@
 	icon_state = "clockwork_floor"
 	},
 /area/lavaland/surface/outdoors/necropolis)
+"ER" = (
+/obj/docking_port/stationary{
+	area_type = /area/lavaland/surface/outdoors;
+	dir = 8;
+	dwidth = 3;
+	height = 5;
+	id = "mining_away";
+	name = "lavaland mine";
+	turf_type = /turf/simulated/floor/plating/asteroid/basalt/lava_land_surface;
+	width = 7
+	},
+/obj/effect/mapping_helpers/no_lava,
+/obj/machinery/landing_beacon{
+	dock_name = "Лаваленд, шахта"
+	},
+/turf/simulated/floor/plating/asteroid/basalt/lava_land_surface,
+/area/lavaland/surface/outdoors)
 "ES" = (
 /obj/effect/decal/cleanable/dirt,
 /obj/machinery/atmospherics/unary/vent_scrubber/on{
@@ -7118,19 +7129,6 @@
 	icon_state = "green"
 	},
 /area/mine/laborcamp)
-"Rp" = (
-/obj/machinery/optable,
-/obj/machinery/atmospherics/unary/vent_scrubber/on,
-/obj/item/tank/internals/anesthetic,
-/obj/item/clothing/mask/breath/medical,
-/obj/machinery/shower/directional/north{
-	layer = 3.21
-	},
-/turf/simulated/floor/plasteel{
-	dir = 1;
-	icon_state = "darkblue"
-	},
-/area/mine/living_quarters)
 "Rq" = (
 /obj/structure/stone_tile/block,
 /obj/structure/stone_tile{
@@ -17226,7 +17224,7 @@ aj
 aj
 hl
 cR
-Rp
+jE
 dc
 dC
 WO
@@ -21848,7 +21846,7 @@ hl
 hl
 hl
 hl
-fJ
+ER
 hl
 hl
 hl

@@ -80,7 +80,7 @@
 	return TRUE
 
 /obj/item/overmap_hull_grip/afterattack(atom/target, mob/user, proximity_flag, list/modifiers, status)
-	if(user != holder || holder.incapacitated())
+	if(user != holder || holder.incapacitated)
 		return
 	var/obj/effect/abstract/hull_proxy_tile/proxy = target
 	var/turf/spot = istype(proxy) ? proxy.source_turf() : get_turf(target)
@@ -129,7 +129,7 @@
 		ship.eject_to_bubble(user, spot)
 
 /obj/item/overmap_hull_grip/proc/carry()
-	if(QDELETED(holder) || QDELETED(vessel) || loc != holder || holder.incapacitated() || holder.body_position == LYING_DOWN || !vessel.free_flight_view)
+	if(QDELETED(holder) || QDELETED(vessel) || loc != holder || holder.incapacitated || holder.body_position == LYING_DOWN || !vessel.free_flight_view)
 		qdel(src)
 		return
 	var/datum/frame = SSovermap.frame_owner(get_turf(holder))
@@ -148,7 +148,7 @@
 	carrying = FALSE
 
 /proc/overmap_grab_hull(mob/living/user, turf/target)
-	if(!istype(user) || user.a_intent != INTENT_GRAB || user.incapacitated() || user.buckled || user.body_position == LYING_DOWN || HAS_TRAIT(user, TRAIT_HANDS_BLOCKED) || !isturf(user.loc) || !target)
+	if(!istype(user) || user.a_intent != INTENT_GRAB || user.incapacitated || user.buckled || user.body_position == LYING_DOWN || HAS_TRAIT(user, TRAIT_HANDS_BLOCKED) || !isturf(user.loc) || !target)
 		return FALSE
 	var/obj/overmap/entity/ship = SSovermap.frame_owner(target)
 	if(!istype(ship) || !ship.hull_turfs[target] || ship.hull_area_turfs[get_turf(user)])
@@ -181,7 +181,7 @@
 	return FALSE
 
 /proc/overmap_board_from_drag(mob/living/user, turf/target)
-	if(!istype(user) || user.incapacitated() || user.buckled || !isturf(user.loc) || !target || target.is_blocked_turf(exclude_mobs = TRUE) || !target.Adjacent(user))
+	if(!istype(user) || user.incapacitated || user.buckled || !isturf(user.loc) || !target || target.is_blocked_turf(exclude_mobs = TRUE) || !target.Adjacent(user))
 		return
 	var/datum/source_frame = SSovermap.frame_owner(user.loc)
 	var/datum/target_frame = SSovermap.frame_owner(target)

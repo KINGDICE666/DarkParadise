@@ -130,7 +130,7 @@
 			visible_message(span_warning("[user]'s [src] sparks for a moment with bright light!"))
 			user.mob_light(LIGHT_COLOR_HOLY_MAGIC, 3, duration = 2) //No questions
 
-			if(living.null_rod_check())
+			if(living.can_block_magic(MAGIC_RESISTANCE_HOLY))
 				visible_message(span_warning("[target]'s holy weapon absorbs the light!"))
 				deplete_spell()
 				return
@@ -290,7 +290,7 @@
 			if(!iscarbon(target))
 				return
 			var/mob/living/carbon/carbon = target
-			if(carbon.mind?.isholy)
+			if(carbon.mind && HAS_MIND_TRAIT(carbon, TRAIT_HOLY))
 				to_chat(carbon, span_danger("You feel as foreigner thoughts tries to pierce your mind..."))
 				deplete_spell()
 				return
@@ -349,7 +349,7 @@
 			if(!iscarbon(target))
 				return
 			var/mob/living/carbon/carbon = target
-			if(carbon.mind?.isholy)
+			if(carbon.mind && HAS_MIND_TRAIT(carbon, TRAIT_HOLY))
 				to_chat(carbon, span_danger("You feel as foreigner thoughts tries to pierce your mind..."))
 				deplete_spell()
 				return
@@ -451,9 +451,9 @@
 		if(CRUSH_SPELL)
 			if(ishuman(living))
 				var/mob/living/carbon/human/human = living
-				var/atom/deflector = human.null_rod_check()
-				if(deflector)
-					human.visible_message(span_danger("[isitem(deflector) ? "[human]'s [deflector]" : "[human]"] shines as it deflects magic from [user]!"))
+				var/atom/antimagic_source = human.can_block_magic_and_get_source()
+				if(antimagic_source)
+					human.visible_message(span_danger("[antimagic_source] shines as it deflects magic from [user]!"))
 					deplete_spell()
 					return
 				var/obj/item/organ/external/BP = pick(human.bodyparts)
@@ -977,7 +977,7 @@
 			if(human.gloves != src)
 				to_chat(human, span_notice("You should wear [src]!"))
 				return
-			if(human.mind.martial_art)
+			if(!human.can_use_rapid_gloves())
 				to_chat(human, span_warning("You're too powerful to use it!"))
 				return
 			ADD_TRAIT(src, TRAIT_NODROP, CURSED_ITEM_TRAIT(FASTPUNCH_SPELL))
@@ -1005,7 +1005,7 @@
 		return
 	if(enchant_type == STUNHAND_SPELL && isliving(A))
 		var/mob/living/living = A
-		if(living.null_rod_check())
+		if(living.can_block_magic(MAGIC_RESISTANCE_HOLY))
 			src.visible_message(span_warning("[living]'s holy weapon absorbs the light!"))
 			deplete_spell()
 			return
@@ -1022,7 +1022,7 @@
 		playsound(loc, 'sound/weapons/egloves.ogg', 50, TRUE, -1)
 		add_attack_logs(user, living, "Stunned with [src]")
 		deplete_spell()
-	if(north_star && !user.mind.martial_art)
+	if(north_star && user.can_use_rapid_gloves())
 		user.changeNext_move(CLICK_CD_RAPID)
 	if(fire_casting && iscarbon(A))
 		var/mob/living/carbon/C = A
@@ -1226,9 +1226,7 @@
 		apc = loc
 	else
 		stack_trace("Invalid location for Integration cog")
-
-/obj/machinery/integration_cog/emp_act(severity)
-	return
+	AddElement(/datum/element/empprotection, EMP_PROTECT_SELF)
 
 /obj/machinery/integration_cog/process(seconds_per_tick)
 	if(apc.cell?.charge > 0 && apc.operating)
@@ -1527,7 +1525,7 @@
 	clocker.heal_overall_damage(heal, heal, affect_robotic = robo_affect_heal)
 	if(!can_adv_heal)
 		return
-	clocker.reagents?.add_reagent("epinephrine", 5)
+	clocker.reagents?.add_reagent(/datum/reagent/medicine/epinephrine, 5)
 	var/mob/living/carbon/human/H = clocker
 	for(var/obj/item/organ/external/bodypart as anything in H.bodyparts)
 		bodypart.stop_internal_bleeding()

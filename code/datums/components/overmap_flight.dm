@@ -99,7 +99,7 @@
 		if(!pod_vessel.in_free_flight())
 			if(pilot)
 				release_pilot()
-		else if(seat_pilot?.client && !seat_pilot.incapacitated() && pilot != seat_pilot)
+		else if(seat_pilot?.client && !seat_pilot.incapacitated && pilot != seat_pilot)
 			take_pilot(seat_pilot, pod_vessel.pod.overmap_helm)
 	if(vessel.relay_jump_from)
 		stop_burn()
@@ -243,7 +243,7 @@
 
 /datum/component/overmap_flight/proc/pilot_can_fly()
 	var/obj/overmap/entity/vessel = parent
-	if(!pilot.client || (isliving(pilot) && pilot.incapacitated()) || !pilot_helm.can_pilot(pilot))
+	if(!pilot.client || (isliving(pilot) && pilot.incapacitated) || !pilot_helm.can_pilot(pilot))
 		return FALSE
 	if(pilot_helm.stat & (NOPOWER|BROKEN))
 		return FALSE

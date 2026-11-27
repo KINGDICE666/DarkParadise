@@ -73,7 +73,7 @@ GLOBAL_LIST_INIT(bluespace_collapse_sounds, list(
 	density = FALSE
 	mouse_opacity = MOUSE_OPACITY_TRANSPARENT
 	layer = ABOVE_CLEANABLES_LAYER
-	lifetime = 8 SECONDS
+	initial_duration = 8 SECONDS
 	var/datum/weakref/caster_ref
 
 
@@ -135,7 +135,7 @@ GLOBAL_LIST_INIT(bluespace_collapse_sounds, list(
 	victim.apply_status_effect(/datum/status_effect/spatial_drag)
 	if(!TIMER_COOLDOWN_FINISHED(victim, COOLDOWN_BLUESPACE_DISTORTION))
 		return
-	TIMER_COOLDOWN_START(victim, COOLDOWN_BLUESPACE_DISTORTION, lifetime)
+	TIMER_COOLDOWN_START(victim, COOLDOWN_BLUESPACE_DISTORTION, initial_duration)
 	give_spatial_instability(victim, caster_ref?.resolve())
 
 
@@ -178,7 +178,7 @@ GLOBAL_LIST_INIT(bluespace_collapse_sounds, list(
 	)
 
 
-/obj/effect/bluespace_double/Initialize(mapload, mob/living/original, echo_delay, lifetime = 12 SECONDS)
+/obj/effect/bluespace_double/Initialize(mapload, mob/living/original, echo_delay, initial_duration = 12 SECONDS)
 	. = ..()
 	if(!isliving(original))
 		return INITIALIZE_HINT_QDEL
@@ -189,7 +189,7 @@ GLOBAL_LIST_INIT(bluespace_collapse_sounds, list(
 	name = original.name
 	RegisterSignal(original, COMSIG_MOVABLE_MOVED, PROC_REF(on_original_moved))
 	RegisterSignal(original, COMSIG_QDELETING, PROC_REF(on_original_deleted))
-	QDEL_IN(src, lifetime)
+	QDEL_IN(src, initial_duration)
 
 
 /obj/effect/bluespace_double/Destroy()

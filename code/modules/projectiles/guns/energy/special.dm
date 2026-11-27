@@ -36,22 +36,30 @@
 	selfcharge = TRUE
 	accuracy = GUN_ACCURACY_SNIPER
 
-/obj/item/gun/energy/floragun/emag_act(mob/user)
+/obj/item/gun/energy/floragun/emag_act(mob/user, obj/item/card/emag/emag_card)
 	. = ..()
-
-	if(emagged)
-		return
-
-	if(user)
-		balloon_alert(user, "протоколы защиты сняты!")
-
-	emagged = TRUE
+	if(obj_flags & EMAGGED)
+		return FALSE
+	obj_flags |= EMAGGED
 	ammo_type = list(/obj/item/ammo_casing/energy/flora/alpha/emag, /obj/item/ammo_casing/energy/flora/beta, /obj/item/ammo_casing/energy/flora/gamma)
 	update_ammo_types()
+	if(user)
+		balloon_alert(user, "протоколы защиты сняты!")
+	return TRUE
 
 /obj/item/gun/energy/floragun/examine(mob/user)
 	. = ..()
 	. += span_notice("Mode: [ammo_type[select]]\nCharge: [cell.percent()]%")
+
+/obj/item/gun/energy/floragun/old
+	ammo_type = list(/obj/item/ammo_casing/energy/flora/beta,/obj/item/ammo_casing/energy/flora/gamma);
+	can_charge = 1
+	cell_type = /obj/item/stock_parts/cell/degraded
+	current_skin = "oldflora"
+	desc = "Старый ботанический инструмент, испускающий контролируемое излучение, вызывающее мутации в клетках растений, не имеет самозарядки. Чтобы перезарядить это оружие, используйте устройство для подзарядки оружия.";
+	name = "old floral somatoray"
+	selfcharge = 0
+	obj_flags = parent_type::obj_flags|EMAGGED
 
 // MARK: Meteor Gun
 /obj/item/gun/energy/meteorgun
@@ -151,8 +159,9 @@
 /obj/item/gun/energy/printer/update_overlays()
 	return list()
 
-/obj/item/gun/energy/printer/emp_act()
-	return
+/obj/item/gun/energy/printer/ComponentInitialize()
+	. = ..()
+	AddElement(/datum/element/empprotection, EMP_PROTECT_ALL)
 
 // MARK: Instakill Lasers
 /obj/item/gun/energy/laser/instakill
@@ -166,8 +175,9 @@
 	accuracy = GUN_ACCURACY_RIFLE
 	attachable_allowed = GUN_MODULE_CLASS_NONE
 
-/obj/item/gun/energy/laser/instakill/emp_act() //implying you could stop the instagib
-	return
+/obj/item/gun/energy/laser/instakill/ComponentInitialize()
+	. = ..()
+	AddElement(/datum/element/empprotection, EMP_PROTECT_ALL)
 
 /obj/item/gun/energy/laser/instakill/red
 	desc = "A specialized ASMD laser-rifle, capable of flat-out disintegrating most targets in a single hit. This one has a red design."
@@ -403,8 +413,9 @@
 	icon_state = "emittercannon"
 	var/charge_cost = 750
 
-/obj/item/gun/energy/emittercannon/emp_act(severity)
-	return
+/obj/item/gun/energy/emittercannon/ComponentInitialize()
+	. = ..()
+	AddElement(/datum/element/empprotection, EMP_PROTECT_ALL)
 
 // MARK: Chrono gun
 /obj/item/gun/energy/chrono_gun
@@ -471,7 +482,7 @@
 	return ..()
 
 /obj/item/gun/energy/chrono_gun/process(seconds_per_tick)
-	if(!gun_user || gun_user.get_active_hand() != src || gun_user.incapacitated())
+	if(!gun_user || gun_user.get_active_hand() != src || gun_user.incapacitated)
 		stop_charging()
 		return
 	if(world.time - charge_started < CHRONO_GUN_CHARGE_TIME)

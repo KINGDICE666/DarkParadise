@@ -43,6 +43,7 @@ GLOBAL_LIST_INIT(lobby_layout_presets, list(
 	var/list/group_shifts = list()
 	var/list/link_box
 	var/datum/lobby_layout_editor/layout_editor
+	var/list/shown_station_trait_buttons
 
 /datum/hud/new_player/New(mob/owner)
 	. = ..()
@@ -65,6 +66,12 @@ GLOBAL_LIST_INIT(lobby_layout_presets, list(
 			lobbyscreen.RegisterSignal(src, COMSIG_HUD_LOBBY_COLLAPSED, TYPE_PROC_REF(/atom/movable/screen/lobby, collapse_button))
 			lobbyscreen.RegisterSignal(src, COMSIG_HUD_LOBBY_EXPANDED, TYPE_PROC_REF(/atom/movable/screen/lobby, expand_button))
 
+	for(var/datum/station_trait/trait as anything in GLOB.lobby_station_traits)
+		var/atom/movable/screen/lobby/button/bottom/link/sign_up/sign_up_button = create_station_trait_button(trait)
+		if(sign_up_button)
+			link_buttons += sign_up_button
+	RegisterSignal(SSdcs, COMSIG_GLOB_LOBBY_TRAIT_ADDED, PROC_REF(on_lobby_trait_added))
+
 	place_link_buttons(link_buttons)
 	var/atom/movable/screen/lobby/button/bottom/link/discord_link/discord_link = locate() in static_inventory
 	discord_link?.start_spotlight()
@@ -82,7 +89,51 @@ GLOBAL_LIST_INIT(lobby_layout_presets, list(
 
 /datum/hud/new_player/Destroy()
 	QDEL_NULL(layout_editor)
+	UnregisterSignal(SSdcs, COMSIG_GLOB_LOBBY_TRAIT_ADDED)
+	for(var/datum/station_trait/trait as anything in shown_station_trait_buttons)
+		UnregisterSignal(trait, COMSIG_QDELETING)
+	shown_station_trait_buttons = null
 	return ..()
+
+/datum/hud/new_player/proc/create_station_trait_button(datum/station_trait/trait)
+	if(QDELETED(trait) || LAZYACCESS(shown_station_trait_buttons, trait) || !trait.can_display_lobby_button(mymob.client))
+		return
+	var/atom/movable/screen/lobby/button/bottom/link/sign_up/sign_up_button = new(null, src)
+	static_inventory += sign_up_button
+	sign_up_button.RegisterSignal(src, COMSIG_HUD_LOBBY_COLLAPSED, TYPE_PROC_REF(/atom/movable/screen/lobby, collapse_button))
+	sign_up_button.RegisterSignal(src, COMSIG_HUD_LOBBY_EXPANDED, TYPE_PROC_REF(/atom/movable/screen/lobby, expand_button))
+	trait.setup_lobby_button(sign_up_button)
+	LAZYSET(shown_station_trait_buttons, trait, sign_up_button)
+	RegisterSignal(trait, COMSIG_QDELETING, PROC_REF(remove_station_trait_button))
+	return sign_up_button
+
+/datum/hud/new_player/proc/on_lobby_trait_added(datum/source, datum/station_trait/trait)
+	SIGNAL_HANDLER
+	var/atom/movable/screen/lobby/button/bottom/link/sign_up/sign_up_button = create_station_trait_button(trait)
+	if(!sign_up_button)
+		return
+	if(hud_shown)
+		mymob.client?.screen += sign_up_button
+	refresh_link_buttons()
+
+/datum/hud/new_player/proc/remove_station_trait_button(datum/station_trait/trait)
+	SIGNAL_HANDLER
+	var/atom/movable/screen/lobby/button/bottom/link/sign_up/sign_up_button = LAZYACCESS(shown_station_trait_buttons, trait)
+	if(!sign_up_button)
+		return
+	LAZYREMOVE(shown_station_trait_buttons, trait)
+	UnregisterSignal(trait, COMSIG_QDELETING)
+	static_inventory -= sign_up_button
+	mymob?.client?.screen -= sign_up_button
+	qdel(sign_up_button)
+	refresh_link_buttons()
+
+/datum/hud/new_player/proc/refresh_link_buttons()
+	var/list/link_buttons = list()
+	for(var/atom/movable/screen/lobby/button/bottom/link/button in static_inventory)
+		link_buttons += button
+	place_link_buttons(link_buttons)
+	apply_layout(layout)
 
 /datum/hud/new_player/apply_parallax_pref()
 	mymob.client.parallax_rock.set_layer_settings(layers_to_draw = 0, draw_old_space = FALSE, animate_parallax = FALSE)

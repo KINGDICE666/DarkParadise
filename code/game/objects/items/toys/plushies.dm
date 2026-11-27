@@ -13,6 +13,7 @@
 
 /obj/item/toy/plushie/Initialize(mapload)
 	. = ..()
+	AddElement(/datum/element/cuffable_item)
 	AddElement(/datum/element/update_icon_updates_onmob)
 	AddElement(/datum/element/bed_tuckable, mapload, 6, -4, 90)
 
@@ -1205,7 +1206,7 @@
 			desc = "Остерегайся злых воксов!"
 
 /obj/item/toy/plushie/pig/mouse_drop_dragged(atom/over_object, mob/user, src_location, over_location, params)
-	if(over_object != user || user.incapacitated() || !ishuman(user))
+	if(over_object != user || user.incapacitated || !ishuman(user))
 		return
 
 	if(!user.put_in_hands(src, ignore_anim = FALSE))

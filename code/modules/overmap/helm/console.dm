@@ -71,7 +71,7 @@
 		return
 	if(vessel.is_programmed_locked() || vessel.is_overmap_jammed() || !vessel.can_steer())
 		return
-	if((stat & (NOPOWER|BROKEN)) || !user.client || (isliving(user) && user.incapacitated()) || !can_pilot(user))
+	if((stat & (NOPOWER|BROKEN)) || !user.client || (isliving(user) && user.incapacitated) || !can_pilot(user))
 		return
 	nav.take_pilot(user, src)
 

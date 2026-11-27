@@ -9,7 +9,7 @@ GLOBAL_LIST_EMPTY(all_clockers)
 		return FALSE // Damn Narsie and his servants
 	if(isclocker(mind.current))
 		return TRUE //If they're already in the cult, assume they are convertable
-	if(mind.isholy)
+	if(HAS_TRAIT(mind, TRAIT_HOLY))
 		return FALSE
 	if(IS_HERETIC_OR_MONSTER(mind.current))
 		return FALSE

@@ -1,4 +1,23 @@
+#define SLOT_SYMBOL_SEVEN "seven"
+#define SLOT_SYMBOL_BAR "bar"
+#define SLOT_SYMBOL_BELL "bell"
+#define SLOT_SYMBOL_CHERRY "cherry"
+#define SLOT_SYMBOL_LEMON "lemon"
+#define SLOT_SYMBOL_GEM "gem"
+#define SLOT_SYMBOL_STAR "star"
+
 GLOBAL_LIST_EMPTY(slotmachine_prizes)
+
+/// Slot machine reels
+GLOBAL_LIST_INIT(slotmachine_reel_symbols, list(
+	SLOT_SYMBOL_SEVEN,
+	SLOT_SYMBOL_BAR,
+	SLOT_SYMBOL_BELL,
+	SLOT_SYMBOL_CHERRY,
+	SLOT_SYMBOL_LEMON,
+	SLOT_SYMBOL_GEM,
+	SLOT_SYMBOL_STAR,
+))
 
 /datum/slotmachine_prize
 	/// Unique prize identifier
@@ -7,6 +26,10 @@ GLOBAL_LIST_EMPTY(slotmachine_prizes)
 	var/chance
 	/// Basic credits prize (emagged credits multiply to EMAGGED_SLOT_MACHINE_PRIZE_MOD)
 	var/credits = 0
+	/// Winning reel symbol (null for a lose)
+	var/symbol
+	/// How many reels for win (0 for a lose)
+	var/match_count = 0
 	/// Color of prize text in ui
 	var/resultlvl = "red"
 	/// Prefix for prize text in ui (not use if custom_result not null)
@@ -19,13 +42,12 @@ GLOBAL_LIST_EMPTY(slotmachine_prizes)
 	var/sound = 'sound/machines/ping.ogg'
 	/// List of available prizes, only for emagged slotmachine
 	var/list/available_prizes = list()
-	var/reel_symbol
 
 /datum/slotmachine_prize/New(list/allowed_uplink_items)
 	..()
 
-/datum/slotmachine_prize/proc/get_credits(emagged)
-	if(emagged)
+/datum/slotmachine_prize/proc/get_credits(obj_flags)
+	if(obj_flags & EMAGGED)
 		return credits * EMAGGED_SLOT_MACHINE_PRIZE_MOD
 	return credits
 
@@ -64,9 +86,10 @@ GLOBAL_LIST_EMPTY(slotmachine_prizes)
 	id = "minimal"
 	chance = 10
 	credits = 50
+	symbol = SLOT_SYMBOL_LEMON
+	match_count = 2
 	resultlvl = "green"
 	say_phrase = "Победитель!"
-	reel_symbol = "cherry"
 
 /datum/slotmachine_prize/minimal/New(list/allowed_uplink_items)
 	..(allowed_uplink_items)
@@ -78,9 +101,10 @@ GLOBAL_LIST_EMPTY(slotmachine_prizes)
 	id = "small"
 	chance = 8
 	credits = 200
+	symbol = SLOT_SYMBOL_CHERRY
+	match_count = 2
 	resultlvl = "green"
 	say_phrase = "Победитель!"
-	reel_symbol = "lemon"
 
 /datum/slotmachine_prize/small/New(list/allowed_uplink_items)
 	..(allowed_uplink_items)
@@ -92,10 +116,11 @@ GLOBAL_LIST_EMPTY(slotmachine_prizes)
 	id = "medium"
 	chance = 1.6
 	credits = 500
+	symbol = SLOT_SYMBOL_BELL
+	match_count = 3
 	resultlvl = "green"
 	say_phrase = "Победитель!"
 	sound = 'sound/goonstation/misc/bell.ogg'
-	reel_symbol = "bell"
 
 /datum/slotmachine_prize/medium/apply_emagged_effect(obj/machinery/computer/slot_machine/slotmachine, mob/user)
 	slotmachine.give_custom_prize(user, /obj/item/storage/box/random_syndi)
@@ -104,10 +129,11 @@ GLOBAL_LIST_EMPTY(slotmachine_prizes)
 	id = "big"
 	chance = 0.38
 	credits = 1000
+	symbol = SLOT_SYMBOL_BAR
+	match_count = 3
 	resultlvl = "green"
 	say_phrase = "Большой победитель!"
 	sound = 'sound/goonstation/misc/klaxon.ogg'
-	reel_symbol = "bar"
 
 /datum/slotmachine_prize/big/New(list/allowed_uplink_items)
 	..(allowed_uplink_items)
@@ -119,11 +145,12 @@ GLOBAL_LIST_EMPTY(slotmachine_prizes)
 	id = "jackpot"
 	chance = 0.02
 	credits = 10000
+	symbol = SLOT_SYMBOL_SEVEN
+	match_count = 3
 	resultlvl = "teal"
 	custom_result_prefix = "ДЖЕКПОТ! "
 	say_phrase = "ДЖЕКПОТ!"
 	sound = 'sound/goonstation/misc/airraid_loop.ogg'
-	reel_symbol = "seven"
 
 /datum/slotmachine_prize/jackpot/apply_effect(obj/machinery/computer/slot_machine/slotmachine, mob/user, prize_credits)
 	GLOB.minor_announcement.announce(
@@ -145,23 +172,29 @@ GLOBAL_LIST_EMPTY(slotmachine_prizes)
 	var/datum/money_account/account = null
 	var/result = null
 	var/resultlvl = null
-	var/list/reels = list("seven", "bar", "cherry")
-	var/datum/slotmachine_prize/pending_prize
-	var/static/list/reel_symbols = list("cherry", "lemon", "bell", "clover", "bar", "seven")
+	/// Reel symbols shown in UI
+	var/list/reels = list(SLOT_SYMBOL_SEVEN, SLOT_SYMBOL_BAR, SLOT_SYMBOL_CHERRY)
+	/// reel indexes that form win combination
+	var/list/winning_reels = list()
+	/// Last credited prize amount
+	var/credits = 0
+	/// Last prize identifier
+	var/prize_id = null
 
 /obj/machinery/computer/slot_machine/attack_hand(mob/user as mob)
 	add_fingerprint(user)
 	ui_interact(user)
 
-/obj/machinery/computer/slot_machine/emag_act(mob/user)
+/obj/machinery/computer/slot_machine/emag_act(mob/user, obj/item/card/emag/emag_card)
 	. = ..()
-	if(emagged)
-		return
+	if(obj_flags & EMAGGED)
+		return FALSE
+	obj_flags |= EMAGGED
 	do_sparks(3, TRUE, src)
 	to_chat(user, span_warning("Smells like something burnt"))
 	circuit = /obj/item/circuitboard/broken
 	frame.circuit = new circuit(frame)
-	emagged = TRUE
+	return TRUE
 
 /obj/machinery/computer/slot_machine/update_icon_state()
 	icon_state = "slots-[working ? "on" : "off"]"
@@ -184,9 +217,28 @@ GLOBAL_LIST_EMPTY(slotmachine_prizes)
 	data["result"] = result
 	data["resultlvl"] = resultlvl
 	data["reels"] = reels
-	data["spin_time"] = SLOT_MACHINE_SPIN_TIME / (1 SECONDS)
-	data["prize_mod"] = get_prize_coefficient()
+	data["winning_reels"] = winning_reels
+	data["credits"] = credits
+	data["prize"] = prize_id
+	data["spin_id"] = plays
+	data["multiplier"] = get_prize_coefficient()
+	data["paytable"] = get_paytable()
 	return data
+
+/obj/machinery/computer/slot_machine/proc/get_paytable()
+	var/list/paytable = list()
+	for(var/prize_key in GLOB.slotmachine_prizes)
+		var/datum/slotmachine_prize/prize = GLOB.slotmachine_prizes[prize_key]
+		if(prize.match_count <= 0 || !prize.symbol)
+			continue
+		paytable += list(list(
+			"id" = prize.id,
+			"symbol" = prize.symbol,
+			"match" = prize.match_count,
+			"credits" = prize.credits,
+			"jackpot" = (prize.id == "jackpot"),
+		))
+	return paytable
 
 /obj/machinery/computer/slot_machine/ui_act(action, params)
 	if(..())
@@ -196,24 +248,28 @@ GLOBAL_LIST_EMPTY(slotmachine_prizes)
 		return
 	add_fingerprint(usr)
 
-	if(action == "spin")
-		if(working)
-			return
-		if(!account || account.money < 50)
-			return
-		if(!pay_with_card(usr, 50, "Slot Machine"))
-			return
-		plays++
-		pending_prize = detect_result()
-		reels = roll_reels(pending_prize)
-		result = null
-		working = TRUE
-		update_icon(UPDATE_ICON_STATE)
-		playsound(loc, 'sound/machines/ding.ogg', 50, TRUE)
-		addtimer(CALLBACK(src, PROC_REF(spin_slots), usr), SLOT_MACHINE_SPIN_TIME)
+	if(action != "spin")
+		return FALSE
+	if(working)
+		return FALSE
+	if(!account || account.money < 50)
+		return FALSE
+	if(!pay_with_card(usr, 50, "Slot Machine"))
+		return FALSE
+	plays++
+	working = TRUE
+	result = null
+	resultlvl = null
+	winning_reels = list()
+	credits = 0
+	prize_id = null
+	update_icon(UPDATE_ICON_STATE)
+	playsound(loc, 'sound/machines/ding.ogg', 50, TRUE)
+	addtimer(CALLBACK(src, PROC_REF(spin_slots), usr), 10)
+	return TRUE
 
 /obj/machinery/computer/slot_machine/proc/get_prize_coefficient()
-	if(emagged)
+	if(obj_flags & EMAGGED)
 		return EMAGGED_SLOT_MACHINE_PRIZE_MOD
 	return 1
 
@@ -224,40 +280,56 @@ GLOBAL_LIST_EMPTY(slotmachine_prizes)
 	target.adjust_slot_machine_lose_effect()
 
 /obj/machinery/computer/slot_machine/proc/spin_slots(mob/user)
-	var/datum/slotmachine_prize/prize = pending_prize
-	pending_prize = null
-	if(istype(user))
-		apply_spin_result(user, prize)
+	if(!istype(user))
+		return
+	var/prize = detect_result()
+	apply_spin_result(user, prize)
+	if(QDELETED(src))
+		return
 	working = FALSE
 	update_icon(UPDATE_ICON_STATE)
 	SStgui.update_uis(src) // Push a UI update
+
+/obj/machinery/computer/slot_machine/proc/generate_reels(datum/slotmachine_prize/prizedatum)
+	winning_reels = list()
+	reels = list()
+	if(prizedatum.match_count <= 0 || !prizedatum.symbol)
+		var/list/available_symbols = GLOB.slotmachine_reel_symbols.Copy()
+		shuffle_inplace(available_symbols)
+		reels = list(available_symbols[1], available_symbols[2], available_symbols[3])
+		return
+	var/list/other_symbols = GLOB.slotmachine_reel_symbols - prizedatum.symbol
+	for(var/reel_index in 1 to 3)
+		if(reel_index <= prizedatum.match_count)
+			reels += prizedatum.symbol
+			winning_reels += reel_index
+		else
+			reels += pick(other_symbols)
 
 /obj/machinery/computer/slot_machine/proc/apply_spin_result(mob/user, datum/slotmachine_prize/prizedatum)
 	if(!prizedatum || !istype(prizedatum))
 		do_sparks(1, TRUE, src)
 		atom_say("Ошибка!")
 		return
-	var/credits = prizedatum.get_credits(emagged)
+	var/prize_credits = prizedatum.get_credits(obj_flags)
 	if(prizedatum.custom_result)
 		result = prizedatum.custom_result
 	else
-		result = "[prizedatum.custom_result_prefix] Вы выиграли [credits] кредитов!"
+		result = "[prizedatum.custom_result_prefix] Вы выиграли [prize_credits] кредитов!"
 	resultlvl = prizedatum.resultlvl
-	if(prizedatum.say_phrase)
-		atom_say("[prizedatum.say_phrase] Игрок [user.name] выиграл [credits] кредитов!")
-	if(credits > 0)
-		win_money(credits, prizedatum.sound)
-	prizedatum.apply_effect(src, user, credits)
-	if(emagged)
-		prizedatum.apply_emagged_effect(src, user)
+	credits = prize_credits
+	prize_id = prizedatum.id
+	generate_reels(prizedatum)
+	addtimer(CALLBACK(src, PROC_REF(apply_spin_result_after_anim), user, prizedatum, prize_credits), 10)
 
-/obj/machinery/computer/slot_machine/proc/roll_reels(datum/slotmachine_prize/prize)
-	if(prize.reel_symbol)
-		return list(prize.reel_symbol, prize.reel_symbol, prize.reel_symbol)
-	var/list/rolled = list(pick(reel_symbols), pick(reel_symbols), pick(reel_symbols))
-	if(rolled[1] == rolled[2] && rolled[2] == rolled[3])
-		rolled[3] = pick(reel_symbols - rolled[1])
-	return rolled
+/obj/machinery/computer/slot_machine/proc/apply_spin_result_after_anim(mob/user, datum/slotmachine_prize/prizedatum, prize_credits)
+	if(prizedatum.say_phrase)
+		atom_say("[prizedatum.say_phrase] Игрок [user.name] выиграл [prize_credits] кредитов!")
+	if(prize_credits > 0)
+		win_money(prize_credits, prizedatum.sound)
+	prizedatum.apply_effect(src, user, prize_credits)
+	if(obj_flags & EMAGGED)
+		prizedatum.apply_emagged_effect(src, user)
 
 /obj/machinery/computer/slot_machine/proc/detect_result()
 	// Convert prize chance to weigth logic
@@ -296,3 +368,11 @@ GLOBAL_LIST_EMPTY(slotmachine_prizes)
 
 /obj/machinery/computer/slot_machine/screwdriver_act(mob/user, obj/item/I)
 	. = TRUE
+
+#undef SLOT_SYMBOL_SEVEN
+#undef SLOT_SYMBOL_BAR
+#undef SLOT_SYMBOL_BELL
+#undef SLOT_SYMBOL_CHERRY
+#undef SLOT_SYMBOL_LEMON
+#undef SLOT_SYMBOL_GEM
+#undef SLOT_SYMBOL_STAR

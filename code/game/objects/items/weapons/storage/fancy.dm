@@ -597,8 +597,9 @@
 	can_hold = list(/obj/item/reagent_containers/cup/beaker/vial)
 
 /obj/item/storage/fancy/vials/populate_contents()
-	for(var/I = 1 to storage_slots)
+	for(var/I in 1 to storage_slots)
 		new /obj/item/reagent_containers/cup/beaker/vial(src)
+
 
 /obj/item/storage/lockbox/vials
 	name = "secure vial storage box"
@@ -610,7 +611,7 @@
 	req_access = list(ACCESS_VIROLOGY)
 
 /obj/item/storage/lockbox/vials/populate_contents()
-	for(var/I = 1 to storage_slots)
+	for(var/i in 1 to storage_slots)
 		new /obj/item/reagent_containers/cup/beaker/vial(src)
 	update_icon()
 

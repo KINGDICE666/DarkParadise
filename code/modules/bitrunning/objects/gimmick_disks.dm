@@ -154,32 +154,32 @@
 	name = "Digi-Smoke"
 
 GLOBAL_LIST_INIT(alchemist_reagents, list(
-	"aluminum",
-	"bromine",
-	"carbon",
-	"chlorine",
-	"coffee",
-	"copper",
-	"ethanol",
-	"fluorine",
-	"fuel",
-	"hydrogen",
-	"iodine",
-	"iron",
-	"lithium",
-	"mercury",
-	"nitrogen",
-	"nutriment",
-	"oxygen",
-	"phosphorus",
-	"potassium",
-	"radium",
-	"sacid",
-	"silicon",
-	"sodium",
-	"sugar",
-	"sulfur",
-	"water",
+	/datum/reagent/aluminum,
+	/datum/reagent/bromine,
+	/datum/reagent/carbon,
+	/datum/reagent/chlorine,
+	/datum/reagent/consumable/drink/coffee,
+	/datum/reagent/copper,
+	/datum/reagent/consumable/ethanol,
+	/datum/reagent/fluorine,
+	/datum/reagent/fuel,
+	/datum/reagent/hydrogen,
+	/datum/reagent/iodine,
+	/datum/reagent/iron,
+	/datum/reagent/lithium,
+	/datum/reagent/mercury,
+	/datum/reagent/nitrogen,
+	/datum/reagent/consumable/nutriment,
+	/datum/reagent/oxygen,
+	/datum/reagent/phosphorus,
+	/datum/reagent/potassium,
+	/datum/reagent/radium,
+	/datum/reagent/acid,
+	/datum/reagent/silicon,
+	/datum/reagent/sodium,
+	/datum/reagent/consumable/sugar,
+	/datum/reagent/sulfur,
+	/datum/reagent/water,
 ))
 
 /obj/item/reagent_containers/cup/bottle/alchemist
@@ -199,7 +199,7 @@ GLOBAL_LIST_INIT(alchemist_reagents, list(
 
 /obj/item/reagent_containers/cup/bottle/alchemist/Initialize(mapload)
 	. = ..()
-	reagents.add_reagent(unstable ? get_random_reagent_id() : pick(GLOB.alchemist_reagents), volume)
+	reagents.add_reagent(unstable ? get_random_reagent_type() : pick(GLOB.alchemist_reagents), volume)
 
 /obj/item/reagent_containers/cup/bottle/alchemist/unstable
 	name = "skull-labeled bottle"

@@ -374,6 +374,12 @@
 				if(!islist(alternates) && !isnull(alternates))
 					alternates = list(alternates)
 
+		if(item && !hidden)
+			var/list/item_alts = list()
+			SEND_SIGNAL(item, COMSIG_ITEM_GET_STRIPPABLE_ALT_ACTIONS, owner, user, item_alts)
+			if(length(item_alts))
+				alternates = islist(alternates) ? alternates + item_alts : item_alts
+
 		if(isnull(item) || hidden)
 			if(length(alternates))
 				LAZYSET(result, "alternates", alternates)
@@ -500,8 +506,15 @@
 			if(strippable_item.get_obscuring(owner) == STRIPPABLE_OBSCURING_COMPLETELY)
 				return
 
+			var/obj/item/item = strippable_item.get_item(owner)
+			if(item)
+				var/list/item_alts = list()
+				SEND_SIGNAL(item, COMSIG_ITEM_GET_STRIPPABLE_ALT_ACTIONS, owner, user, item_alts)
+				if(params["action_key"] in item_alts)
+					SEND_SIGNAL(item, COMSIG_ITEM_STRIPPABLE_ALT_ACTION, owner, user, params["action_key"])
+					return
+
 			if(isnull(strippable_item.get_body_action(owner, user)))
-				var/item = strippable_item.get_item(owner)
 				if(isnull(item) || isnull(strippable_item.get_alternate_actions(owner, user)))
 					return
 

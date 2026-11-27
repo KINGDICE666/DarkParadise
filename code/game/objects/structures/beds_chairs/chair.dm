@@ -146,7 +146,7 @@
 		if(isobserver(user))
 			if(!CONFIG_GET(flag/ghost_interaction))
 				return FALSE
-		else if(!isliving(user) || user.incapacitated() || HAS_TRAIT(user, TRAIT_HANDS_BLOCKED) || !Adjacent(user))
+		else if(!isliving(user) || user.incapacitated || HAS_TRAIT(user, TRAIT_HANDS_BLOCKED) || !Adjacent(user))
 			return FALSE
 
 	setDir(turn(dir, 90))
@@ -335,6 +335,10 @@
 	var/break_chance = 5 //Likely hood of smashing the chair.
 	var/obj/structure/chair/origin_type = /obj/structure/chair
 
+/obj/item/chair/Initialize(mapload)
+	. = ..()
+	AddElement(/datum/element/cuffable_item)
+
 /obj/item/chair/stool
 	name = "stool"
 	icon_state = "stool_toppled"
@@ -369,6 +373,10 @@
 		if(istype(A, /obj/structure/chair))
 			to_chat(user, span_danger("There is already [A] here."))
 			return
+
+	if(HAS_TRAIT(src, TRAIT_NODROP))
+		balloon_alert(user, "прилип[GEND_LA_LO_LI(src)] к руке!")
+		return
 
 	user.visible_message(span_notice("[user] rights \the [src]."), span_notice("You right \the [src]."))
 	var/obj/structure/chair/C = new origin_type(get_turf(loc))

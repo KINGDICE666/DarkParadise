@@ -173,7 +173,6 @@
 		PREPOSITIONAL = "узле подачи замедлителя",
 	)
 
-
 /obj/machinery/atmospherics/unary/reactor_gas_node/moderator/Initialize(mapload)
 	. = ..()
 	component_parts = list()

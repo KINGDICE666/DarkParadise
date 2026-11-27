@@ -39,6 +39,7 @@
 #define HAS_CONTEXTUAL_SCREENTIPS (1<<13)
 /// Should this object be unpaintable?
 #define UNPAINTABLE (1<<14)
+#define ATMOS_IS_PROCESSING (1<<15)
 
 // Update flags for [/atom/proc/update_appearance]
 /// Update the atom's name
@@ -64,8 +65,8 @@
 #define RICOCHET_SPECIAL (1<<3)
 
 //Reagent flags
-#define REAGENT_NOREACT 1
-#define REAGENT_SHAKING 2
+#define REAGENT_NOREACT (1<<0)
+#define REAGENT_SHAKING (1<<1)
 
 //Species clothing flags
 #define HAS_UNDERWEAR 1
@@ -336,3 +337,16 @@ GLOBAL_LIST_INIT(more_bitflags, list(1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024
 
 //gun flags
 #define GUN_AMMO_COUNTER (1<<0)
+
+//EMP flags
+///Object will protect itself.
+#define EMP_PROTECT_SELF (1<<0)
+///Object will protect its contents from being EMPed.
+#define EMP_PROTECT_CONTENTS (1<<1)
+///Object will protect its wiring from being EMPed.
+#define EMP_PROTECT_WIRES (1<<2)
+///Don't indicate EMP protection in object examine text.
+#define EMP_NO_EXAMINE (1<<3)
+
+///Protects against all EMP types.
+#define EMP_PROTECT_ALL (EMP_PROTECT_SELF | EMP_PROTECT_CONTENTS | EMP_PROTECT_WIRES)

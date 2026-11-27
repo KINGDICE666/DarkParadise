@@ -88,6 +88,7 @@
 
 /obj/item/reagent_containers/cup/glass/mug/Initialize(mapload)
 	. = ..()
+	AddElement(/datum/element/cuffable_item)
 	if(preset)
 		return
 	if(novelty)

@@ -27,3 +27,4 @@ sound/overmap/bridge_click.ogg is adapted from virtualzero "Mouse Tap Single" (P
 sound/overmap/railgun_fire.ogg is adapted from "122mm D-25T clink", supplied by the server team
 sound/overmap/black_hole_core.ogg is adapted from "blackhole", supplied by the server team
 sound/overmap/space_ambience.ogg is adapted from "ambient", supplied by the server team
+voice/zombie_leap.ogg is taken from https://freesound.org/people/scorpion67890/sounds/396797/ and compressed to .ogg under Creative Commons 0 liscence.

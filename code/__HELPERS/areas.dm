@@ -105,7 +105,7 @@
 	var/area/newA
 	var/area/oldA = get_area(turfs[1])
 	if(!isarea(area_choice))
-		var/str = preset_name || tgui_input_text(usr, "New area name:", "Blueprint Editing", max_length = MAX_NAME_LEN, encode = FALSE)
+		var/str = preset_name || tgui_input_text(usr, "New area name:", "Blueprint Editing", max_length = MAX_NAME_LEN)
 		if(!str)
 			return
 		newA = new area_choice

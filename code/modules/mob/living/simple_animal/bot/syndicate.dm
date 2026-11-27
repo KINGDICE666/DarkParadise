@@ -40,6 +40,7 @@
 	set_weapon()
 	update_icon()
 	spawn_turf = get_turf(src)
+	AddElement(/datum/element/empprotection, EMP_PROTECT_ALL)
 
 /mob/living/simple_animal/bot/ed209/syndicate/setup_access()
 	if(access_card)
@@ -76,9 +77,10 @@
 	target = H
 	mode = BOT_HUNT
 
-/mob/living/simple_animal/bot/ed209/syndicate/emag_act(mob/user)
+/mob/living/simple_animal/bot/ed209/syndicate/bot_emagged(mob/user, obj/item/card/emag/emag_card)
 	if(user)
 		balloon_alert(user, "сканер ID-карт отсутствует!")
+	return FALSE
 
 /mob/living/simple_animal/bot/ed209/syndicate/ed209_ai()
 	var/turf/current_turf = get_turf(src)
@@ -189,9 +191,6 @@
 
 /mob/living/simple_animal/bot/ed209/syndicate/set_weapon()
 	projectile = /obj/projectile/bullet/a40mm
-
-/mob/living/simple_animal/bot/ed209/syndicate/emp_act(severity)
-	return
 
 /mob/living/simple_animal/bot/ed209/syndicate/OnUnarmedAttack(atom/A, proximity_flag, list/modifiers)
 	return shootAt(A)

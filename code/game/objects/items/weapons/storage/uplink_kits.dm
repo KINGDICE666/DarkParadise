@@ -1190,3 +1190,9 @@ To apply, hold the injector a short distance away from the outer thigh before ap
 	new /obj/item/gun/portal_gun(src)
 	new /obj/item/reagent_containers/cup/portal_fluid_canister/full(src)
 	new /obj/item/reagent_containers/cup/portal_fluid_canister/full(src)
+/obj/item/storage/box/syndie_kit/chemical_canister
+	name = "\improper Chemical flamethrower canisters"
+
+/obj/item/storage/box/syndie_kit/chemical_canister/populate_contents()
+	new /obj/item/chemical_canister/extended/nuclear(src)
+	new /obj/item/chemical_canister/extended/nuclear(src)

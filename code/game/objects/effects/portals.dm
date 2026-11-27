@@ -36,6 +36,8 @@
 	var/effect_cooldown = 0
 	///Whether or not portal use will cause sparks
 	var/create_sparks = TRUE
+	var/entry_effects = TRUE
+	var/ignore_bluespace_interference = FALSE
 
 /obj/effect/portal/Initialize(mapload, turf/target = null, obj/creation_object = null, lifespan = 30 SECONDS, mob/creation_mob = null, create_sparks = TRUE)
 	. = ..()
@@ -169,12 +171,12 @@
 	return TRUE
 
 /obj/effect/portal/proc/attempt_teleport(atom/movable/victim, turf/destination, variance = 0, force_teleport = TRUE)
-	var/use_effects = world.time >= effect_cooldown
+	var/use_effects = entry_effects && world.time >= effect_cooldown
 	var/effect = null // Will result in the default effect being used
 	if(!use_effects)
 		effect = NONE // No effect
 
-	if(!do_teleport(victim, destination, variance, force_teleport, effect, effect, bypass_area_flag = ignore_tele_proof_area_setting))
+	if(!do_teleport(victim, destination, variance, force_teleport, effect, effect, bypass_area_flag = ignore_tele_proof_area_setting, ignore_bluespace_interference = ignore_bluespace_interference, no_effects = !use_effects))
 		invalid_teleport()
 		return FALSE
 	effect_cooldown = world.time + EFFECT_COOLDOWN

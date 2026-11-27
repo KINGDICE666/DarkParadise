@@ -369,15 +369,17 @@
 		return "transit"
 	return "flight"
 
-/obj/machinery/computer/helm/emag_act(mob/user)
+/obj/machinery/computer/helm/emag_act(mob/user, obj/item/card/emag/emag_card)
+	. = ..()
 	if(!vessel)
 		link_vessel()
 	if(!vessel?.programmed)
-		return
-	if(vessel.emag_programmed(user))
-		if(user)
-			to_chat(user, span_notice("Навигационные ограничители сняты."))
-		return TRUE
+		return FALSE
+	if(!vessel.emag_programmed(user))
+		return FALSE
+	if(user)
+		to_chat(user, span_notice("Навигационные ограничители сняты."))
+	return TRUE
 
 /obj/machinery/computer/helm/process()
 	if(..())

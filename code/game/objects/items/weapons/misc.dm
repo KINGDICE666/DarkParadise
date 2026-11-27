@@ -32,6 +32,10 @@
 	materials = list(MAT_METAL=50)
 	attack_verb = list("огрел", "проучил")
 
+/obj/item/cane/Initialize(mapload)
+	. = ..()
+	AddElement(/datum/element/cuffable_item)
+
 /obj/item/cane/is_crutch()
 	return 2
 

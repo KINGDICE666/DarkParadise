@@ -84,7 +84,7 @@
 	component_parts += new /obj/item/assembly/igniter(null)
 	component_parts += new /obj/item/stack/sheet/glass(null)
 	RefreshParts()
-	AddElement(/datum/element/logistics_compatible)
+	ADD_TRAIT(src, TRAIT_LOGISTICS_COMPATIBLE, INNATE_TRAIT)
 	// Special access for built on Taipan machines
 	var/area/area = get_area(src)
 	if(istype(area, /area/syndicate/unpowered/syndicate_space_base))
@@ -340,7 +340,7 @@
 		var/datum/design/D = files.known_designs[v]
 		alloys += list(list(
 			"id" = D.id,
-			"name" = D.build_object_name,
+			"name" = CallMaterialName(D.id),
 			"description" = D.desc,
 			"amount" = get_num_smeltable_alloy(D)
 		))

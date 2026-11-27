@@ -12,6 +12,7 @@
 	/// Currently inserted magazine.
 	var/obj/item/ammo_box/magazine/magazine
 	var/can_tactical = FALSE //check to see if the gun can tactically reload
+	var/can_sawoff = FALSE
 	/// Register fireshoot component
 	var/can_air_shoot = FALSE
 
@@ -249,6 +250,8 @@
 
 /obj/item/gun/projectile/proc/sawoff(mob/user)
 	. = FALSE
+	if(!can_sawoff)
+		return
 	if(sawn_state == SAWN_OFF)
 		balloon_alert(user, "уже укорочено!")
 		return .

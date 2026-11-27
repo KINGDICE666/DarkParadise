@@ -114,7 +114,7 @@
 		return TRUE
 	if(entering.stat == DEAD)
 		return TRUE
-	return !entering.incapacitated(IGNORE_GRAB)
+	return !INCAPACITATED_IGNORING(entering, INCAPABLE_GRAB)
 
 
 /datum/heretic_knowledge/mansus_gate/proc/on_gate_deleted(obj/structure/closet/gate)

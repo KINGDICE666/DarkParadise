@@ -50,6 +50,8 @@
 /obj/effect/temp_visual/trail_afterimage/Initialize(mapload, atom/movable/copied, duration, trail_color, trail_alpha)
 	src.duration = duration
 	. = ..()
+	if(!copied)
+		return INITIALIZE_HINT_QDEL
 	appearance = copied.appearance
 	opacity = FALSE
 	render_target = null
@@ -66,6 +68,8 @@
 /obj/effect/temp_visual/trail_particles/Initialize(mapload, particles/particle_template, duration, emit_time)
 	src.duration = duration
 	. = ..()
+	if(!particle_template)
+		return INITIALIZE_HINT_QDEL
 	particles = particle_template.clone()
 	addtimer(VARSET_CALLBACK(particles, spawning, 0), emit_time)
 

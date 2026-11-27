@@ -580,6 +580,12 @@ INITIALIZE_IMMEDIATE(/atom/movable/screen/lobby)
 		return
 	SSadmin_verbs.dynamic_invoke_verb(usr.client, /datum/admin_verb/change_title_screen_notice)
 
+/atom/movable/screen/lobby/button/bottom/link/sign_up
+	icon = 'icons/hud/lobby/signup_button.dmi'
+	icon_state = "signup"
+	base_icon_state = "signup"
+	always_available = FALSE
+
 /atom/movable/screen/lobby/button/collapse
 	name = "Collapse Lobby Menu"
 	icon = 'icons/hud/lobby/collapse_expand.dmi'

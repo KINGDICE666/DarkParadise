@@ -113,6 +113,6 @@
 /datum/action/cooldown/spell/pointed/unravel/proc/check_menu(mob/living/caster)
 	if(QDELETED(caster))
 		return FALSE
-	return !caster.incapacitated()
+	return !caster.incapacitated
 
 #undef UNRAVEL_OBLIVION_CHOICE

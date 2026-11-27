@@ -269,6 +269,20 @@
 		PREPOSITIONAL = "торговом автомате",
 	)
 
+/obj/machinery/vending/add_context(atom/source, list/context, obj/item/held_item, mob/user)
+	context[SCREENTIP_CONTEXT_LMB] = "Посмотреть содержимое"
+	if(!held_item)
+		return CONTEXTUAL_SCREENTIP_SET
+
+	switch(held_item.tool_behaviour)
+		if(TOOL_SCREWDRIVER)
+			context[SCREENTIP_CONTEXT_LMB] = "[panel_open ? "Закрыть" : "Открыть"] панель"
+		if(TOOL_WRENCH)
+			context[SCREENTIP_CONTEXT_LMB] = "[anchored ? "Ослабить" : "Затянуть"] болты"
+		if(TOOL_CROWBAR)
+			context[SCREENTIP_CONTEXT_LMB] = "Разобрать"
+	return CONTEXTUAL_SCREENTIP_SET
+
 /**
  * Initialize the vending machine
  *
@@ -331,6 +345,7 @@
 		)
 
 	update_icon(UPDATE_OVERLAYS)
+	register_context()
 
 /obj/machinery/vending/click_alt(mob/user)
 	if(!tilted)
@@ -963,10 +978,14 @@
 	inserted_item = null
 	SStgui.update_uis(src)
 
-/obj/machinery/vending/emag_act(mob/user)
-	emagged = TRUE
+/obj/machinery/vending/emag_act(mob/user, obj/item/card/emag/emag_card)
+	. = ..()
+	if(obj_flags & EMAGGED)
+		return FALSE
+	obj_flags |= EMAGGED
 	if(user)
 		balloon_alert(user, "взломано")
+	return TRUE
 
 /obj/machinery/vending/attack_ai(mob/user)
 	return attack_hand(user)
@@ -1201,7 +1220,7 @@
 		to_chat(usr, "Товар \"[product_record.name]\" закончился!")
 		flick_vendor_overlay(FLICK_VEND)
 		return
-	if(!allowed(usr) && !usr.can_admin_interact() && !emagged && scan_id)
+	if(!allowed(usr) && !usr.can_admin_interact() && !(obj_flags & EMAGGED) && scan_id)
 		balloon_alert(usr, "в доступе отказано!")
 		flick_vendor_overlay(FLICK_DENY)
 		return
@@ -1260,7 +1279,7 @@
 		vend_ready = TRUE
 
 /obj/machinery/vending/proc/vend(datum/data/vending_product/product_record, mob/user, list/greyscale_colors)
-	if(!allowed(user) && !user.can_admin_interact() && !emagged && scan_id)	//For SECURE VENDING MACHINES YEAH
+	if(!allowed(user) && !user.can_admin_interact() && !(obj_flags & EMAGGED) && scan_id)	//For SECURE VENDING MACHINES YEAH
 		to_chat(user, span_warning("В доступе отказано!"))//Unless emagged of course
 		flick_vendor_overlay(FLICK_DENY)
 		vend_ready = TRUE

@@ -611,9 +611,9 @@ GLOBAL_LIST_EMPTY(airlock_emissive_blockers)
 
 /obj/machinery/door/airlock/examine(mob/user)
 	. = ..()
-	if(emagged)
+	if(obj_flags & EMAGGED)
 		. += span_warning("Its access panel is smoking slightly.")
-	if(HAS_TRAIT(src, TRAIT_CMAGGED))
+	if(obj_flags & CMAGGED)
 		. += span_warning("The access panel is coated in yellow ooze...")
 	if(note)
 		if(!in_range(user, src))
@@ -835,11 +835,11 @@ GLOBAL_LIST_EMPTY(airlock_emissive_blockers)
 /obj/machinery/door/airlock/proc/headbutt_airlock(mob/user)
 	if(ishuman(user) && prob(40) && density)
 		var/mob/living/carbon/human/H = user
-		if((H.getBrainLoss() >= 60 || HAS_TRAIT(user, TRAIT_DUMB) || HAS_TRAIT(user, TRAIT_AIRLOCK_HIT)) && Adjacent(user))
+		if((!H.check_brain_for_complex_interactions() || HAS_TRAIT(user, TRAIT_AIRLOCK_HIT)) && Adjacent(user))
 			playsound(loc, 'sound/effects/bang.ogg', 25, TRUE)
 			if(!istype(H.head, /obj/item/clothing/head/helmet))
 				visible_message(span_warning("[user] headbutts the airlock."))
-				H.Weaken(10 SECONDS)
+				H.Knockdown(10 SECONDS)
 				H.apply_damage(10, def_zone = BODY_ZONE_HEAD)
 			else
 				visible_message(span_warning("[user] headbutts the airlock. Good thing [user.p_theyre()] wearing a helmet."))
@@ -866,7 +866,7 @@ GLOBAL_LIST_EMPTY(airlock_emissive_blockers)
 		return TRUE
 	if(ispulsedemon(user))
 		return TRUE
-	if(emagged || HAS_TRAIT(src, TRAIT_CMAGGED))
+	if((obj_flags & EMAGGED) || (obj_flags & CMAGGED))
 		to_chat(user, span_warning("Unable to interface: Internal error."))
 		return FALSE
 	if(!canAIControl())
@@ -1169,7 +1169,7 @@ GLOBAL_LIST_EMPTY(airlock_emissive_blockers)
 	. = TRUE
 	if(!I.tool_use_check(user, 0))
 		return
-	if(!panel_open||!locked||emagged)
+	if(!panel_open || !locked || (obj_flags & EMAGGED))
 		to_chat(user, span_notice("You can't reach bolt reducer."))
 		return
 	if(isAllPowerLoss())
@@ -1262,7 +1262,7 @@ GLOBAL_LIST_EMPTY(airlock_emissive_blockers)
 	if(operating)
 		return
 
-	if(I.tool_behaviour == TOOL_CROWBAR && I.tool_use_check(user, 0) && panel_open && (emagged || (density && welded && !operating && !arePowerSystemsOn() && !locked)))
+	if(I.tool_behaviour == TOOL_CROWBAR && I.tool_use_check(user, 0) && panel_open && ((obj_flags & EMAGGED) || (density && welded && !operating && !arePowerSystemsOn() && !locked)))
 		user.visible_message(
 			"[user] removes the electronics from the airlock assembly.", \
 			span_notice("You start to remove electronics from the airlock assembly...")
@@ -1321,7 +1321,7 @@ GLOBAL_LIST_EMPTY(airlock_emissive_blockers)
 /obj/machinery/door/airlock/open(forced = 0)
 	set waitfor = FALSE
 
-	if(operating || welded || locked || emagged)
+	if(operating || welded || locked || (obj_flags & EMAGGED))
 		return FALSE
 	if(!forced && (!arePowerSystemsOn() || wires.is_cut(WIRE_OPEN_DOOR)))
 		return FALSE
@@ -1357,7 +1357,7 @@ GLOBAL_LIST_EMPTY(airlock_emissive_blockers)
 /obj/machinery/door/airlock/close(forced = 0, override = FALSE)
 	set waitfor = FALSE
 
-	if((operating && !override) || welded || locked || emagged)
+	if((operating && !override) || welded || locked || (obj_flags & EMAGGED))
 		return FALSE
 	if(density)
 		return TRUE
@@ -1441,37 +1441,38 @@ GLOBAL_LIST_EMPTY(airlock_emissive_blockers)
 	//Airlock is passable if it is open (!density), bot has access, and is not bolted shut or powered off)
 	return !density || (check_access_list(pass_info.access) && !locked && arePowerSystemsOn() && !pass_info.no_id)
 
-/obj/machinery/door/airlock/emag_act(mob/user)
-	if(!hackable)
-		if(user)
-			to_chat(user, span_notice("The electronic systems in this door are far too advanced for your primitive hacking peripherals."))
-		return
-	if(!operating && density && arePowerSystemsOn() && !emagged)
-		add_attack_logs(user, src, "emagged ([locked ? "bolted" : "not bolted"])")
-		operating = DOOR_MALF
-		update_icon(AIRLOCK_EMAG, TRUE)
-		sleep(6)
-		if(QDELETED(src))
-			return
-		operating = NONE
-		if(!open())
-			update_icon(AIRLOCK_CLOSED, TRUE)
-		emagged = TRUE
-		return TRUE
-
-/obj/machinery/door/airlock/cmag_act(mob/user)
-	set waitfor = FALSE
-	if(operating || HAS_TRAIT(src, TRAIT_CMAGGED) || !density || !arePowerSystemsOn() || emagged)
-		return
+/obj/machinery/door/airlock/emag_act(mob/user, obj/item/card/emag/emag_card)
+	. = ..()
+	if(operating || !density || !arePowerSystemsOn() || (obj_flags & EMAGGED))
+		return FALSE
 	operating = DOOR_MALF
 	update_icon(AIRLOCK_EMAG, TRUE)
-	sleep(6)
+	addtimer(CALLBACK(src, PROC_REF(after_emag_act)), 0.6 SECONDS)
+	return TRUE
+
+/obj/machinery/door/airlock/proc/after_emag_act()
 	if(QDELETED(src))
 		return
 	operating = NONE
-	update_icon(AIRLOCK_CLOSED, TRUE)
-	ADD_TRAIT(src, TRAIT_CMAGGED, CMAGGED)
+	if(!open())
+		update_icon(AIRLOCK_CLOSED, TRUE)
+	obj_flags |= EMAGGED
+	update_icon(override = TRUE)
+
+/obj/machinery/door/airlock/special_door_cmag(mob/user, obj/item/card/cmag/cmag_card)
+	if(operating || (obj_flags & CMAGGED) || !density || !arePowerSystemsOn() || (obj_flags & EMAGGED))
+		return FALSE
+	operating = DOOR_MALF
+	update_icon(AIRLOCK_EMAG, TRUE)
+	addtimer(CALLBACK(src, PROC_REF(after_cmag_act)), 0.6 SECONDS)
+	obj_flags |= CMAGGED
 	return TRUE
+
+/obj/machinery/door/airlock/after_cmag_act()
+	if(QDELETED(src))
+		return
+	operating = NONE
+	INVOKE_ASYNC(src, PROC_REF(open))
 
 /obj/machinery/door/airlock/emp_act(severity)
 	. = ..()
@@ -1526,7 +1527,7 @@ GLOBAL_LIST_EMPTY(airlock_emissive_blockers)
 	update_icon()
 
 /obj/machinery/door/airlock/proc/prison_open()
-	if(emagged)
+	if(obj_flags & EMAGGED)
 		return
 	if(arePowerSystemsOn())
 		unlock()
@@ -1592,7 +1593,7 @@ GLOBAL_LIST_EMPTY(airlock_emissive_blockers)
 			airlock_electronics.id = id_tag
 		else
 			airlock_electronics.forceMove(loc)
-		if(emagged)
+		if(obj_flags & EMAGGED)
 			airlock_electronics.icon_state = "door_electronics_smoked"
 		airlock_electronics = null
 
@@ -1600,7 +1601,7 @@ GLOBAL_LIST_EMPTY(airlock_emissive_blockers)
 			if(!access_electronics)
 				build_access_electronics()
 			access_electronics.forceMove(loc)
-			if(emagged)
+			if(obj_flags & EMAGGED)
 				access_electronics.emag_act()
 			access_electronics = null
 

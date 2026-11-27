@@ -65,7 +65,8 @@
 	if(spawned_disease)
 		var/datum/disease/F = new spawned_disease
 		var/list/data = list("diseases" = list(F), "blood_color" = BLOOD_COLOR_RED)
-		reagents.add_reagent("blood", disease_amount, data)
+		reagents.add_reagent(/datum/reagent/blood, disease_amount, data)
+
 	if(list_reagents)
 		list_reagents = string_assoc_list(list_reagents)
 	if(possible_transfer_amounts)
@@ -83,13 +84,19 @@
 		reagents.add_reagent_list(list_reagents)
 
 /obj/item/reagent_containers/attack_self(mob/user)
-	if(has_variable_transfer_amount)
-		select_transfer_amount(user)
-		return TRUE
+	attack(user, user, null, user.zone_selected)
 
 /obj/item/reagent_containers/attack_self_secondary(mob/user)
 	if(has_variable_transfer_amount)
 		select_transfer_amount(user)
+
+/obj/item/reagent_containers/click_alt(mob/user)
+	if(has_variable_transfer_amount)
+		change_transfer_amount(user, FORWARD)
+
+/obj/item/reagent_containers/click_alt_secondary(mob/user)
+	if(has_variable_transfer_amount)
+		change_transfer_amount(user, BACKWARD)
 
 /obj/item/reagent_containers/attack_hand_secondary(mob/user, list/modifiers)
 	. = ..()
@@ -105,11 +112,30 @@
 	select_transfer_amount(user)
 	return SECONDARY_ATTACK_CANCEL_ATTACK_CHAIN
 
+/obj/item/reagent_containers/proc/mode_change_message(mob/user)
+	return
+
+/obj/item/reagent_containers/proc/change_transfer_amount(mob/user, direction = FORWARD)
+	var/list_len = length(possible_transfer_amounts)
+	if(!list_len)
+		return
+	var/index = possible_transfer_amounts.Find(amount_per_transfer_from_this) || 1
+	switch(direction)
+		if(FORWARD)
+			index = (index % list_len) + 1
+		if(BACKWARD)
+			index = (index - 1) || list_len
+		else
+			CRASH("change_transfer_amount() called with invalid direction value")
+	amount_per_transfer_from_this = possible_transfer_amounts[index]
+	balloon_alert(user, "объём перемещения — [amount_per_transfer_from_this] единиц[DECL_A_Y_0(amount_per_transfer_from_this)]")
+	mode_change_message(user)
+
 /obj/item/reagent_containers/proc/select_transfer_amount(mob/user)
 	if(!has_variable_transfer_amount || !length(possible_transfer_amounts))
 		return
 
-	if(!Adjacent(user) || user.incapacitated() || HAS_TRAIT(user, TRAIT_HANDS_BLOCKED))
+	if(!Adjacent(user) || user.incapacitated || HAS_TRAIT(user, TRAIT_HANDS_BLOCKED))
 		return
 
 	var/default = null
@@ -120,7 +146,7 @@
 	if(!amount)
 		return
 
-	if(!Adjacent(user) || user.incapacitated() || HAS_TRAIT(user, TRAIT_HANDS_BLOCKED))
+	if(!Adjacent(user) || user.incapacitated || HAS_TRAIT(user, TRAIT_HANDS_BLOCKED))
 		return
 
 	amount_per_transfer_from_this = amount

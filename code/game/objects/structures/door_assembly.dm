@@ -161,7 +161,7 @@
 				if(access_electronics)
 					to_chat(user, span_warning("The airlock assembly already has [access_electronics] installed."))
 					return ATTACK_CHAIN_PROCEED
-				if(new_circuit.access_electronics.emagged)
+				if(new_circuit.access_electronics.obj_flags & EMAGGED)
 					to_chat(user, span_warning("The [new_circuit.name] has broken [new_circuit.access_electronics.name] installed."))
 					return ATTACK_CHAIN_PROCEED
 			new_circuit.play_tool_sound(src)
@@ -169,7 +169,7 @@
 				span_notice("[user] starts to install the airlock electronics into the airlock assembly."),
 				span_notice("You start to install airlock electronics into the airlock assembly..."),
 			)
-			if(!do_after(user, 4 SECONDS * new_circuit.toolspeed, src, category = DA_CAT_TOOL) || state != AIRLOCK_ASSEMBLY_NEEDS_ELECTRONICS || I.icon_state == "door_electronics_smoked" || (new_circuit.access_electronics && (access_electronics || new_circuit.access_electronics.emagged)))
+			if(!do_after(user, 4 SECONDS * new_circuit.toolspeed, src, category = DA_CAT_TOOL) || state != AIRLOCK_ASSEMBLY_NEEDS_ELECTRONICS || I.icon_state == "door_electronics_smoked" || (new_circuit.access_electronics && (access_electronics || (new_circuit.access_electronics.obj_flags & EMAGGED))))
 				return ATTACK_CHAIN_PROCEED
 			if(!user.drop_transfer_item_to_loc(new_circuit, src))
 				return ATTACK_CHAIN_PROCEED
@@ -194,7 +194,7 @@
 			if(access_electronics)
 				to_chat(user, span_warning("The airlock assembly already has [access_electronics] installed."))
 				return ATTACK_CHAIN_PROCEED
-			if(control.emagged)
+			if(control.obj_flags & EMAGGED)
 				to_chat(user, span_warning("The [control.name] is broken."))
 				return ATTACK_CHAIN_PROCEED
 			control.play_tool_sound(src)
@@ -202,7 +202,7 @@
 				span_notice("[user] installs the access control electronics into the airlock assembly."),
 				span_notice("You start to install the access control electronics into the airlock assembly..."),
 			)
-			if(!do_after(user, 4 SECONDS * control.toolspeed, src, category = DA_CAT_TOOL) || state != AIRLOCK_ASSEMBLY_NEEDS_SCREWDRIVER || access_electronics || control.emagged)
+			if(!do_after(user, 4 SECONDS * control.toolspeed, src, category = DA_CAT_TOOL) || state != AIRLOCK_ASSEMBLY_NEEDS_SCREWDRIVER || access_electronics || (control.obj_flags & EMAGGED))
 				return ATTACK_CHAIN_PROCEED
 			if(!user.drop_transfer_item_to_loc(control, src))
 				return ATTACK_CHAIN_PROCEED

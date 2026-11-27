@@ -631,6 +631,7 @@ Difficulty: Medium
 
 /mob/living/simple_animal/hostile/megafauna/dragon/lesser
 	name = "lesser ash drake"
+	true_spawn = FALSE
 	maxHealth = 200
 	health = 200
 	faction = list("neutral")
@@ -671,6 +672,7 @@ Difficulty: Medium
 
 /mob/living/simple_animal/hostile/megafauna/dragon/space_dragon
 	name = "space dragon"
+	true_spawn = FALSE
 	maxHealth = 250
 	health = 250
 	faction = list("neutral")

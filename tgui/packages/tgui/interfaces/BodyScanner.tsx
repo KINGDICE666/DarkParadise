@@ -30,15 +30,15 @@ const abnormalities = [
       ' возможно, злокачественное. Рекомендуется хирургическое удаление.',
   ],
   ['blind', 'average', 'Обнаружена катаракта.'],
-  ['colourblind', 'average', 'Обнаружены нарушения в работе фоторецепторов'],
+  ['colourblind', 'average', 'Обнаружены нарушения в работе фоторецепторов.'],
   ['nearsighted', 'average', 'Обнаружено смещение сетчатки.'],
+  ['hasIrradiated', 'average', 'Обнаружено радиационное облучение.'],
 ];
 
 const damages = [
   ['Удушье', 'oxyLoss'],
   ['Повреждение мозга', 'brainLoss'],
   ['Отравление', 'toxLoss'],
-  ['Радиационное поражение', 'radLoss'],
   ['Механические повреждения', 'bruteLoss'],
   ['Генетические повреждения', 'cloneLoss'],
   ['Термические повреждения', 'fireLoss'],
@@ -53,7 +53,9 @@ const damageRange: Record<string, [number, number]> = {
 const mapTwoByTwo = <T, R>(a: T[][], c: (s: T[], c2: T[], i: number) => R) => {
   const result: R[] = [];
   for (let i = 0; i < a.length; i += 2) {
-    result.push(c(a[i], a[i + 1], i));
+    const pair = a.slice(i, i + 2);
+    if (pair.length < 2) break;
+    result.push(c(pair[0], pair[1], i));
   }
   return result;
 };
@@ -112,6 +114,7 @@ type Occupant = {
   bodyTempC: number;
   bodyTempF: number;
   hasBorer: boolean;
+  hasIrradiated: boolean;
   blind: boolean;
   colourblind: boolean;
   nearsighted: boolean;
@@ -264,7 +267,8 @@ const BodyScannerMainAbnormalities = (props: BodyScannerProps) => {
       occupant.colourblind ||
       occupant.nearsighted ||
       occupant.diseases.length ||
-      occupant.traumas.length
+      occupant.traumas.length ||
+      occupant.hasIrradiated
     )
   ) {
     return (

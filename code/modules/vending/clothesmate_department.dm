@@ -708,6 +708,7 @@
 				/obj/item/clothing/neck/cloak/bishop = 2,
 				/obj/item/clothing/neck/cloak/bishopblack = 2,
 				/obj/item/radio/headset/headset_service = 5,
+				/obj/item/storage/box/purity_seal_box = 2,
 			),
 		),
 		list(

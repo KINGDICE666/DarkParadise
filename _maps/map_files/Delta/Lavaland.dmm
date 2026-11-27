@@ -1533,6 +1533,15 @@
 /obj/effect/decal/cleanable/dirt,
 /turf/simulated/floor/plasteel,
 /area/mine/eva)
+"fy" = (
+/obj/structure/fans/tiny,
+/obj/machinery/door/airlock/external/docking{
+	id_tag = "laborcamp_away";
+	dock_name = "Каторга";
+	dir = 8
+	},
+/turf/simulated/floor/plasteel,
+/area/mine/laborcamp)
 "fA" = (
 /obj/structure/stone_tile/block/cracked{
 	dir = 4
@@ -3506,13 +3515,6 @@
 	icon_state = "bar"
 	},
 /area/mine/living_quarters)
-"pM" = (
-/obj/machinery/light/small{
-	dir = 1
-	},
-/obj/machinery/overmap_intercom/directional/north,
-/turf/simulated/floor/bluegrid,
-/area/mine/maintenance)
 "pT" = (
 /obj/structure/stone_tile/cracked{
 	dir = 8
@@ -3555,6 +3557,14 @@
 	},
 /turf/simulated/floor/indestructible/boss,
 /area/lavaland/surface/outdoors/necropolis)
+"qb" = (
+/obj/structure/disposalpipe/segment,
+/obj/structure/extinguisher_cabinet/directional/west,
+/turf/simulated/floor/plasteel{
+	dir = 10;
+	icon_state = "brown"
+	},
+/area/mine/living_quarters)
 "qc" = (
 /obj/structure/stone_tile/block,
 /turf/simulated/floor/plating/asteroid/basalt/lava_land_surface,
@@ -3700,6 +3710,13 @@
 /obj/structure/stone_tile/cracked,
 /turf/simulated/floor/indestructible/boss,
 /area/lavaland/surface/outdoors/necropolis)
+"re" = (
+/obj/machinery/light/small{
+	dir = 1
+	},
+/obj/machinery/overmap_intercom/directional/north,
+/turf/simulated/floor/bluegrid,
+/area/mine/maintenance)
 "rg" = (
 /obj/structure/stone_tile/slab/cracked{
 	dir = 5
@@ -3952,14 +3969,6 @@
 /obj/effect/decal/cleanable/dirt,
 /turf/simulated/floor/plating,
 /area/mine/production)
-"sX" = (
-/obj/structure/disposalpipe/segment,
-/obj/structure/extinguisher_cabinet/directional/west,
-/turf/simulated/floor/plasteel{
-	dir = 10;
-	icon_state = "brown"
-	},
-/area/mine/living_quarters)
 "sZ" = (
 /obj/machinery/door/firedoor,
 /turf/simulated/floor/plasteel{
@@ -4148,6 +4157,13 @@
 	icon_state = "brown"
 	},
 /area/mine/laborcamp)
+"uh" = (
+/obj/machinery/light/small{
+	dir = 1
+	},
+/obj/machinery/transponder/directional/north,
+/turf/simulated/floor/bluegrid,
+/area/mine/maintenance)
 "ui" = (
 /obj/structure/disposalpipe/segment{
 	dir = 4
@@ -4159,13 +4175,6 @@
 	},
 /turf/simulated/floor/plasteel,
 /area/mine/living_quarters)
-"um" = (
-/obj/machinery/door/airlock/external/docking/support{
-	id_tag = "laborcamp_away"
-	},
-/obj/structure/fans/tiny,
-/turf/simulated/floor/plasteel,
-/area/mine/laborcamp)
 "un" = (
 /obj/structure/stone_tile/cracked{
 	dir = 8
@@ -4289,13 +4298,6 @@
 	icon_state = "brown"
 	},
 /area/mine/production)
-"vn" = (
-/obj/structure/fans/tiny,
-/obj/machinery/door/airlock/external/docking/support{
-	id_tag = "mining_away"
-	},
-/turf/simulated/floor/plasteel,
-/area/mine/living_quarters)
 "vs" = (
 /obj/machinery/door/firedoor,
 /turf/simulated/floor/plasteel{
@@ -4467,6 +4469,16 @@
 	},
 /turf/simulated/floor/indestructible/boss,
 /area/lavaland/surface/outdoors/necropolis)
+"wn" = (
+/obj/effect/turf_decal/delivery/hollow,
+/obj/structure/fans/tiny,
+/obj/machinery/door/airlock/external/docking/glass{
+	id_tag = "mining_away";
+	dock_name = "Док шахтёрского шаттла";
+	dir = 8
+	},
+/turf/simulated/floor/plasteel,
+/area/mine/production)
 "wo" = (
 /obj/structure/stone_tile/slab/cracked,
 /obj/effect/mapping_helpers/no_lava,
@@ -4574,13 +4586,6 @@
 	},
 /turf/simulated/floor/plating/asteroid/basalt/lava_land_surface,
 /area/lavaland/surface/outdoors/necropolis)
-"xg" = (
-/obj/structure/fans/tiny,
-/obj/machinery/door/airlock/external/docking/support{
-	id_tag = "laborcamp_away"
-	},
-/turf/simulated/floor/plasteel,
-/area/mine/laborcamp)
 "xh" = (
 /obj/structure/stone_tile/surrounding_tile{
 	dir = 4
@@ -4676,6 +4681,14 @@
 	icon_state = "brown"
 	},
 /area/mine/living_quarters)
+"xI" = (
+/obj/effect/turf_decal/delivery/hollow,
+/obj/structure/fans/tiny,
+/obj/machinery/door/airlock/external/docking/support{
+	id_tag = "mining_away"
+	},
+/turf/simulated/floor/plasteel,
+/area/mine/production)
 "xL" = (
 /obj/machinery/atmospherics/unary/outlet_injector/on{
 	dir = 4;
@@ -4880,16 +4893,6 @@
 	icon_state = "browncorner"
 	},
 /area/mine/living_quarters)
-"yO" = (
-/obj/effect/turf_decal/delivery/hollow,
-/obj/structure/fans/tiny,
-/obj/machinery/door/airlock/external/docking/glass{
-	id_tag = "mining_away";
-	dock_name = "Док шахтёрского шаттла";
-	dir = 8
-	},
-/turf/simulated/floor/plasteel,
-/area/mine/production)
 "yP" = (
 /obj/structure/stone_tile/block/cracked,
 /obj/structure/stone_tile/block/cracked{
@@ -5069,6 +5072,13 @@
 	},
 /turf/simulated/floor/indestructible/boss,
 /area/lavaland/surface/outdoors/necropolis)
+"Al" = (
+/obj/structure/fans/tiny,
+/obj/machinery/door/airlock/external/docking/support{
+	id_tag = "laborcamp_away"
+	},
+/turf/simulated/floor/plasteel,
+/area/mine/laborcamp)
 "Am" = (
 /obj/structure/stone_tile/block/cracked{
 	dir = 4
@@ -6655,15 +6665,6 @@
 /obj/effect/decal/cleanable/dirt,
 /turf/simulated/floor/plasteel/white,
 /area/mine/laborcamp)
-"KJ" = (
-/obj/structure/fans/tiny,
-/obj/machinery/door/airlock/external/docking{
-	id_tag = "laborcamp_away";
-	dock_name = "Каторга";
-	dir = 8
-	},
-/turf/simulated/floor/plasteel,
-/area/mine/laborcamp)
 "KK" = (
 /obj/structure/stone_tile/block/cracked,
 /obj/structure/stone_tile/surrounding_tile/cracked{
@@ -6892,6 +6893,13 @@
 /obj/effect/mapping_helpers/no_lava,
 /turf/simulated/floor/plating/asteroid/basalt/lava_land_surface,
 /area/ruin/unpowered/safe_cave)
+"Mu" = (
+/obj/machinery/door/airlock/external/docking/support{
+	id_tag = "laborcamp_away"
+	},
+/obj/structure/fans/tiny,
+/turf/simulated/floor/plasteel,
+/area/mine/laborcamp)
 "Mw" = (
 /obj/effect/turf_decal/delivery/hollow,
 /turf/simulated/floor/plasteel,
@@ -7300,6 +7308,13 @@
 	},
 /turf/simulated/floor/plating/asteroid/basalt/lava_land_surface,
 /area/lavaland/surface/outdoors/necropolis)
+"Pv" = (
+/obj/structure/fans/tiny,
+/obj/machinery/door/airlock/external/docking/support{
+	id_tag = "mining_away"
+	},
+/turf/simulated/floor/plasteel,
+/area/mine/living_quarters)
 "PF" = (
 /obj/item/stack/rods/fireproof/twentyfive,
 /turf/simulated/floor/plating/asteroid/basalt/lava_land_surface,
@@ -7403,14 +7418,6 @@
 	icon_state = "brown"
 	},
 /area/mine/living_quarters)
-"Qg" = (
-/obj/effect/turf_decal/delivery/hollow,
-/obj/structure/fans/tiny,
-/obj/machinery/door/airlock/external/docking/support{
-	id_tag = "mining_away"
-	},
-/turf/simulated/floor/plasteel,
-/area/mine/production)
 "Qi" = (
 /obj/structure/fluff/drake_statue{
 	name = "ancient drake statue"
@@ -7515,13 +7522,6 @@
 	icon_state = "brown"
 	},
 /area/mine/laborcamp)
-"Re" = (
-/obj/machinery/light/small{
-	dir = 1
-	},
-/obj/machinery/transponder/directional/north,
-/turf/simulated/floor/bluegrid,
-/area/mine/maintenance)
 "Rj" = (
 /obj/structure/stone_tile/block{
 	dir = 1
@@ -8451,12 +8451,6 @@
 /obj/machinery/door/firedoor,
 /turf/simulated/floor/plasteel,
 /area/mine/living_quarters)
-"Ww" = (
-/obj/structure/closet/crate{
-	icon_state = "crateopen"
-	},
-/turf/simulated/floor/plasteel,
-/area/mine/production)
 "Wz" = (
 /obj/machinery/light{
 	dir = 1;
@@ -13645,11 +13639,11 @@ qT
 aq
 tZ
 aq
-KJ
+fy
 aq
 aq
-um
-um
+Mu
+Mu
 aq
 ty
 vC
@@ -14159,11 +14153,11 @@ aq
 sP
 aQ
 aq
-xg
+Al
 aq
 aq
-um
-um
+Mu
+Mu
 aq
 tL
 eV
@@ -19060,7 +19054,7 @@ xH
 gL
 mT
 mT
-sX
+qb
 Nd
 Zf
 WO
@@ -20851,7 +20845,7 @@ aj
 aj
 fw
 La
-pM
+re
 bK
 cl
 La
@@ -21365,7 +21359,7 @@ fw
 fw
 fw
 La
-Re
+uh
 bQ
 UJ
 La
@@ -21639,7 +21633,7 @@ aj
 Zf
 WO
 WO
-vn
+Pv
 WO
 WO
 fw
@@ -22153,7 +22147,7 @@ aj
 fw
 fw
 WO
-vn
+Pv
 WO
 fw
 fw
@@ -23695,7 +23689,7 @@ aj
 fw
 fw
 lC
-yO
+wn
 lC
 fw
 fw
@@ -24209,7 +24203,7 @@ aj
 aR
 lC
 lC
-Qg
+xI
 lC
 lC
 fw
@@ -25745,7 +25739,7 @@ fl
 Oe
 Fx
 IE
-Ww
+Hl
 EK
 Zi
 kG

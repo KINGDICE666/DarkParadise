@@ -121,7 +121,7 @@
 		unbind_blade(user)
 		return
 
-	if(user.mind?.isholy)
+	if(HAS_MIND_TRAIT(user, TRAIT_HOLY))
 		on_priest_handle(user)
 
 	else if(iscultist(user))
@@ -385,12 +385,4 @@
 		var/ret_item = is_holding_item_of_type(typepath)
 		if(ret_item)
 			return ret_item
-
-/mob/living/carbon/human/proc/is_holding_item_of_type(typepath)
-	for(var/obj/item/item in get_held_items())
-		if(!istype(item, typepath))
-			continue
-
-		return item
-
 	return FALSE

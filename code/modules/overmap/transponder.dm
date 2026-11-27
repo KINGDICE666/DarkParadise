@@ -223,18 +223,19 @@ GLOBAL_LIST_INIT(overmap_transponder_colors, list(
 	attack_hand(user)
 
 /obj/machinery/transponder/click_alt(mob/user)
-	if(!user.Adjacent(src) || user.incapacitated())
+	if(!user.Adjacent(src) || user.incapacitated)
 		return CLICK_ACTION_BLOCKING
 	set_distress(!distress)
 	to_chat(user, span_notice("Сигнал бедствия [distress ? "включён" : "выключен"]."))
 	user.visible_message(span_warning("[user] [distress ? "активирует" : "глушит"] аварийный маяк на [declent_ru(PREPOSITIONAL)]."))
 	return CLICK_ACTION_SUCCESS
 
-/obj/machinery/transponder/emag_act(mob/user)
+/obj/machinery/transponder/emag_act(mob/user, obj/item/card/emag/emag_card)
+	. = ..()
 	if(find_iff_channel(OVERMAP_IFF_HIJACK))
 		return FALSE
 	ensure_iff_channels()
-	emagged = TRUE
+	obj_flags |= EMAGGED
 	iff_channels += new /datum/overmap_iff_channel(OVERMAP_IFF_HIJACK, overmap_iff_label_for_id(OVERMAP_IFF_HIJACK), TRUE, TRUE, TRUE)
 	push_to_vessel()
 	if(user)

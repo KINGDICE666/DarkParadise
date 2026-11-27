@@ -111,15 +111,17 @@
 		addtimer(CALLBACK(src, PROC_REF(react_buzz)), 0.5 SECONDS)
 	return ..()
 
-/mob/living/simple_animal/bot/honkbot/emag_act(mob/user)
-	..()
-	if(emagged == 2)
-		if(user)
-			to_chat(user, span_warning("Вы замыкаете микросхемы системы целеуказания [declent_ru(GENITIVE)]. [DECLENT_RU_CAP(src, NOMINATIVE)] злобно смеётся!"))
-			oldtarget_name = user.name
-		audible_message(span_danger("[DECLENT_RU_CAP(src, NOMINATIVE)] злобно смеётся!"))
-		playsound(src, 'sound/machines/honkbot_evil_laugh.ogg', 75, TRUE, -1) // evil laughter
-		update_icon()
+/mob/living/simple_animal/bot/honkbot/emag_act(mob/user, obj/item/card/emag/emag_card)
+	. = ..()
+	if(!. || emagged != 2)
+		return .
+	audible_message(span_danger("[DECLENT_RU_CAP(src, NOMINATIVE)] злобно смеётся!"))
+	playsound(src, 'sound/machines/honkbot_evil_laugh.ogg', 75, TRUE, -1) // evil laughter
+	update_icon()
+	if(user)
+		to_chat(user, span_warning("Вы замыкаете микросхемы системы целеуказания [declent_ru(GENITIVE)]. [DECLENT_RU_CAP(src, NOMINATIVE)] злобно смеётся!"))
+		oldtarget_name = user.name
+	return TRUE
 
 /mob/living/simple_animal/bot/honkbot/bullet_act(obj/projectile/Proj)
 	if((istype(Proj,/obj/projectile/beam)) || (istype(Proj,/obj/projectile/bullet) && (Proj.damage_type == BURN))||(Proj.damage_type == BRUTE) && (!Proj.nodamage && Proj.damage < health && ishuman(Proj.firer)))
@@ -180,9 +182,7 @@
 				return
 			C.SetStuttering(40 SECONDS) //stammer
 			C.AdjustDeaf(10 SECONDS) //far less damage than the H.O.N.K.
-			var/obj/item/organ/internal/ears/ears = C.get_int_organ(/obj/item/organ/internal/ears)
-			if(istype(ears))
-				ears.internal_receive_damage(5)
+			C.sound_damage(5)
 			C.Jitter(100 SECONDS)
 			C.Weaken(10 SECONDS)
 			if(client) //prevent spam from players..

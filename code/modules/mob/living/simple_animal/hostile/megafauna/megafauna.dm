@@ -32,7 +32,7 @@
 	var/score_achievement_type
 	var/elimination = FALSE
 	var/anger_modifier = 0
-	var/internal_type
+	var/obj/item/gps/internal/megafauna/internal_gps
 	var/recovery_time = 0
 	var/true_spawn = TRUE // if this is a megafauna that should grant achievements, or have a gps signal
 	var/nest_range = 10
@@ -58,13 +58,23 @@
 
 /mob/living/simple_animal/hostile/megafauna/Initialize(mapload)
 	. = ..()
-	if(internal_type && true_spawn)
-		internal = new internal_type(src)
+	if(true_spawn)
+		internal_gps = new(src)
+		internal_gps.tracking = (stat != DEAD)
 	if(islist(crusher_loot))
 		crusher_loot = string_list(crusher_loot)
 	for(var/action_type in attack_action_types)
 		var/datum/action/innate/megafauna_attack/attack_action = new action_type()
 		attack_action.Grant(src)
+
+/mob/living/simple_animal/hostile/megafauna/Destroy()
+	QDEL_NULL(internal_gps)
+	return ..()
+
+/mob/living/simple_animal/hostile/megafauna/set_stat(new_stat)
+	. = ..()
+	if(internal_gps)
+		internal_gps.tracking = (stat != DEAD)
 
 /mob/living/simple_animal/hostile/megafauna/ComponentInitialize()
 	AddComponent( \

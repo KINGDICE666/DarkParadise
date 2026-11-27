@@ -81,7 +81,7 @@
 	suit = /obj/item/clothing/suit/armor/vest
 	belt = /obj/item/storage/belt/bandolier/full
 	l_ear = /obj/item/radio/headset/headset_service
-	glasses = /obj/item/clothing/glasses/sunglasses/reagent
+	glasses = /obj/item/clothing/glasses/science/sunglasses
 	pda = /obj/item/pda/bar
 	backpack_contents = list(
 		/obj/item/toy/russian_revolver = 1,
@@ -451,6 +451,7 @@
 	uniform = /obj/item/clothing/under/rank/janitor
 	l_ear = /obj/item/radio/headset/headset_service
 	pda = /obj/item/pda/janitor
+	r_pocket = /obj/item/door_remote/janikeyring
 
 /datum/job/service/librarian
 	title = JOB_TITLE_LIBRARIAN
@@ -516,7 +517,7 @@
 		return
 
 	if(H.mind)
-		H.mind.isholy = TRUE
+		ADD_TRAIT(H.mind, TRAIT_HOLY, INNATE_TRAIT)
 		ADD_TRAIT(H, TRAIT_HEALS_FROM_HOLY_PYLONS, INNATE_TRAIT)
 
 	INVOKE_ASYNC(src, PROC_REF(religion_pick), H)

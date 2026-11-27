@@ -49,7 +49,7 @@
 	result = /obj/item/reagent_containers/food/snacks/sliceable/bread/xeno
 
 /datum/recipe/oven/bananabread
-	reagents = list("milk" = 5, "sugar" = 15)
+	reagents = list(/datum/reagent/consumable/drink/milk = 5, /datum/reagent/consumable/sugar = 15)
 	items = list(
 		/obj/item/reagent_containers/food/snacks/dough,
 		/obj/item/reagent_containers/food/snacks/dough,
@@ -59,14 +59,14 @@
 	result = /obj/item/reagent_containers/food/snacks/sliceable/bread/banana
 
 /datum/recipe/oven/muffin
-	reagents = list("milk" = 5, "sugar" = 5)
+	reagents = list(/datum/reagent/consumable/drink/milk = 5, /datum/reagent/consumable/sugar = 5)
 	items = list(
 		/obj/item/reagent_containers/food/snacks/dough,
 	)
 	result = /obj/item/reagent_containers/food/snacks/muffin
 
 /datum/recipe/oven/carrotcake
-	reagents = list("milk" = 5, "sugar" = 15)
+	reagents = list(/datum/reagent/consumable/drink/milk = 5, /datum/reagent/consumable/sugar = 15)
 	items = list(
 		/obj/item/reagent_containers/food/snacks/dough,
 		/obj/item/reagent_containers/food/snacks/dough,
@@ -78,7 +78,7 @@
 	result = /obj/item/reagent_containers/food/snacks/sliceable/carrotcake
 
 /datum/recipe/oven/cheesecake
-	reagents = list("milk" = 5, "sugar" = 15)
+	reagents = list(/datum/reagent/consumable/drink/milk = 5, /datum/reagent/consumable/sugar = 15)
 	items = list(
 		/obj/item/reagent_containers/food/snacks/dough,
 		/obj/item/reagent_containers/food/snacks/dough,
@@ -89,7 +89,7 @@
 	result = /obj/item/reagent_containers/food/snacks/sliceable/cheesecake
 
 /datum/recipe/oven/plaincake
-	reagents = list("milk" = 5, "sugar" = 15)
+	reagents = list(/datum/reagent/consumable/drink/milk = 5, /datum/reagent/consumable/sugar = 15)
 	items = list(
 		/obj/item/reagent_containers/food/snacks/dough,
 		/obj/item/reagent_containers/food/snacks/dough,
@@ -98,7 +98,7 @@
 	result = /obj/item/reagent_containers/food/snacks/sliceable/plaincake
 
 /datum/recipe/oven/napoleoncake
-	reagents = list("milk" = 5, "cream" = 5, "sugar" = 15)
+	reagents = list(/datum/reagent/consumable/drink/milk = 5, /datum/reagent/consumable/drink/milk/cream = 5, /datum/reagent/consumable/sugar = 15)
 	items = list(
 		/obj/item/reagent_containers/food/snacks/dough,
 		/obj/item/reagent_containers/food/snacks/dough,
@@ -274,7 +274,7 @@
 	result = /obj/item/reagent_containers/food/snacks/xemeatpie
 
 /datum/recipe/oven/pie
-	reagents = list("sugar" = 5)
+	reagents = list(/datum/reagent/consumable/sugar = 5)
 	items = list(
 		/obj/item/reagent_containers/food/snacks/sliceable/flatdough,
 		/obj/item/reagent_containers/food/snacks/grown/banana,
@@ -282,7 +282,7 @@
 	result = /obj/item/reagent_containers/food/snacks/pie
 
 /datum/recipe/oven/cherrypie
-	reagents = list("sugar" = 10)
+	reagents = list(/datum/reagent/consumable/sugar = 10)
 	items = list(
 		/obj/item/reagent_containers/food/snacks/sliceable/flatdough,
 		/obj/item/reagent_containers/food/snacks/grown/cherries,
@@ -337,7 +337,7 @@
 	result = /obj/item/storage/bag/tray/cookies_tray/sugarcookie
 
 /datum/recipe/oven/fortunecookie
-	reagents = list("sugar" = 5)
+	reagents = list(/datum/reagent/consumable/sugar = 5)
 	items = list(
 		/obj/item/reagent_containers/food/snacks/doughslice,
 		/obj/item/paper,
@@ -434,7 +434,7 @@
 	result = /obj/item/reagent_containers/food/snacks/sliceable/pizza/macpizza
 
 /datum/recipe/oven/seapizza
-	reagents = list("herbsmix" = 1, "gsauce" = 1)
+	reagents = list(/datum/reagent/consumable/herbs = 1, /datum/reagent/consumable/garlicsauce = 1)
 	items = list(
 		/obj/item/reagent_containers/food/snacks/sliceable/flatdough,
 		/obj/item/reagent_containers/food/snacks/cheesewedge,
@@ -446,7 +446,7 @@
 	result = /obj/item/reagent_containers/food/snacks/sliceable/pizza/seafood
 
 /datum/recipe/oven/tajarpizza
-	reagents = list("herbsmix" = 1, "tsauce" = 1, "blackpepper" = 1)
+	reagents = list(/datum/reagent/consumable/herbs = 1, /datum/reagent/consumable/tomatosauce = 1, /datum/reagent/consumable/blackpepper = 1)
 	items = list(
 		/obj/item/reagent_containers/food/snacks/sliceable/flatdough,
 		/obj/item/reagent_containers/food/snacks/cheesewedge,
@@ -457,7 +457,7 @@
 	result = /obj/item/reagent_containers/food/snacks/sliceable/pizza/tajaroni
 
 /datum/recipe/oven/baconpizza
-	reagents = list("msauce" = 1)
+	reagents = list(/datum/reagent/consumable/mushroomsauce = 1)
 	items = list(
 		/obj/item/reagent_containers/food/snacks/sliceable/flatdough,
 		/obj/item/reagent_containers/food/snacks/cheesewedge,
@@ -469,7 +469,7 @@
 	result = /obj/item/reagent_containers/food/snacks/sliceable/pizza/bacon
 
 /datum/recipe/oven/diablopizza
-	reagents = list("herbsmix" = 1, "dsauce" = 1)
+	reagents = list(/datum/reagent/consumable/herbs = 1, /datum/reagent/consumable/diablosauce = 1)
 	items = list(
 		/obj/item/reagent_containers/food/snacks/sliceable/flatdough,
 		/obj/item/reagent_containers/food/snacks/cheesewedge,
@@ -495,7 +495,7 @@
 	result = /obj/item/reagent_containers/food/snacks/plump_pie
 
 /datum/recipe/oven/plumphelmetbiscuit
-	reagents = list("water" = 5, "flour" = 5)
+	reagents = list(/datum/reagent/water = 5, /datum/reagent/consumable/flour = 5)
 	items = list(/obj/item/reagent_containers/food/snacks/grown/mushroom/plumphelmet)
 	result = /obj/item/reagent_containers/food/snacks/plumphelmetbiscuit
 
@@ -509,7 +509,7 @@
 	result = /obj/item/reagent_containers/food/snacks/sliceable/creamcheesebread
 
 /datum/recipe/oven/baguette
-	reagents = list("sodiumchloride" = 1, "blackpepper" = 1)
+	reagents = list(/datum/reagent/consumable/sodiumchloride = 1, /datum/reagent/consumable/blackpepper = 1)
 	items = list(
 		/obj/item/reagent_containers/food/snacks/dough,
 		/obj/item/reagent_containers/food/snacks/dough,
@@ -517,7 +517,7 @@
 	result = /obj/item/reagent_containers/food/snacks/baguette
 
 /datum/recipe/oven/birthdaycake
-	reagents = list("milk" = 5, "sugar" = 5)
+	reagents = list(/datum/reagent/consumable/drink/milk = 5, /datum/reagent/consumable/sugar = 5)
 	items = list(
 		/obj/item/reagent_containers/food/snacks/dough,
 		/obj/item/reagent_containers/food/snacks/dough,
@@ -535,7 +535,7 @@
 
 /datum/recipe/oven/bread/make_food(obj/container)
 	var/obj/item/reagent_containers/food/snacks/sliceable/bread/being_cooked = ..()
-	being_cooked.reagents.del_reagent("egg")
+	being_cooked.reagents.del_reagent(/datum/reagent/consumable/egg)
 	return being_cooked
 
 /datum/recipe/oven/applepie
@@ -546,7 +546,7 @@
 	result = /obj/item/reagent_containers/food/snacks/applepie
 
 /datum/recipe/oven/applecake
-	reagents = list("milk" = 5, "sugar" = 5)
+	reagents = list(/datum/reagent/consumable/drink/milk = 5, /datum/reagent/consumable/sugar = 5)
 	items = list(
 		/obj/item/reagent_containers/food/snacks/dough,
 		/obj/item/reagent_containers/food/snacks/dough,
@@ -557,7 +557,7 @@
 	result = /obj/item/reagent_containers/food/snacks/sliceable/applecake
 
 /datum/recipe/oven/orangecake
-	reagents = list("milk" = 5)
+	reagents = list(/datum/reagent/consumable/drink/milk = 5)
 	items = list(
 		/obj/item/reagent_containers/food/snacks/dough,
 		/obj/item/reagent_containers/food/snacks/dough,
@@ -568,7 +568,7 @@
 	result = /obj/item/reagent_containers/food/snacks/sliceable/orangecake
 
 /datum/recipe/oven/bananacake
-	reagents = list("milk" = 5)
+	reagents = list(/datum/reagent/consumable/drink/milk = 5)
 	items = list(
 		/obj/item/reagent_containers/food/snacks/dough,
 		/obj/item/reagent_containers/food/snacks/dough,
@@ -579,7 +579,7 @@
 	result = /obj/item/reagent_containers/food/snacks/sliceable/bananacake
 
 /datum/recipe/oven/limecake
-	reagents = list("milk" = 5)
+	reagents = list(/datum/reagent/consumable/drink/milk = 5)
 	items = list(
 		/obj/item/reagent_containers/food/snacks/dough,
 		/obj/item/reagent_containers/food/snacks/dough,
@@ -590,7 +590,7 @@
 	result = /obj/item/reagent_containers/food/snacks/sliceable/limecake
 
 /datum/recipe/oven/lemoncake
-	reagents = list("milk" = 5)
+	reagents = list(/datum/reagent/consumable/drink/milk = 5)
 	items = list(
 		/obj/item/reagent_containers/food/snacks/dough,
 		/obj/item/reagent_containers/food/snacks/dough,
@@ -601,7 +601,7 @@
 	result = /obj/item/reagent_containers/food/snacks/sliceable/lemoncake
 
 /datum/recipe/oven/chocolatecake
-	reagents = list("milk" = 5)
+	reagents = list(/datum/reagent/consumable/drink/milk = 5)
 	items = list(
 		/obj/item/reagent_containers/food/snacks/dough,
 		/obj/item/reagent_containers/food/snacks/dough,
@@ -612,7 +612,7 @@
 	result = /obj/item/reagent_containers/food/snacks/sliceable/chocolatecake
 
 /datum/recipe/oven/braincake
-	reagents = list("milk" = 5)
+	reagents = list(/datum/reagent/consumable/drink/milk = 5)
 	items = list(
 		/obj/item/reagent_containers/food/snacks/dough,
 		/obj/item/reagent_containers/food/snacks/dough,
@@ -622,7 +622,7 @@
 	result = /obj/item/reagent_containers/food/snacks/sliceable/braincake
 
 /datum/recipe/oven/pumpkinpie
-	reagents = list("milk" = 5, "sugar" = 5)
+	reagents = list(/datum/reagent/consumable/drink/milk = 5, /datum/reagent/consumable/sugar = 5)
 	items = list(
 		/obj/item/reagent_containers/food/snacks/sliceable/flatdough,
 		/obj/item/reagent_containers/food/snacks/grown/pumpkin,
@@ -630,7 +630,7 @@
 	result = /obj/item/reagent_containers/food/snacks/sliceable/pumpkinpie
 
 /datum/recipe/oven/appletart
-	reagents = list("sugar" = 5, "milk" = 5, "flour" = 10)
+	reagents = list(/datum/reagent/consumable/sugar = 5, /datum/reagent/consumable/drink/milk = 5, /datum/reagent/consumable/flour = 10)
 	items = list(
 		/obj/item/reagent_containers/food/snacks/egg,
 		/obj/item/reagent_containers/food/snacks/grown/apple/gold,
@@ -639,11 +639,11 @@
 
 /datum/recipe/oven/appletart/make_food(obj/container)
 	var/obj/item/reagent_containers/food/snacks/appletart/being_cooked = ..()
-	being_cooked.reagents.del_reagent("egg")
+	being_cooked.reagents.del_reagent(/datum/reagent/consumable/egg)
 	return being_cooked
 
 /datum/recipe/oven/cracker
-	reagents = list("sodiumchloride" = 1)
+	reagents = list(/datum/reagent/consumable/sodiumchloride = 1)
 	items = list(
 		/obj/item/reagent_containers/food/snacks/doughslice,
 	)
@@ -651,7 +651,7 @@
 
 /datum/recipe/oven/sugarcookie/make_food(obj/container)
 	var/obj/item/reagent_containers/food/snacks/sugarcookie/being_cooked = ..()
-	being_cooked.reagents.del_reagent("egg")
+	being_cooked.reagents.del_reagent(/datum/reagent/consumable/egg)
 	return being_cooked
 
 /datum/recipe/oven/flatbread
@@ -699,7 +699,7 @@
 	result = /obj/item/reagent_containers/food/snacks/lasagna
 
 /datum/recipe/oven/tajaroni
-	reagents = list("blackpepper" = 1)
+	reagents = list(/datum/reagent/consumable/blackpepper = 1)
 	items = list(
 		/obj/item/organ/external/tail/tajaran,
 		/obj/item/reagent_containers/food/snacks/grown/garlic,
@@ -709,7 +709,7 @@
 	result = /obj/item/reagent_containers/food/snacks/tajaroni
 
 /datum/recipe/oven/vuplix
-	reagents = list("blackpepper" = 1, "sodiumchloride" = 1, "herbsmix" = 1, "tsauce" = 1, "cream" = 5)
+	reagents = list(/datum/reagent/consumable/blackpepper = 1, /datum/reagent/consumable/sodiumchloride = 1, /datum/reagent/consumable/herbs = 1, /datum/reagent/consumable/tomatosauce = 1, /datum/reagent/consumable/drink/milk/cream = 5)
 	items = list(
 		/obj/item/reagent_containers/food/snacks/dough,
 		/obj/item/reagent_containers/food/snacks/meat,
@@ -718,7 +718,7 @@
 	result = /obj/item/reagent_containers/food/snacks/vulpix
 
 /datum/recipe/oven/vulpixchilli
-	reagents = list("blackpepper" = 1, "sodiumchloride" = 1, "herbsmix" = 1, "dsauce" = 1, "cream" = 5)
+	reagents = list(/datum/reagent/consumable/blackpepper = 1, /datum/reagent/consumable/sodiumchloride = 1, /datum/reagent/consumable/herbs = 1, /datum/reagent/consumable/diablosauce = 1, /datum/reagent/consumable/drink/milk/cream = 5)
 	items = list(
 		/obj/item/reagent_containers/food/snacks/dough,
 		/obj/item/reagent_containers/food/snacks/meat,
@@ -728,7 +728,7 @@
 	result = /obj/item/reagent_containers/food/snacks/vulpix/chilli
 
 /datum/recipe/oven/vulpixcheese
-	reagents = list("blackpepper" = 1, "sodiumchloride" = 1, "herbsmix" = 1, "csauce" = 1, "cream" = 5)
+	reagents = list(/datum/reagent/consumable/blackpepper = 1, /datum/reagent/consumable/sodiumchloride = 1, /datum/reagent/consumable/herbs = 1, /datum/reagent/consumable/cheesesauce = 1, /datum/reagent/consumable/drink/milk/cream = 5)
 	items = list(
 		/obj/item/reagent_containers/food/snacks/dough,
 		/obj/item/reagent_containers/food/snacks/meat,
@@ -738,7 +738,7 @@
 	result = /obj/item/reagent_containers/food/snacks/vulpix/cheese
 
 /datum/recipe/oven/vulpixbacon
-	reagents = list("blackpepper" = 1, "sodiumchloride" = 1, "herbsmix" = 1, "msauce" = 1, "cream" = 5)
+	reagents = list(/datum/reagent/consumable/blackpepper = 1, /datum/reagent/consumable/sodiumchloride = 1, /datum/reagent/consumable/herbs = 1, /datum/reagent/consumable/mushroomsauce = 1, /datum/reagent/consumable/drink/milk/cream = 5)
 	items = list(
 		/obj/item/reagent_containers/food/snacks/dough,
 		/obj/item/reagent_containers/food/snacks/meat,
@@ -749,7 +749,7 @@
 	result = /obj/item/reagent_containers/food/snacks/vulpix/bacon
 
 /datum/recipe/oven/slimepie
-	reagents = list("custard" = 1, "milk" = 5, "sugar" = 15)
+	reagents = list(/datum/reagent/consumable/custard = 1, /datum/reagent/consumable/drink/milk = 5, /datum/reagent/consumable/sugar = 15)
 	items = list(
 		/obj/item/organ/internal/heart/slime,
 	)
@@ -767,7 +767,7 @@
 	result = /obj/item/reagent_containers/food/snacks/bunbun
 
 /datum/recipe/oven/choccherrycake
-	reagents = list("milk" = 5, "flour" = 15)
+	reagents = list(/datum/reagent/consumable/drink/milk = 5, /datum/reagent/consumable/flour = 15)
 	items = list(
 		/obj/item/reagent_containers/food/snacks/egg,
 		/obj/item/reagent_containers/food/snacks/egg,
@@ -779,21 +779,21 @@
 	result = /obj/item/reagent_containers/food/snacks/sliceable/choccherrycake
 
 /datum/recipe/oven/smokedsausage
-	reagents = list("sodiumchloride" = 5, "blackpepper" = 5)
+	reagents = list(/datum/reagent/consumable/sodiumchloride = 5, /datum/reagent/consumable/blackpepper = 5)
 	items = list(
 		/obj/item/reagent_containers/food/snacks/sausage,
 	)
 	result = /obj/item/reagent_containers/food/snacks/smokedsausage
 
 /datum/recipe/oven/salami
-	reagents = list("gsauce" = 5)
+	reagents = list(/datum/reagent/consumable/garlicsauce = 5)
 	items = list(
 		/obj/item/reagent_containers/food/snacks/smokedsausage,
 	)
 	result = /obj/item/reagent_containers/food/snacks/sliceable/salami
 
 /datum/recipe/oven/sundae
-	reagents = list("cream" = 10)
+	reagents = list(/datum/reagent/consumable/drink/milk/cream = 10)
 	items = list(
 		/obj/item/reagent_containers/food/snacks/grown/cherries,
 		/obj/item/reagent_containers/food/snacks/grown/banana,
@@ -802,7 +802,7 @@
 	result = /obj/item/reagent_containers/food/snacks/sundae
 
 /datum/recipe/oven/noel
-	reagents = list("flour" = 15, "cream" = 10, "milk" = 5)
+	reagents = list(/datum/reagent/consumable/flour = 15, /datum/reagent/consumable/drink/milk/cream = 10, /datum/reagent/consumable/drink/milk = 5)
 	items = list(
 		/obj/item/reagent_containers/food/snacks/egg,
 		/obj/item/reagent_containers/food/snacks/egg,
@@ -817,7 +817,7 @@
 //Reinforced cheese
 //////////////////////////////////////////
 /datum/recipe/oven/reinforcedcheese
-	reagents = list("sodiumchloride" = 10)
+	reagents = list(/datum/reagent/consumable/sodiumchloride = 10)
 	items = list(
 		/obj/item/reagent_containers/food/snacks/sliceable/cheesewheel,
 		/obj/item/reagent_containers/food/snacks/sliceable/cheesewheel,
@@ -825,7 +825,7 @@
 	result = /obj/item/stack/sheet/cheese
 
 /datum/recipe/oven/bakedvulp
-	reagents = list("sodiumchloride" = 2, "blackpepper" = 2)
+	reagents = list(/datum/reagent/consumable/sodiumchloride = 2, /datum/reagent/consumable/blackpepper = 2)
 	items = list(
 		/obj/item/reagent_containers/food/snacks/meat,
 		/obj/item/organ/external/head/vulpkanin,
@@ -837,7 +837,7 @@
 //Reinforced gingerbread
 //////////////////////////////////////////
 /datum/recipe/oven/reinforcedgingerbread
-	reagents = list("sodiumchloride" = 10)
+	reagents = list(/datum/reagent/consumable/sodiumchloride = 10)
 	items = list(
 		/obj/item/reagent_containers/food/snacks/gingercookie,
 		/obj/item/reagent_containers/food/snacks/gingercookie,
@@ -849,37 +849,37 @@
 //////////////////////////////////////////
 
 /datum/recipe/oven/gingercokie
-	reagents = list("sugar" = 1)
+	reagents = list(/datum/reagent/consumable/sugar = 1)
 	items = list(/obj/item/reagent_containers/food/snacks/cookiedough)
 	result = /obj/item/reagent_containers/food/snacks/gingercookie
 
 /datum/recipe/oven/gingercokie/ball
-	reagents = list("sugar" = 2)
+	reagents = list(/datum/reagent/consumable/sugar = 2)
 	items = list(/obj/item/reagent_containers/food/snacks/cookiedough)
 	result = /obj/item/reagent_containers/food/snacks/gingercookie/ball
 
 /datum/recipe/oven/gingercokie/cane
-	reagents = list("sugar" = 3)
+	reagents = list(/datum/reagent/consumable/sugar = 3)
 	items = list(/obj/item/reagent_containers/food/snacks/cookiedough)
 	result = /obj/item/reagent_containers/food/snacks/gingercookie/cane
 
 /datum/recipe/oven/gingercokie/heart
-	reagents = list("sugar" = 4)
+	reagents = list(/datum/reagent/consumable/sugar = 4)
 	items = list(/obj/item/reagent_containers/food/snacks/cookiedough)
 	result = /obj/item/reagent_containers/food/snacks/gingercookie/heart
 
 /datum/recipe/oven/gingercokie/home
-	reagents = list("sugar" = 5)
+	reagents = list(/datum/reagent/consumable/sugar = 5)
 	items = list(/obj/item/reagent_containers/food/snacks/cookiedough)
 	result = /obj/item/reagent_containers/food/snacks/gingercookie/home
 
 /datum/recipe/oven/gingercokie/mitten
-	reagents = list("sugar" = 6)
+	reagents = list(/datum/reagent/consumable/sugar = 6)
 	items = list(/obj/item/reagent_containers/food/snacks/cookiedough)
 	result = /obj/item/reagent_containers/food/snacks/gingercookie/mitten
 
 /datum/recipe/oven/gingercokie/tree
-	reagents = list("sugar" = 7)
+	reagents = list(/datum/reagent/consumable/sugar = 7)
 	items = list(/obj/item/reagent_containers/food/snacks/cookiedough)
 	result = /obj/item/reagent_containers/food/snacks/gingercookie/tree
 
@@ -888,11 +888,11 @@
 //////////////////////////////////////////
 
 /datum/recipe/oven/sugar_coal
-	reagents = list("charcoal" = 5, "sugar" = 5, "egg" = 5)
+	reagents = list(/datum/reagent/medicine/charcoal = 5, /datum/reagent/consumable/sugar = 5, /datum/reagent/consumable/egg = 5)
 	result = /obj/item/reagent_containers/food/snacks/sugar_coal
 
 /datum/recipe/oven/croissant
-	reagents = list("milk" = 5, "sugar" = 5, "sodiumchloride" = 1)
+	reagents = list(/datum/reagent/consumable/drink/milk = 5, /datum/reagent/consumable/sugar = 5, /datum/reagent/consumable/sodiumchloride = 1)
 	items = list(
 		/obj/item/reagent_containers/food/snacks/dough,
 		/obj/item/reagent_containers/food/snacks/egg,

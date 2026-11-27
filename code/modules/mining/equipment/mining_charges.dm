@@ -105,9 +105,7 @@
 			C.flash_eyes()
 			C.Knockdown((boom_sizes[2] - distance) * 1 SECONDS) //1 second for how close you are to center if you're in range
 			C.AdjustDeaf((boom_sizes[3] - distance) * 10 SECONDS)
-			var/obj/item/organ/internal/ears/ears = C.get_int_organ(/obj/item/organ/internal/ears)
-			if(istype(ears))
-				ears.internal_receive_damage((boom_sizes[3] - distance) * 2) //something like that i guess. Mega charge makes 12 damage to ears if nearby
+			C.sound_damage((boom_sizes[3] - distance) * 2) //something like that i guess. Mega charge makes 12 damage to ears if nearby
 			to_chat(C, span_userdanger("Вас сбивает с ног мощь горнодобывающего заряда!"))
 	qdel(src)
 

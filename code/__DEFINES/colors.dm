@@ -633,3 +633,4 @@ GLOBAL_LIST_INIT(cable_colors, list(
 #define COLOR_COLD_ANCIENT_ROCK "#575764"
 
 #define COLOR_DMI_MASK "#a0a0a000"
+

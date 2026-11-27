@@ -10,7 +10,7 @@ SUBSYSTEM_DEF(adaptive_sprites)
 		var/datum/species_fit/species_fit = get_species_fit(species.fit_profile)
 		if(!species_fit || (species_fit in profiles))
 			continue
-		species_fit.prepare()
+		species_fit.build()
 		species_fit.load_disk_cache()
 		profiles += species_fit
 	purge_stale_caches()
