@@ -1,6 +1,6 @@
 /obj/machinery/quantum_server/proc/add_threats(mob/living/threat)
 	spawned_threat_refs += WEAKREF(threat)
-	if((obj_flags & EMAGGED))
+	if(obj_flags & EMAGGED)
 		announce_jailbreak(threat)
 	else
 		threat.AddComponent(/datum/component/virtual_entity, src)

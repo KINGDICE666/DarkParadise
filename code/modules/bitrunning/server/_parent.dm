@@ -122,7 +122,7 @@
 
 /obj/machinery/quantum_server/update_overlays()
 	. = ..()
-	if((obj_flags & EMAGGED))
+	if(obj_flags & EMAGGED)
 		. += mutable_appearance(icon, "emag_overlay")
 
 /obj/machinery/quantum_server/update_icon_state()

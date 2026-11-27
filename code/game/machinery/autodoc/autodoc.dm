@@ -168,7 +168,7 @@
 	return mode_settings[mode]
 
 /obj/machinery/autodoc/proc/get_failure_chance(datum/autodoc_procedure/procedure)
-	if((obj_flags & EMAGGED))
+	if(obj_flags & EMAGGED)
 		return 100
 	if(procedure && !procedure.invasive)
 		return 0
@@ -327,7 +327,7 @@
 /obj/machinery/autodoc/proc/begin_order(datum/autodoc_order/order, obj/item/organ/organ)
 	order.cost = get_order_cost(order.procedure, organ)
 	order.duration = get_order_duration(order.procedure, organ)
-	if((obj_flags & EMAGGED))
+	if(obj_flags & EMAGGED)
 		order.cost = min(order.cost, get_fuel())
 		order.duration = min(order.duration, AUTODOC_EMAG_MAX_DURATION)
 	if(get_fuel() < order.cost)
@@ -345,7 +345,7 @@
 /obj/machinery/autodoc/proc/manage_pain(obj/item/organ/organ)
 	if(occupant.stat == DEAD || HAS_TRAIT(occupant, TRAIT_NO_PAIN))
 		return
-	if((obj_flags & EMAGGED))
+	if(obj_flags & EMAGGED)
 		occupant.custom_pain("Манипуляторы [declent_ru(GENITIVE)] вскрывают [organ.declent_ru(ACCUSATIVE)] наживую!")
 		INVOKE_ASYNC(occupant, TYPE_PROC_REF(/mob, emote), "scream")
 		return
@@ -365,7 +365,7 @@
 	order.procedure.on_failure(organ)
 	playsound(loc, 'sound/machines/buzz-sigh.ogg', 30, TRUE)
 	Shake(1, 0, 0.3 SECONDS)
-	if((obj_flags & EMAGGED))
+	if(obj_flags & EMAGGED)
 		do_sparks(1, TRUE, src)
 	else
 		atom_say("Срыв процедуры: [order.procedure.name], [order.organ_name]. Процедура снята.")
