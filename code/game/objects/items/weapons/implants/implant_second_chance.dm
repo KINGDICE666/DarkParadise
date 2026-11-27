@@ -11,7 +11,7 @@
 	var/turf/old_turf = get_turf(imp_in)
 
 	if(is_teleport_allowed(imp_in.z))
-		var/turf/new_turf = find_safe_turf(level_name_to_num(MAIN_STATION))
+		var/turf/new_turf = find_safe_turf(levels_by_trait(MAIN_STATION)[1])
 		do_teleport(imp_in, new_turf, 0)
 		playsound(imp_in, 'sound/effects/sparks4.ogg', 50, TRUE)
 		do_sparks(4, TRUE, imp_in)

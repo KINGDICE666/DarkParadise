@@ -1,9 +1,16 @@
 /datum/map/coldcolony
 	name = "Malta"
-	map_path = "_maps/map_files/event/Station/coldcolony.dmm"
+	map_path = "_maps/map_files/event/Station/rustedevents.dmm"
 	lavaland_path = "_maps/map_files/coldcolony/Lavaland.dmm"
-	traits = list(MAIN_STATION, STATION_CONTACT, STATION_LEVEL = "Surface", REACHABLE, AI_OK, ZTRAIT_SNOWSTORM, ZTRAIT_BASETURF = /turf/simulated/floor/plating/asteroid/snow)
-
+	traits = list(
+		list(STATION_CONTACT, REACHABLE, ZTRAIT_UP, ZTRAIT_BASETURF = /turf/simulated/floor/plating/ironsand),
+		list(STATION_CONTACT, REACHABLE, ZTRAIT_UP, ZTRAIT_DOWN, ZTRAIT_BASETURF = /turf/simulated/openspace),
+		list(STATION_CONTACT, REACHABLE, ZTRAIT_UP, ZTRAIT_DOWN, ZTRAIT_BASETURF = /turf/simulated/openspace),
+		list(STATION_CONTACT, REACHABLE, ZTRAIT_UP, ZTRAIT_DOWN, ZTRAIT_BASETURF = /turf/simulated/openspace),
+		list(STATION_CONTACT, REACHABLE, ZTRAIT_UP, ZTRAIT_DOWN, ZTRAIT_BASETURF = /turf/simulated/openspace),
+		list(MAIN_STATION, STATION_CONTACT, STATION_LEVEL = "Surface", REACHABLE, AI_OK, ZTRAIT_SNOWSTORM, ZTRAIT_DOWN, ZTRAIT_BASETURF = /turf/simulated/openspace),
+	)
+	space_ruins_levels = 1
 	station_name = "ШОН Мальта"
 	english_station_name = "NMC Malta"
 	station_short = "Мальта"
@@ -11,5 +18,5 @@
 	company_name = "\"Нанотрейзен\""
 	company_short = "НТ"
 	starsys_name = "Эпсилон Лукуста"
-	webmap_url = "https://webmap.wiki-ss13.space/coldcolony/"
+	admin_only = TRUE
 	planetary = TRUE
