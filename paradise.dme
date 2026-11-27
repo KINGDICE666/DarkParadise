@@ -3611,6 +3611,7 @@
 #include "code\modules\library\lib_items.dm"
 #include "code\modules\library\lib_machines.dm"
 #include "code\modules\library\lib_readme.dm"
+#include "code\modules\library\master_spark.dm"
 #include "code\modules\library\random_books.dm"
 #include "code\modules\library\computers\base.dm"
 #include "code\modules\library\computers\checkout.dm"
