@@ -1,16 +1,20 @@
+import { useEffect } from 'react';
 import { Button, ByondUi, Section, Stack } from 'tgui-core/components';
 import { useBackend } from '../../backend';
 import { POD_GREY, TABPAGES } from './constants';
-import { useTab } from './hooks';
 import type { PodLauncherData } from './types';
 
 export const ViewTabHolder = (props: unknown) => {
   const { act, data } = useBackend<PodLauncherData>();
-  const { mapRef, customDropoff, effectReverse, renderLighting } = data;
+  const { mapRef, customDropoff, effectReverse, renderLighting, tabIndex } =
+    data;
 
-  const [tab, setTab] = useTab();
+  const TabPageComponent = (TABPAGES[tabIndex] || TABPAGES[1]).component;
 
-  const TabPageComponent = TABPAGES[tab].component;
+  // Карту заполняем после того, как ByondUi создал контрол, иначе BYOND берёт размер всего экрана
+  useEffect(() => {
+    act('refreshView');
+  }, []);
 
   return (
     <Section
@@ -21,11 +25,8 @@ export const ViewTabHolder = (props: unknown) => {
               color="transparent"
               icon="arrow-circle-down"
               inline
-              onClick={() => {
-                setTab(2);
-                act('tabSwitch', { tabIndex: 2 });
-              }}
-              selected={tab === 2}
+              onClick={() => act('tabSwitch', { tabIndex: 2 })}
+              selected={tabIndex === 2}
               tooltip="Место Высадки"
             />
           )}
@@ -33,22 +34,16 @@ export const ViewTabHolder = (props: unknown) => {
             color="transparent"
             icon="rocket"
             inline
-            onClick={() => {
-              setTab(0);
-              act('tabSwitch', { tabIndex: 0 });
-            }}
-            selected={tab === 0}
+            onClick={() => act('tabSwitch', { tabIndex: 0 })}
+            selected={tabIndex === 0}
             tooltip="Капсула"
           />
           <Button
             color="transparent"
             icon="th"
             inline
-            onClick={() => {
-              setTab(1);
-              act('tabSwitch', { tabIndex: 1 });
-            }}
-            selected={tab === 1}
+            onClick={() => act('tabSwitch', { tabIndex: 1 })}
+            selected={tabIndex === 1}
             tooltip="Ангар Погрузки"
           />
           <span style={POD_GREY}>|</span>
@@ -69,10 +64,7 @@ export const ViewTabHolder = (props: unknown) => {
             color="transparent"
             icon="sync-alt"
             inline
-            onClick={() => {
-              setTab(tab);
-              act('refreshView');
-            }}
+            onClick={() => act('refreshView')}
             tooltip="Обновить окно просмотра"
           />
         </>
