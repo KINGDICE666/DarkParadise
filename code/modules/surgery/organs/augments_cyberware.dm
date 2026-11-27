@@ -156,7 +156,7 @@
 	charges--
 	COOLDOWN_START(src, recharge_cooldown, recharge_time)
 	COOLDOWN_START(src, use_cooldown, use_delay)
-	var/datum/reagent/synthflesh = GLOB.chemical_reagents_list["synthflesh"]
+	var/datum/reagent/synthflesh = GLOB.chemical_reagents_list[/datum/reagent/medicine/synthflesh]
 	synthflesh.reaction_mob(owner, REAGENT_TOUCH, BLOOD_PUMP_SYNTHFLESH_AMOUNT, FALSE)
 	for(var/reagent_id in injected_reagents)
 		owner.reagents.add_reagent(reagent_id, injected_reagents[reagent_id])
