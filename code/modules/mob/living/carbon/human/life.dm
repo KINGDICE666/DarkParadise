@@ -337,7 +337,7 @@
 		switch(gas_id)
 			if(TLV_ANTINOBLIUM) // Antinoblium - irradiates the target.
 				if(gas_amount >= MOLES_GAS_VISIBLE && prob(min(gas_amount, 100)))
-					SSradiation.irradiate(human)
+					SSradiation.irradiate(human, 5)
 
 ///FIRE CODE
 /mob/living/carbon/human/handle_fire()

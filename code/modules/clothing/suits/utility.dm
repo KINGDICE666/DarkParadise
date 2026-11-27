@@ -173,6 +173,7 @@
 	icon_state = "rad"
 	item_state = "rad"
 	desc = "A hood with radiation protective properties. Label: Made with lead, do not eat insulation"
+	rad_protection = RAD_PROTECTION_FULL
 	clothing_flags = THICKMATERIAL
 	flags_inv = HIDEHAIR|HIDEMASK|HIDEHEADSETS|HIDEGLASSES
 	flags_cover = HEADCOVERSEYES|HEADCOVERSMOUTH
@@ -211,7 +212,7 @@
 	clothing_flags = THICKMATERIAL
 	body_parts_covered = UPPER_TORSO|LOWER_TORSO|LEGS|FEET|ARMS|HANDS|TAIL
 	allowed = list(/obj/item/flashlight,/obj/item/tank/internals/emergency_oxygen)
-	slowdown = 1.5
+	rad_protection = RAD_PROTECTION_FULL
 	armor = list(MELEE = 0, BULLET = 0, LASER = 0,ENERGY = 0, BOMB = 0, BIO = 60, FIRE = 30, ACID = 30)
 	flags_inv = HIDEJUMPSUIT|HIDETAIL
 	strip_delay = 60

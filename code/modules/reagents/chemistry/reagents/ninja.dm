@@ -108,7 +108,7 @@
 					if(!LAZYIN(mob_human.dna.default_blocks, gene.block))
 						mob_human.force_gene_block(gene.block, FALSE)
 				mob_human.dna.struc_enzymes = mob_human.dna.struc_enzymes_original
-				qdel(mob_human.GetComponent(/datum/component/irradiated))
+				mob_human.cure_radiation()
 
 		if(40 to INFINITY)
 			if(ishuman(our_mob))

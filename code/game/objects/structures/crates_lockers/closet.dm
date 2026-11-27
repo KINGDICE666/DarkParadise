@@ -3,6 +3,7 @@ GLOBAL_LIST_EMPTY(closets)
 // MARK: Basic Closet
 /obj/structure/closet
 	name = "closet"
+	rad_insulation = RAD_LIGHT_INSULATION
 	desc = "It's a basic storage unit."
 	gender = MALE
 	icon = 'icons/obj/closet.dmi'
@@ -274,6 +275,7 @@ GLOBAL_LIST_EMPTY(closets)
 	else
 		playsound(loc, 'sound/machines/click.ogg', open_sound_volume, TRUE, -3)
 	opened = TRUE
+	rad_insulation = RAD_NO_INSULATION
 	if(!dense_when_open)
 		set_density(FALSE)
 	dump_contents()
@@ -349,6 +351,7 @@ GLOBAL_LIST_EMPTY(closets)
 		mobcount++
 
 	opened = FALSE
+	rad_insulation = initial(rad_insulation)
 	set_density(ignore_density_closed ? FALSE : TRUE)
 	update_appearance()
 	after_close(user)

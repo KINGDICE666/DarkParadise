@@ -20,6 +20,6 @@
 
 /obj/projectile/energy/declone/on_hit(atom/target, blocked, hit_zone)
 	if(ishuman(target) && prob(radiation_chance))
-		radiation_pulse(target, max_range = 0, threshold = RAD_FULL_INSULATION)
+		SSradiation.irradiate(target, 15)
 
 	return ..()

@@ -186,6 +186,14 @@
 	build_path = /obj/item/circuitboard/reagentgrinder
 	category = list(CIRCUIT_IMPRINTER_CATEGORY_MEDICAL)
 
+/datum/design/radiation_scrubber
+	id = "radiation_scrubber"
+	req_tech = list(RESEARCH_TREE_PROGRAMMING = 3, RESEARCH_TREE_BIOTECH = 3, RESEARCH_TREE_ENGINEERING = 3)
+	build_type = IMPRINTER
+	materials = list(MAT_GLASS = 1000)
+	build_path = /obj/item/circuitboard/radiation_scrubber
+	category = list(CIRCUIT_IMPRINTER_CATEGORY_MEDICAL)
+
 /datum/design/sleeper
 	id = "sleeper"
 	req_tech = list(RESEARCH_TREE_PROGRAMMING = 3, RESEARCH_TREE_BIOTECH = 2, RESEARCH_TREE_ENGINEERING = 3)

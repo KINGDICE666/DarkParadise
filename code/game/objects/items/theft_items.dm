@@ -39,7 +39,7 @@
 	if(cooldown < world.time - 2 SECONDS)
 		cooldown = world.time
 		flick(pulseicon, src)
-		radiation_pulse(src, max_range = 2, threshold = RAD_EXTREME_INSULATION)
+		radiation_pulse(src, 15)
 
 /obj/item/nuke_core/suicide_act(mob/user)
 	user.visible_message(span_suicide("[user] натирает себя [declent_ru(INSTRUMENTAL)]! Похоже, [GEND_HE_SHE(user)] пытается покончить с собой!"))
@@ -255,7 +255,7 @@
 		return .
 
 	to_chat(user, span_danger("При контакте с [declent_ru(INSTRUMENTAL)] и [I.declent_ru(NOMINATIVE)] мгновенно вспыхивают!"))
-	radiation_pulse(user, max_range = 2, threshold = RAD_EXTREME_INSULATION, chance = 40)
+	radiation_pulse(user, 60)
 	playsound(src, 'sound/effects/supermatter.ogg', 50, TRUE)
 	qdel(I)
 	qdel(src)
@@ -281,7 +281,7 @@
 	)
 	victim.ghostize(TRUE)
 	victim.dust()
-	radiation_pulse(src, max_range = 2, threshold = RAD_EXTREME_INSULATION, chance = 40)
+	radiation_pulse(src, 60)
 	playsound(src, 'sound/effects/supermatter.ogg', 50, TRUE)
 	qdel(src)
 
@@ -297,7 +297,7 @@
 		span_userdanger("Вы попытались взять [declent_ru(NOMINATIVE)] голыми руками. Это было глупо."),
 		span_italics("Внезапно наступает тишина.")
 	)
-	radiation_pulse(user, max_range = 2, threshold = RAD_EXTREME_INSULATION, chance = 40)
+	radiation_pulse(user, 60)
 	playsound(src, 'sound/effects/supermatter.ogg', 50, TRUE)
 	user.ghostize(TRUE)
 	user.dust()
@@ -400,7 +400,7 @@
 			span_userdanger("Вы попытались взять [sliver.declent_ru(ACCUSATIVE)] голыми руками. Это было глупо."),
 			span_italics("Внезапно наступает тишина.")
 		)
-		radiation_pulse(user, max_range = 2, threshold = RAD_EXTREME_INSULATION, chance = 40)
+		radiation_pulse(user, 60)
 		playsound(src, 'sound/effects/supermatter.ogg', 50, TRUE)
 		message_admins("[sliver] has consumed [key_name_admin(user)] [ADMIN_JMP(src)].")
 		investigate_log("has consumed [key_name(user)].", INVESTIGATE_ENGINE)
@@ -519,7 +519,7 @@
 		)
 		user.ghostize(TRUE)
 		user.dust()
-	radiation_pulse(src, max_range = 2, threshold = RAD_EXTREME_INSULATION, chance = 40)
+	radiation_pulse(src, 60)
 	playsound(src, 'sound/effects/supermatter.ogg', 50, TRUE)
 	QDEL_NULL(sliver)
 	update_icon(UPDATE_ICON_STATE)

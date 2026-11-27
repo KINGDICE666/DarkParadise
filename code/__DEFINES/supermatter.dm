@@ -42,6 +42,12 @@
 
 /// All humans within this range will be irradiated
 #define DETONATION_RADIATION_RANGE 20
+/// Доза в упор
+#define DETONATION_RADIATION_DOSE_MAX 800
+/// Доза на краю радиуса и дальше
+#define DETONATION_RADIATION_DOSE_MIN 200
+/// На сколько падает доза с каждым тайлом расстояния
+#define DETONATION_RADIATION_DOSE_FALLOFF 30
 
 #define SUPERMATTER_WARNING_DELAY (60 SECONDS)
 

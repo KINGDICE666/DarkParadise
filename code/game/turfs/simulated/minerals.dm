@@ -5,6 +5,7 @@
 
 /turf/simulated/mineral
 	name = "rock"
+	rad_insulation = RAD_HEAVY_INSULATION
 	icon = 'icons/turf/smoothrocks.dmi'
 	icon_state = "smoothrocks-0"
 	base_icon_state = "smoothrocks"

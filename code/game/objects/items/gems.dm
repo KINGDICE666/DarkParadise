@@ -133,11 +133,7 @@
 		return
 
 	COOLDOWN_START(src, radiation_cooldown, 3 SECONDS)
-	radiation_pulse(
-		src,
-		max_range = 5,
-		threshold = RAD_EXTREME_INSULATION,
-	)
+	radiation_pulse(src, 10)
 
 /obj/item/gem/rupee/examine(mob/user)
 	. = ..()

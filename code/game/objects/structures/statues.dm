@@ -100,13 +100,7 @@
 
 	active = TRUE
 	COOLDOWN_START(src, radiation_cooldown, 1.5 SECONDS)
-	radiation_pulse(
-		src,
-		max_range = 3,
-		threshold = RAD_LIGHT_INSULATION,
-		chance = URANIUM_IRRADIATION_CHANCE,
-		minimum_exposure_time = URANIUM_RADIATION_MINIMUM_EXPOSURE_TIME,
-	)
+	radiation_pulse(src, RAD_PULSE_URANIUM_STRUCTURE)
 	propagate_radiation_pulse()
 	active = FALSE
 

@@ -1,5 +1,6 @@
 /turf/simulated/wall
 	name = "wall"
+	rad_insulation = RAD_HEAVY_INSULATION
 	gender = FEMALE
 	desc = "Массивный блок металла, используемый для разделения отсеков."
 	icon = 'icons/turf/walls/wall.dmi'

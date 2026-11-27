@@ -248,6 +248,7 @@
 //Engineering hardsuit
 /obj/item/clothing/head/helmet/space/hardsuit/engine
 	name = "engineering hardsuit helmet"
+	rad_protection = RAD_PROTECTION_HEAVY
 	desc = "A special helmet designed for work in a hazardous, low-pressure environment. Has radiation shielding."
 	armor = list(MELEE = 30, BULLET = 5, LASER = 10, ENERGY = 15, BOMB = 10, BIO = 100, FIRE = 100, ACID = 75)
 	resistance_flags = FIRE_PROOF
@@ -258,6 +259,7 @@
 
 /obj/item/clothing/suit/space/hardsuit/engine
 	name = "engineering hardsuit"
+	rad_protection = RAD_PROTECTION_HEAVY
 	desc = "A special suit that protects against hazardous, low pressure environments. Has radiation shielding."
 	armor = list(MELEE = 30, BULLET = 5, LASER = 10, ENERGY = 15, BOMB = 10, BIO = 100, FIRE = 100, ACID = 75)
 	resistance_flags = FIRE_PROOF
@@ -417,12 +419,12 @@
 		linkedsuit.slowdown = eva_slow
 		linkedsuit.clothing_flags |= STOPSPRESSUREDAMAGE
 		linkedsuit.cold_protection |= (UPPER_TORSO|LOWER_TORSO|LEGS|FEET|ARMS|HANDS|TAIL)
-		ADD_TRAIT(src, TRAIT_RADIATION_PROTECTED_CLOTHING, UNIQUE_TRAIT_SOURCE(src))
+		ADD_TRAIT(linkedsuit, TRAIT_RADIATION_PROTECTED_CLOTHING, UNIQUE_TRAIT_SOURCE(src))
 	else
 		linkedsuit.slowdown = combat_slow
 		linkedsuit.clothing_flags &= ~STOPSPRESSUREDAMAGE
 		linkedsuit.cold_protection &= ~(UPPER_TORSO|LOWER_TORSO|LEGS|FEET|ARMS|HANDS|TAIL)
-		REMOVE_TRAIT(src, TRAIT_RADIATION_PROTECTED_CLOTHING, UNIQUE_TRAIT_SOURCE(src))
+		REMOVE_TRAIT(linkedsuit, TRAIT_RADIATION_PROTECTED_CLOTHING, UNIQUE_TRAIT_SOURCE(src))
 
 	linkedsuit.update_appearance(UPDATE_ICON_STATE|UPDATE_NAME|UPDATE_DESC)
 	linkedsuit.update_equipped_item()
