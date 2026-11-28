@@ -10,6 +10,7 @@ export const kitchenSinkAtom = atom(false);
 export const sharedAtom = atom<Record<string, any>>({});
 export const suspendedAtom = atom<number | false>(Date.now()); // Start as suspended
 export const suspendingAtom = atom(false);
+export const windowShownAtom = atom(false);
 
 export const backendStateAtom = atom((get) => ({
   config: get(configAtom),

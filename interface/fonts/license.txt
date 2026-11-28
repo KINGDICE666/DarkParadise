@@ -11,3 +11,9 @@ Tiny Unicode created by Jakob Riedle/DuffsDevice. Website indicates free for com
 
 VCR OSD Mono created by Riciery Leal/mrmanet. Website indicates 100% free, author confirms it's free for all to use.
 (https://www.dafont.com/font-comment.php?file=vcr_osd_mono)
+
+Tektur by The Tektur Project Authors. Licensed under the SIL Open Font License 1.1.
+(https://github.com/hyvyys/Tektur) (https://scripts.sil.org/OFL)
+
+JetBrains Mono by The JetBrains Mono Project Authors. Licensed under the SIL Open Font License 1.1.
+(https://github.com/JetBrains/JetBrainsMono) (https://scripts.sil.org/OFL)

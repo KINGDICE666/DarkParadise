@@ -311,13 +311,9 @@ function dedupeMessages(messages: any[]): any[] {
 class StorageProxy implements StorageBackend {
   public diagnostics: StorageDiagnostic[] = [];
 
-  private backendPromise: Promise<StorageBackend>;
+  private backendPromise: Promise<StorageBackend> | null = null;
   private migrationPromise: Promise<void> | null = null;
   private unreadKeys = new Set<string>();
-
-  constructor() {
-    this.backendPromise = this.selectBackend();
-  }
 
   async get(key: string): Promise<any> {
     const backend = await this.awaitKey(key);
@@ -333,7 +329,7 @@ class StorageProxy implements StorageBackend {
   }
 
   async set(key: string, value: any): Promise<void> {
-    const backend = await this.backendPromise;
+    const backend = await this.getBackend();
     if (this.unreadKeys.has(key)) {
       return;
     }
@@ -341,12 +337,12 @@ class StorageProxy implements StorageBackend {
   }
 
   async remove(key: string): Promise<void> {
-    const backend = await this.backendPromise;
+    const backend = await this.getBackend();
     return backend.remove(key);
   }
 
   async processChatMessages(messages: any[]): Promise<void> {
-    const backend = await this.backendPromise;
+    const backend = await this.getBackend();
     return backend.processChatMessages(messages);
   }
 
@@ -355,12 +351,17 @@ class StorageProxy implements StorageBackend {
     return backend.getChatMessages();
   }
 
+  private getBackend(): Promise<StorageBackend> {
+    this.backendPromise ??= this.selectBackend();
+    return this.backendPromise;
+  }
+
   private log(level: StorageDiagnostic['level'], message: string): void {
     this.diagnostics.push({ level, message });
   }
 
   private async awaitKey(key: string): Promise<StorageBackend> {
-    const backend = await this.backendPromise;
+    const backend = await this.getBackend();
     if (
       this.migrationPromise &&
       backend instanceof LocalBackend &&

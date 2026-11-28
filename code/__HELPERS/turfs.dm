@@ -88,7 +88,7 @@
 
 ///Returns a turf based on text inputs, original turf and viewing client
 /proc/parse_caught_click_modifiers(list/modifiers, turf/origin, client/viewing_client)
-	if(!modifiers)
+	if(!modifiers || !origin)
 		return null
 
 	var/screen_loc = splittext(LAZYACCESS(modifiers, SCREEN_LOC), ",")
@@ -427,6 +427,8 @@ Turf and target are seperate in case you want to teleport some distance from a t
 	if(sizex == 0 || sizey == 0) //contexts where this information is not availible should return 0 in size, aka tgui passthrough
 		return list(null, 0, 0)
 	var/turf/baseloc = get_turf(viewing_client.eye)
+	if(!baseloc)
+		return list(null, 0, 0)
 	var/list/actual_view = getviewsize(viewing_client ? viewing_client.view : world.view)
 
 	var/screen_width = actual_view[1] * ICON_SIZE_X

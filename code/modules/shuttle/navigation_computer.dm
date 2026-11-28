@@ -307,7 +307,12 @@
 	return ..()
 
 /mob/camera/aiEye/remote/shuttle_docker/setLoc(turf/destination, force_update = FALSE)
-	if(isspacearea(get_area(destination)) || is_area_shuttle(get_area(destination)) ||  istype(get_area(destination), /area/lavaland) || istype(get_area(destination), /area/ruin))
+	var/obj/machinery/computer/camera_advanced/shuttle_docker/overmap/overmap_console = origin
+	var/datum/overmap_space_region/region
+	if(istype(overmap_console))
+		destination = overmap_console.clamp_landing_turf(destination)
+		region = overmap_console.ruin_region()
+	if(region || isspacearea(get_area(destination)) || is_area_shuttle(get_area(destination)) ||  istype(get_area(destination), /area/lavaland) || istype(get_area(destination), /area/ruin))
 		..()
 		var/obj/machinery/computer/camera_advanced/shuttle_docker/console = origin
 		console.checkLandingSpot()
@@ -367,6 +372,9 @@
 		if(console.jumpto_ports[S.id])
 			L[S.name] = S
 
+	if(!length(L))
+		to_chat(target, span_warning("Нет известных точек для перемещения камеры."))
+		return
 	playsound(console, 'sound/machines/terminal_prompt.ogg', 25, FALSE)
 	var/selected = tgui_input_list(target, "Choose location to jump to", "Locations", L)
 	if(QDELETED(src) || QDELETED(target) || !isliving(target))

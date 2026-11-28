@@ -27,7 +27,7 @@
 		ADD_TRAIT(loc, TRAIT_TURF_COVERED, UNIQUE_TRAIT_SOURCE(src))
 
 	if(smooth)
-		if(SSticker && SSticker.current_state == GAME_STATE_PLAYING)
+		if(SSicon_smooth.initialized)
 			QUEUE_SMOOTH(src)
 			QUEUE_SMOOTH_NEIGHBORS(src)
 		icon_state = ""

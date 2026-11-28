@@ -559,6 +559,7 @@ GLOBAL_LIST_INIT(default_pirate_channels, list(
 	tcm.spans = spans ? spans.Copy() : list()
 	tcm.message_mods = list(SAY_MOD_VERB = message_mods?[SAY_MOD_VERB])
 	tcm.source_level = position.z
+	tcm.source_position = position
 	tcm.freq = connection.frequency
 	tcm.vmask = voicemask
 	tcm.needs_tcomms = requires_tcomms
@@ -612,12 +613,12 @@ GLOBAL_LIST_INIT(default_pirate_channels, list(
 	broadcast_message(tcm)
 	qdel(tcm) // Delete the message datum
 
-/obj/item/radio/proc/can_receive(freq, level)
+/obj/item/radio/proc/can_receive(freq, level, obj/machinery/tcomms/core/network = null)
 	if(!is_listening())
 		return FALSE
 	if(!cross_zlevel && !(0 in level))
 		var/turf/position = get_turf(src)
-		if(!position || !(position.z in level))
+		if(!position || (network ? !network.position_reachable(position) : !(position.z in level)))
 			return FALSE
 	if(freq in SSradio.ANTAG_FREQS)
 		if(!syndiekey)

@@ -28,7 +28,7 @@ GLOBAL_LIST_INIT(robot_verbs_default, list(
 	silicon_subsystems = list(
 		VERB_META(/mob/living/silicon, subsystem_open_gps),
 		VERB_META(/mob/living/silicon/robot, self_diagnosis),
-		VERB_META(/mob/living/silicon/, subsystem_law_manager),
+		VERB_META(/mob/living/silicon, subsystem_law_manager),
 	)
 
 	tts_effect_override = SOUND_EFFECT_ROBOT

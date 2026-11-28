@@ -7438,7 +7438,6 @@
 /obj/machinery/atmospherics/unary/vent_scrubber/on{
 	dir = 1
 	},
-/obj/item/flag/syndi,
 /obj/machinery/computer/cryopod{
 	pixel_y = -32;
 	req_access = list(150)
@@ -15626,7 +15625,7 @@
 /obj/effect/turf_decal/tile/red{
 	dir = 4
 	},
-/obj/structure/filingcabinet/security,
+/obj/machinery/computer/sensors,
 /turf/simulated/floor/plasteel{
 	icon_state = "dark"
 	},
@@ -17539,7 +17538,7 @@
 /turf/simulated/floor/engine/insulated/vacuum,
 /area/syndicate/unpowered/syndicate_space_base/engineering)
 "qdH" = (
-/obj/structure/girder,
+/obj/machinery/sensor_array/short_range,
 /turf/simulated/floor/plating,
 /area/syndicate/unpowered/syndicate_space_base/maintenance/central)
 "qeh" = (
@@ -19340,6 +19339,7 @@
 /obj/item/lighter/zippo/contractor{
 	name = "Comms Officer Zippo Lighter"
 	},
+/obj/machinery/transponder/taipan/directional/north,
 /turf/simulated/floor/carpet/black,
 /area/syndicate/unpowered/syndicate_space_base/telecomms/agent_room)
 "rLD" = (
@@ -19538,6 +19538,7 @@
 /obj/structure/cable{
 	icon_state = "4-8"
 	},
+/obj/machinery/sensor_array/long_range,
 /turf/simulated/floor/plating,
 /area/syndicate/unpowered/syndicate_space_base/maintenance/central)
 "rQK" = (
@@ -20697,6 +20698,7 @@
 	req_access = list(154);
 	syndicate = 1
 	},
+/obj/machinery/overmap_intercom/directional/south,
 /turf/simulated/floor/carpet/black,
 /area/syndicate/unpowered/syndicate_space_base/telecomms/agent_room)
 "sZg" = (

@@ -30,6 +30,10 @@
 	port_id = "admin"
 	name = "Base Shuttle Template (Admin)"
 
+/datum/map_template/shuttle/pirate
+	port_id = "pirate"
+	name = "Base Shuttle Template (Pirate)"
+
 // Shuttles start here:
 
 /datum/map_template/shuttle/emergency/bar
@@ -218,3 +222,9 @@
 	description = "Административный корабль \"Нанотрейзен\". Используется для проведения опросов и бесед."
 	admin_notes = "ПОСЛЕ СПАВНА УДАЛИТЕ В КОНСОЛИ НАВИГАЦИИ НЕНУЖНЫЕ ЗОНЫ ДЛЯ ПРЫЖКА (jumpto_ports)!!! Корабль ШТУРМОВОЙ, \
 	он может ПРОБИВАТЬ СТАНЦИЮ НАСКВОЗЬ."
+
+/datum/map_template/shuttle/pirate/one
+	suffix = "one"
+	name = "Пиратский рейдер"
+	description = "Лёгкий пиратский рейдер: две рельсовые пушки, два лазера, щит, сенсоры и экипаж из четырёх головорезов."
+	admin_notes = "При спавне через панель овермапа получает ИИ пиратского корабля."

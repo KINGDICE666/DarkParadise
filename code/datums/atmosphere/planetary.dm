@@ -51,6 +51,24 @@
 	minimum_pressure = HAZARD_LOW_PRESSURE + 10
 	maximum_pressure = LAVALAND_EQUIPMENT_EFFECT_PRESSURE - 1
 
+/datum/atmosphere/plasma_world
+	id = ENVIRONMENT_PLASMA_WORLD
+
+	base_gases = list(
+		ATMOSPHERE_TOXINS = 45,
+		ATMOSPHERE_NITROGEN = 52,
+		ATMOSPHERE_CARBON_DIOXIDE = 3,
+	)
+	normal_gases = list()
+	restricted_gases = list()
+	restricted_chance = 0
+
+	minimum_temp = 255
+	maximum_temp = 270
+
+	minimum_pressure = 80
+	maximum_pressure = 95
+
 /datum/atmosphere/temperate
 	id = ENVIRONMENT_TEMPERATE
 

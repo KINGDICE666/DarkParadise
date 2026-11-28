@@ -1315,7 +1315,7 @@ GAME_VERB(/mob/living/simple_animal/bot, show_laws, "Набор законов",
 	var/mob/living/simple_animal/bot/bot = cast_on
 	bot.set_varspeed(0.1)
 	bot.balloon_alert(bot, "вы ускоряетесь")
-	addtimer(CALLBACK(src, TYPE_PROC_REF(/mob/living/simple_animal/bot, reset_speed)), 45 SECONDS)
+	addtimer(CALLBACK(bot, TYPE_PROC_REF(/mob/living/simple_animal/bot, reset_speed)), 45 SECONDS)
 
 /mob/living/simple_animal/bot/proc/reset_speed()
 	if(QDELETED(src))

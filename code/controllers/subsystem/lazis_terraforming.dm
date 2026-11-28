@@ -40,9 +40,6 @@ SUBSYSTEM_DEF(terraforming)
 		return
 
 	SSmapping.lavaland_theme = new lavaland_theme
-	for(var/client/client as anything in GLOB.clients)
-		for(var/atom/movable/screen/parallax_layer/planet/planet in client.parallax_rock.parallax_layers_cached)
-			planet.icon_state = SSmapping.lavaland_theme.planet_icon_state
 
 	for(var/turf in GLOB.lazis_primary_turfs)
 		SSterraforming.queue.enqueue(list(turf, "[lavaland_theme.primary_turf_type]"))

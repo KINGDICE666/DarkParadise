@@ -18,10 +18,11 @@
 
 	for(var/i in (lowBoundX) to (hiBoundX))
 		for(var/j in (lowBoundY) to (hiBoundY))
+			var/turf/spot = locate(i, j, z)
 			if(i == lowBoundX || i == hiBoundX || j == lowBoundY || j == hiBoundY)
-				new /turf/simulated/wall/vault(locate(i, j, z), vault_type)
+				spot.ChangeTurf(/turf/simulated/wall/vault)
 			else
-				var/turf/T = new /turf/simulated/floor/vault(locate(i, j, z))
-				T.icon_state = "[vault_type]vault"
+				spot = spot.ChangeTurf(/turf/simulated/floor/vault)
+				spot.icon_state = "[vault_type]vault"
 
 	return INITIALIZE_HINT_QDEL

@@ -237,6 +237,9 @@
 	if(!T)
 		return
 
+	if(station_is_ship() && EMERGENCY_ESCAPED_OR_ENDGAMED && is_station_level(T.z))
+		return !istype(T.loc, /area/station/security/prison)
+
 	if(is_reserved_level(T.z))
 		for(var/obj/docking_port/mobile/mobile in SSshuttle.mobile)
 			if(EMERGENCY_ESCAPED_OR_ENDGAMED)

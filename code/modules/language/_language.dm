@@ -153,7 +153,9 @@
 	var/static/regex/first_sentence = regex(@"(.+?(?:[\.!\?]|$))", "g")
 	var/list/new_paragraph = list()
 	while(first_sentence.Find(input))
-		new_paragraph += scramble_sentence(trim(first_sentence.group[1]), mutual_languages)
+		var/sentence = trim(first_sentence.group[1])
+		if(sentence)
+			new_paragraph += scramble_sentence(sentence, mutual_languages)
 	return jointext(new_paragraph, " ")
 
 /datum/language/proc/scramble_sentence(input, list/mutual_languages)

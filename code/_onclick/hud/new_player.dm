@@ -247,6 +247,8 @@ GLOBAL_LIST_INIT(lobby_layout_presets, list(
 
 /datum/hud/new_player/proc/on_view_set(datum/source, new_size)
 	SIGNAL_HANDLER
+	if(mymob?.client != source)
+		return
 	apply_layout(layout)
 
 /datum/hud/new_player/proc/start_layout_editing()

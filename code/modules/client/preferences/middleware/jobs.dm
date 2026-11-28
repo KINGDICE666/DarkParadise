@@ -141,6 +141,8 @@
 
 /datum/preference_middleware/jobs/proc/get_character_restriction(mob/user, datum/job/job)
 	var/client/user_client = user.client
+	if(!user_client)
+		return
 	if(!job.can_novice_play(user_client))
 		return "Только для новичков"
 	if(job.barred_by_disability(user_client))

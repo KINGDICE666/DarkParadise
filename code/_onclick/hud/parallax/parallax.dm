@@ -87,6 +87,8 @@
 		deltimer(displaying_client.parallax_animate_timers[key])
 	displaying_client.parallax_animate_timers = list()
 	for(var/atom/movable/screen/parallax_layer/layer as anything in displaying_client.parallax_rock.parallax_layers)
+		if(!layer.speed || layer.absolute)
+			continue
 		var/scaled_time = PARALLAX_LOOP_TIME / layer.speed
 		if(new_parallax_movedir == NONE) // If we're stopping, we need to stop on the same dime, yeah?
 			scaled_time = PARALLAX_LOOP_TIME
@@ -144,7 +146,7 @@
 	var/offset_x = posobj.x - displaying_client.previous_turf.x
 	var/offset_y = posobj.y - displaying_client.previous_turf.y
 
-	var/glide_rate = round(ICON_SIZE_ALL / mymob.glide_size * world.tick_lag, world.tick_lag)
+	var/glide_rate = mymob.glide_size ? round(ICON_SIZE_ALL / mymob.glide_size * world.tick_lag, world.tick_lag) : 0
 	displaying_client.previous_turf = posobj
 
 	var/largest_change = max(abs(offset_x), abs(offset_y))
@@ -155,7 +157,7 @@
 	var/run_parralax = (rock.animate_parallax && glide_rate && !areaobj.parallax_movedir && !shuttle?.moving && displaying_client.dont_animate_parallax <= world.time && largest_change <= max_allowed_dist)
 
 	for(var/atom/movable/screen/parallax_layer/parallax_layer as anything in rock.parallax_layers)
-		var/our_speed = parallax_layer.speed
+		var/our_speed = parallax_layer.speed * PARALLAX_WALK_SCALE
 		var/change_x
 		var/change_y
 		var/old_x = parallax_layer.offset_x
@@ -271,7 +273,7 @@ INITIALIZE_IMMEDIATE(/atom/movable/screen/parallax_home)
 		if(2)
 			return new /atom/movable/screen/parallax_layer/layer_2(null, null, owner)
 		if(3)
-			return new /atom/movable/screen/parallax_layer/planet(null, null, owner)
+			return new /atom/movable/screen/parallax_layer/sky(null, null, owner)
 		if(4)
 			if(SSparallax.random_layer)
 				return new SSparallax.random_layer.type(null, null, owner, FALSE, SSparallax.random_layer)
@@ -291,6 +293,10 @@ INITIALIZE_IMMEDIATE(/atom/movable/screen/parallax_home)
 		var/atom/movable/screen/parallax_layer/parallax = generate_space_layer(space_layer)
 		if(parallax)
 			parallax_layers_cached += parallax
+
+	if(layers_to_draw >= PARALLAX_SPACE_EFFECT_LAYERS)
+		parallax_layers_cached += new /atom/movable/screen/parallax_layer/streaks(null, null, owner)
+		parallax_layers_cached += new /atom/movable/screen/parallax_layer/dust(null, null, owner)
 
 	if(draw_old_space)
 		parallax_layers_cached += new /atom/movable/screen/parallax_layer/old(null, null, owner)
@@ -315,6 +321,11 @@ INITIALIZE_IMMEDIATE(/atom/movable/screen/parallax_layer)
 	var/absolute = FALSE
 	/// View size we're being rendered with
 	var/working_view = ""
+	var/drift_x = 0
+	var/drift_y = 0
+	var/drift_angle = 0
+	var/environment_key
+	var/environment_tinted = TRUE
 
 /atom/movable/screen/parallax_layer/Initialize(mapload, datum/hud/hud_owner, client/owner, template = FALSE)
 	. = ..()
@@ -368,6 +379,42 @@ INITIALIZE_IMMEDIATE(/atom/movable/screen/parallax_layer)
 /atom/movable/screen/parallax_layer/proc/tileable_appearance()
 	return mutable_appearance(icon, icon_state)
 
+/atom/movable/screen/parallax_layer/proc/drift_matrix(offset_x, offset_y, angle)
+	var/matrix/drifted = matrix()
+	drifted.Translate(offset_x, offset_y)
+	drifted.Turn(-angle)
+	return drifted
+
+/atom/movable/screen/parallax_layer/proc/set_ship_drift(step_x, step_y, angle, time)
+	if(!step_x && !step_y && angle == drift_angle)
+		return
+	var/next_x = drift_x - step_x * speed
+	var/next_y = drift_y - step_y * speed
+	var/wrap_x = 0
+	var/wrap_y = 0
+	if(abs(next_x) > PARALLAX_TILE_SIZE / 2)
+		wrap_x = -sign(next_x) * PARALLAX_TILE_SIZE
+	if(abs(next_y) > PARALLAX_TILE_SIZE / 2)
+		wrap_y = -sign(next_y) * PARALLAX_TILE_SIZE
+	if(wrap_x || wrap_y)
+		transform = drift_matrix(drift_x + wrap_x, drift_y + wrap_y, drift_angle)
+	drift_x = next_x + wrap_x
+	drift_y = next_y + wrap_y
+	drift_angle = angle
+	animate(src, transform = drift_matrix(drift_x, drift_y, drift_angle), time = time)
+
+/atom/movable/screen/parallax_layer/proc/clear_ship_drift()
+	drift_x = 0
+	drift_y = 0
+	drift_angle = 0
+	animate(src, transform = matrix(), time = 0)
+
+/atom/movable/screen/parallax_layer/proc/set_ship_velocity(speed_x, speed_y)
+	return
+
+/atom/movable/screen/parallax_layer/proc/set_ship_facing(angle, time)
+	return
+
 /atom/movable/screen/parallax_layer/layer_1
 	icon_state = "layer1"
 	speed = 0.6
@@ -409,48 +456,3 @@ INITIALIZE_IMMEDIATE(/atom/movable/screen/parallax_layer)
 	. += relayed_overlay
 	// The 0,0 appearance, can't reuse relayed_overlay for this because otherwise transforms would stack
 	. += tileable_appearance()
-
-/atom/movable/screen/parallax_layer/planet
-	icon_state = "planet"
-	blend_mode = BLEND_OVERLAY
-	absolute = TRUE //Status of separation
-	speed = 3
-	layer = 30
-
-/atom/movable/screen/parallax_layer/planet/Initialize(mapload, datum/hud/hud_owner, client/owner)
-	. = ..()
-	if(!owner)
-		return
-
-	if(SSmapping.lavaland_theme?.planet_icon_state)
-		icon_state = SSmapping.lavaland_theme.planet_icon_state
-
-	var/static/list/connections = list(
-		COMSIG_MOVABLE_Z_CHANGED = PROC_REF(on_z_change),
-		COMSIG_MOB_LOGOUT = PROC_REF(on_mob_logout),
-	)
-
-	AddComponent(/datum/component/connect_mob_behalf, owner, connections)
-	if(owner)
-		on_z_change(owner.mob)
-
-/atom/movable/screen/parallax_layer/planet/proc/on_mob_logout(mob/source)
-	SIGNAL_HANDLER
-
-	var/client/boss = source?.canon_client
-	if(boss)
-		on_z_change(boss.mob)
-
-/atom/movable/screen/parallax_layer/planet/proc/on_z_change(mob/source)
-	SIGNAL_HANDLER
-
-	var/client/boss = source?.client
-	var/turf/posobj = get_turf(boss.eye)
-
-	if(!posobj)
-		return
-
-	SetInvisibility(is_station_level(posobj.z) ? INVISIBILITY_NONE : INVISIBILITY_ABSTRACT, id = type)
-
-/atom/movable/screen/parallax_layer/planet/update_o()
-	return //Shit won't move

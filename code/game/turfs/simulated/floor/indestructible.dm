@@ -277,6 +277,10 @@
 	SIGNAL_HANDLER
 	UnregisterSignal(src, list(COMSIG_ATOM_INITIALIZED_ON, COMSIG_TURF_CHANGE))
 
+/turf/simulated/floor/indestructible/beach/water/Destroy()
+	UnregisterSignal(src, COMSIG_ATOM_INITIALIZED_ON)
+	return ..()
+
 /turf/simulated/floor/indestructible/beach/water/Entered(atom/movable/arrived, atom/old_loc, list/atom/old_locs)
 	. = ..()
 	if(!linkedcontroller || !ismob(arrived))

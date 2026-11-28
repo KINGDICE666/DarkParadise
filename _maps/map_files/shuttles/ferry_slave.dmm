@@ -5,6 +5,27 @@
 	},
 /turf/simulated/floor/shuttle/plating,
 /area/shuttle/transport)
+"b" = (
+/obj/effect/landmark/overmap_ship_bow{
+	dir = 4
+	},
+/obj/machinery/door/airlock/shuttle{
+	id_tag = "s_docking_airlock"
+	},
+/obj/docking_port/mobile{
+	dir = 8;
+	dwidth = 2;
+	height = 12;
+	id = "ferry";
+	name = "ferry shuttle";
+	roundstart_move = "ferry_away";
+	timid = 1;
+	width = 5;
+	preferred_direction = 4
+	},
+/obj/structure/fans/tiny,
+/turf/simulated/floor/shuttle,
+/area/shuttle/transport)
 "e" = (
 /obj/item/storage/box/donkpockets{
 	pixel_x = 6;
@@ -246,7 +267,7 @@ U
 (12,1,1) = {"
 U
 T
-S
+b
 T
 U
 "}

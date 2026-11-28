@@ -204,6 +204,21 @@ function withTimeout<T>(
 export async function recallWindowGeometry(
   options: RecallOptions = {},
 ): Promise<void> {
+  let size = options.size;
+  // Convert size from css-pixels to display-pixels
+  if (options.scale && size) {
+    size = [size[0] * pixelRatio, size[1] * pixelRatio];
+  }
+  // The size does not depend on the stored geometry, apply it right away
+  if (size) {
+    const areaAvailable = getScreenSize();
+    size = [
+      Math.min(areaAvailable[0], size[0]),
+      Math.min(areaAvailable[1], size[1]),
+    ];
+    setWindowSize(size);
+  }
+
   if (!options.scale) {
     document.body.style.zoom = `${100 / window.devicePixelRatio}%`;
     document.documentElement.style.setProperty(
@@ -225,24 +240,9 @@ export async function recallWindowGeometry(
   }
   // options.pos is assumed to already be in display-pixels
   let pos = geometry?.pos || options.pos;
-  let size = options.size;
-  // Convert size from css-pixels to display-pixels
-  if (options.scale && size) {
-    size = [size[0] * pixelRatio, size[1] * pixelRatio];
-  }
-
   // Wait until screen offset gets resolved
   await withTimeout(screenOffsetPromise, SCREEN_OFFSET_WAIT, screenOffset);
   const areaAvailable = getScreenSize();
-  // Set window size
-  if (size) {
-    // Constraint size to not exceed available screen area
-    size = [
-      Math.min(areaAvailable[0], size[0]),
-      Math.min(areaAvailable[1], size[1]),
-    ];
-    setWindowSize(size);
-  }
   // Set window position
   if (pos) {
     // Constraint window position if monitor lock was set in preferences.
