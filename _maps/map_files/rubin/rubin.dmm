@@ -762,7 +762,7 @@
 /turf/simulated/floor/plasteel{
 	icon_state = "cmo"
 	},
-/area/station/science/genetics)
+/area/station/medical/genetics)
 "bL" = (
 /obj/item/twohanded/required/kirbyplants,
 /turf/simulated/floor/carpet/purple,
@@ -1732,7 +1732,7 @@
 /turf/simulated/floor/plasteel{
 	icon_state = "cmo"
 	},
-/area/station/science/genetics)
+/area/station/medical/genetics)
 "dC" = (
 /obj/structure/cable{
 	icon_state = "1-2"
@@ -4835,7 +4835,7 @@
 /turf/simulated/floor/plasteel{
 	icon_state = "cmo"
 	},
-/area/station/science/genetics)
+/area/station/medical/genetics)
 "jT" = (
 /obj/machinery/atmospherics/pipe/simple/hidden/supply{
 	dir = 6
@@ -9725,7 +9725,7 @@
 /turf/simulated/floor/plasteel{
 	icon_state = "cmo"
 	},
-/area/station/science/genetics)
+/area/station/medical/genetics)
 "tV" = (
 /obj/effect/spawner/window/reinforced/plasma,
 /obj/machinery/door/poddoor/preopen{
@@ -10550,7 +10550,7 @@
 /turf/simulated/floor/plasteel{
 	icon_state = "cmo"
 	},
-/area/station/science/genetics)
+/area/station/medical/genetics)
 "vx" = (
 /obj/effect/decal/cleanable/dirt,
 /turf/simulated/floor/plasteel{
@@ -10942,7 +10942,7 @@
 /area/station/service/bar)
 "wo" = (
 /turf/simulated/wall/mineral/titanium/nosmooth,
-/area/station/science/genetics)
+/area/station/medical/genetics)
 "wp" = (
 /obj/structure/disposalpipe/segment{
 	dir = 4
@@ -12365,7 +12365,7 @@
 /turf/simulated/floor/plasteel{
 	icon_state = "cmo"
 	},
-/area/station/science/genetics)
+/area/station/medical/genetics)
 "zl" = (
 /obj/structure/dresser,
 /obj/machinery/newscaster/directional/north,
@@ -12940,7 +12940,7 @@
 /turf/simulated/floor/plasteel{
 	icon_state = "cmo"
 	},
-/area/station/science/genetics)
+/area/station/medical/genetics)
 "Ax" = (
 /obj/structure/disposalpipe/segment,
 /obj/structure/cable{
@@ -13126,7 +13126,7 @@
 /turf/simulated/floor/plasteel{
 	icon_state = "cmo"
 	},
-/area/station/science/genetics)
+/area/station/medical/genetics)
 "AV" = (
 /obj/item/pod_parts/pod_frame/aft_starboard,
 /obj/effect/turf_decal/stripes/line{
@@ -13287,7 +13287,7 @@
 /turf/simulated/floor/plasteel{
 	icon_state = "cmo"
 	},
-/area/station/science/genetics)
+/area/station/medical/genetics)
 "Bm" = (
 /obj/machinery/door_control{
 	desc = "A remote control-switch for the pod doors.";
@@ -13506,7 +13506,7 @@
 /turf/simulated/floor/plasteel{
 	icon_state = "cmo"
 	},
-/area/station/science/genetics)
+/area/station/medical/genetics)
 "BG" = (
 /obj/structure/disposalpipe/segment,
 /obj/machinery/atmospherics/pipe/simple/hidden/supply,
@@ -13929,7 +13929,7 @@
 /turf/simulated/floor/plasteel{
 	icon_state = "cmo"
 	},
-/area/station/science/genetics)
+/area/station/medical/genetics)
 "CA" = (
 /obj/effect/turf_decal/delivery,
 /obj/machinery/door/firedoor,
@@ -16664,7 +16664,7 @@
 /turf/simulated/floor/plasteel{
 	icon_state = "cmo"
 	},
-/area/station/science/genetics)
+/area/station/medical/genetics)
 "HT" = (
 /obj/structure/window/plasmareinforced{
 	dir = 8
@@ -17868,7 +17868,7 @@
 /turf/simulated/floor/plasteel{
 	icon_state = "cmo"
 	},
-/area/station/science/genetics)
+/area/station/medical/genetics)
 "Kp" = (
 /turf/simulated/wall/mineral/titanium/nosmooth,
 /area/janitor)
@@ -19407,7 +19407,7 @@
 	name = "Genetics Privacy Shutters"
 	},
 /turf/simulated/floor/plating,
-/area/station/science/genetics)
+/area/station/medical/genetics)
 "NA" = (
 /obj/machinery/door/airlock/external{
 	req_access = list(10,70,71,62)
@@ -19937,7 +19937,7 @@
 /turf/simulated/floor/plasteel{
 	icon_state = "cmo"
 	},
-/area/station/science/genetics)
+/area/station/medical/genetics)
 "Oz" = (
 /obj/structure/fans/tiny,
 /obj/machinery/door/poddoor{
@@ -22985,7 +22985,7 @@
 /turf/simulated/floor/plasteel{
 	icon_state = "cmo"
 	},
-/area/station/science/genetics)
+/area/station/medical/genetics)
 "UF" = (
 /obj/structure/sign/poster/official/random{
 	pixel_x = -32
@@ -23111,7 +23111,7 @@
 /turf/simulated/floor/plasteel{
 	icon_state = "bluespace"
 	},
-/area/station/science/genetics)
+/area/station/medical/genetics)
 "UO" = (
 /obj/machinery/status_display{
 	pixel_y = 32
@@ -23332,7 +23332,7 @@
 /turf/simulated/floor/plasteel{
 	icon_state = "cmo"
 	},
-/area/station/science/genetics)
+/area/station/medical/genetics)
 "Vp" = (
 /obj/machinery/atmospherics/pipe/manifold/hidden/scrubbers{
 	dir = 4

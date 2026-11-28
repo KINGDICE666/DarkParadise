@@ -343,7 +343,7 @@
 	QDEL_NULL(remote_sensors)
 	QDEL_NULL(remote_transponder)
 	UnregisterSignal(SSdcs, COMSIG_GLOB_OVERMAP_NINJA_CONSOLE)
-	shuttle_controller = null
+	set_shuttle_controller(null)
 	cloning_ref = null
 	QDEL_NULL(disguise)
 	STOP_PROCESSING(SSfastprocess, src)

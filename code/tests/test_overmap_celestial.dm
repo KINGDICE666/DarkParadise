@@ -23,7 +23,7 @@
 	qdel(body)
 	TEST_ASSERT_NOT(body in GLOB.overmap_celestials, "A deleted body must be unregistered.")
 
-/datum/unit_test/overmap_nebula/Run()
+/datum/unit_test/room_test/overmap_nebula/Run()
 	var/obj/overmap/feature/hazard/nebula/ion/cloud = allocate(/obj/overmap/feature/hazard/nebula/ion)
 	TEST_ASSERT_EQUAL(hazard_flavour(cloud), OVERMAP_NEBULA_ION, "A nebula must report its own flavour.")
 	cloud.generate_scatter()

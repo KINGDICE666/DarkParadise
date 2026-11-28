@@ -77,7 +77,20 @@
 /obj/item/clothing/suit/space/space_ninja/proc/on_ninja_shuttle_console(datum/source, obj/machinery/computer/shuttle/ninja/console)
 	SIGNAL_HANDLER
 	if(QDELETED(shuttle_controller))
-		shuttle_controller = console
+		set_shuttle_controller(console)
+
+/obj/item/clothing/suit/space/space_ninja/proc/set_shuttle_controller(obj/machinery/computer/shuttle/ninja/console)
+	if(shuttle_controller == console)
+		return
+	if(shuttle_controller)
+		UnregisterSignal(shuttle_controller, COMSIG_QDELETING)
+	shuttle_controller = console
+	if(shuttle_controller)
+		RegisterSignal(shuttle_controller, COMSIG_QDELETING, PROC_REF(on_shuttle_controller_deleted))
+
+/obj/item/clothing/suit/space/space_ninja/proc/on_shuttle_controller_deleted(datum/source)
+	SIGNAL_HANDLER
+	set_shuttle_controller(null)
 
 /obj/item/clothing/suit/space/space_ninja/proc/linked_overmap_vessel()
 	var/obj/machinery/computer/shuttle/ninja/console = ensure_shuttle_controller()
@@ -103,11 +116,11 @@
 /obj/item/clothing/suit/space/space_ninja/proc/ensure_shuttle_controller()
 	if(!QDELETED(shuttle_controller))
 		return shuttle_controller
-	shuttle_controller = null
+	set_shuttle_controller(null)
 	for(var/obj/machinery/computer/shuttle/ninja/shuttle as anything in SSmachines.get_by_type(/obj/machinery/computer/shuttle/ninja))
 		if(QDELETED(shuttle))
 			continue
-		shuttle_controller = shuttle
+		set_shuttle_controller(shuttle)
 		return shuttle_controller
 	return null
 
