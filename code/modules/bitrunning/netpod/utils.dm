@@ -22,6 +22,9 @@
 		open_machine()
 		return
 
+	if(!check_ai_core(pilot))
+		return
+
 	var/obj/machinery/quantum_server/server = find_server()
 	if(isnull(server))
 		balloon_alert(pilot, "сервер не подключён!")
@@ -86,7 +89,19 @@
 	avatar.AddComponent(connection_type, pilot, server, src)
 
 	connected = TRUE
-	update_icon(UPDATE_ICON_STATE)
+	update_icon()
+
+/obj/machinery/netpod/proc/check_ai_core(mob/living/pilot)
+	if(!isrobot(pilot))
+		return TRUE
+
+	var/mob/living/silicon/robot/shell = pilot
+	if(shell.mainframe.health > HEALTH_THRESHOLD_CRIT)
+		return TRUE
+
+	balloon_alert(pilot, "ядро ИИ слишком повреждено!")
+	open_machine()
+	return FALSE
 
 /obj/machinery/netpod/proc/add_healing(mob/living/target)
 	if(target != occupant || !iscarbon(target))
@@ -113,7 +128,7 @@
 
 /obj/machinery/netpod/proc/disconnect_occupant(cause_damage = FALSE, mob/living/damage_body)
 	connected = FALSE
-	update_icon(UPDATE_ICON_STATE)
+	update_icon()
 
 	var/mob/living/pilot = occupant
 	if(isnull(pilot) || pilot.stat == DEAD)
@@ -128,7 +143,7 @@
 		open_machine()
 		return
 
-	var/heal_time = pilot.health < pilot.maxHealth ? 30 SECONDS : 2 SECONDS
+	var/heal_time = (iscarbon(pilot) && pilot.health < pilot.maxHealth) ? 30 SECONDS : 2 SECONDS
 	addtimer(CALLBACK(src, PROC_REF(auto_disconnect)), heal_time, TIMER_UNIQUE|TIMER_OVERRIDE|TIMER_DELETE_ME)
 
 	if(!cause_damage || QDELETED(damage_body))
@@ -138,7 +153,10 @@
 	var/damage = BASE_DISCONNECT_DAMAGE * (1 - (server ? server.servo_bonus : 0))
 
 	if(!iscarbon(damage_body))
-		damage_body?.adjustBruteLoss(damage)
+		damage = min(damage, damage_body.health - HEALTH_THRESHOLD_CRIT)
+		if(damage <= 0)
+			return
+		damage_body.adjustBruteLoss(damage)
 		to_chat(pilot, span_userdanger("Аварийное отключение от домена повредило ядро ИИ!"))
 		return
 
@@ -169,7 +187,7 @@
 /obj/machinery/netpod/proc/on_domain_complete(datum/source, atom/movable/forge, reward_points)
 	SIGNAL_HANDLER
 
-	if(isnull(occupant) || !connected)
+	if(isnull(occupant) || !connected || net_mode)
 		return
 
 	var/obj/item/card/id/card = occupant.get_id_card()

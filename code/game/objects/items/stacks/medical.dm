@@ -124,15 +124,16 @@
 	var/obj/item/organ/external/affecting = target.get_organ(selected_zone)
 
 	target.balloon_alert(user, "применено")
-	var/rembrute = max(0, heal_brute - affecting.brute_dam) // Maxed with 0 since heal_damage let you pass in a negative value
-	var/remburn = max(0, heal_burn - affecting.burn_dam) // And deduct it from their health (aka deal damage)
+	var/plating_mod = HAS_TRAIT(target, TRAIT_SUBDERMAL_PLATING) ? SUBDERMAL_PLATING_HEAL_MOD : 1
+	var/rembrute = max(0, heal_brute * plating_mod - affecting.brute_dam) // Maxed with 0 since heal_damage let you pass in a negative value
+	var/remburn = max(0, heal_burn * plating_mod - affecting.burn_dam) // And deduct it from their health (aka deal damage)
 	var/nrembrute = rembrute
 	var/nremburn = remburn
 	var/should_update_health = FALSE
 	var/update_damage_icon = NONE
 	var/affecting_brute_was = affecting.brute_dam
 	var/affecting_burn_was = affecting.burn_dam
-	update_damage_icon |= affecting.heal_damage(heal_brute, heal_burn, updating_health = FALSE)
+	update_damage_icon |= affecting.heal_damage(heal_brute * plating_mod, heal_burn * plating_mod, updating_health = FALSE)
 	if(affecting.brute_dam != affecting_brute_was || affecting.burn_dam != affecting_burn_was)
 		should_update_health = TRUE
 	var/list/achildlist

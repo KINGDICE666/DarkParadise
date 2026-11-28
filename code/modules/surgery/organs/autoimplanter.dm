@@ -41,7 +41,7 @@
 		to_chat(user, span_warning("Отсутствует требуемая часть тела!"))
 		return FALSE
 
-	if(!storedorgan.can_insert(target = user) || HAS_TRAIT(user, TRAIT_NO_CYBERIMPLANTS)) //make it silent
+	if(!storedorgan.can_insert(target = user) || (!storedorgan.ignore_cybernetic_restrictions && HAS_TRAIT(user, TRAIT_NO_CYBERIMPLANTS))) //make it silent
 		to_chat(user, span_warning("Ваш вид не подходит для установки этого киберимпланта!"))
 		return FALSE
 
@@ -116,6 +116,46 @@
 /obj/item/autoimplanter/oneuse/meson
 	name = "autoimplanter(meson scanner implant)"
 	storedorgan = new /obj/item/organ/internal/cyberimp/eyes/meson
+
+/obj/item/autoimplanter/oneuse/fingerprint_synth
+	name = "autoimplanter (fingerprint synthesizer)"
+	storedorgan = new /obj/item/organ/internal/cyberimp/fingerprint_synth
+
+/obj/item/autoimplanter/oneuse/neuro_interface
+	name = "autoimplanter (neuro-interface)"
+	storedorgan = new /obj/item/organ/internal/cyberimp/brain/neuro_interface
+
+/obj/item/autoimplanter/oneuse/militech_optics
+	name = "autoimplanter (Militech optics)"
+	storedorgan = new /obj/item/organ/internal/cyberimp/eyes/optics/militech
+
+/obj/item/autoimplanter/oneuse/militech_blood_pump
+	name = "autoimplanter (Militech blood pump)"
+	storedorgan = new /obj/item/organ/internal/cyberimp/chest/blood_pump/militech
+
+/obj/item/autoimplanter/oneuse/militech_gorilla
+	name = "autoimplanter (Militech gorilla arm right)"
+	storedorgan = new /obj/item/organ/internal/cyberimp/arm/gorilla/militech
+
+/obj/item/autoimplanter/oneuse/militech_gorilla/l
+	name = "autoimplanter (Militech gorilla arm left)"
+	storedorgan = new /obj/item/organ/internal/cyberimp/arm/gorilla/militech/l
+
+/obj/item/autoimplanter/oneuse/militech_monowire
+	name = "autoimplanter (Militech monowire)"
+	storedorgan = new /obj/item/organ/internal/cyberimp/arm/monowire/militech
+
+/obj/item/autoimplanter/oneuse/cybersun_sandevistan
+	name = "autoimplanter (Cybersun Sandevistan)"
+	storedorgan = new /obj/item/organ/internal/cyberimp/brain/sandevistan/cybersun
+
+/obj/item/autoimplanter/oneuse/militech_berserker
+	name = "autoimplanter (Militech Berserker)"
+	storedorgan = new /obj/item/organ/internal/cyberimp/brain/berserker/militech
+
+/obj/item/autoimplanter/oneuse/militech_hand_cannon
+	name = "autoimplanter (Militech hand cannon)"
+	storedorgan = new /obj/item/organ/internal/cyberimp/arm/hand_cannon/militech
 
 /obj/item/autoimplanter/oneuse/mantisblade
 	name = "autoimplanter (mantis blade right)"

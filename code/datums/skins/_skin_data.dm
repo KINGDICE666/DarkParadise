@@ -28,6 +28,8 @@
 /datum/item_skin_data/gun
 	/// Override attachables offset for gun (see more gun.dm)
 	var/attachable_offset = null
+	var/fire_sound = null
+	var/hide_magazine = FALSE
 
 /datum/item_skin_data/gun/on_apply(obj/item/target)
 	. = ..()
@@ -37,3 +39,8 @@
 	if(attachable_offset)
 		gun.attachable_offset = attachable_offset
 		gun.update_attachment_overlays()
+	if(fire_sound)
+		gun.fire_sound = fire_sound
+	if(hide_magazine && istype(gun, /obj/item/gun/projectile/automatic/pistol))
+		var/obj/item/gun/projectile/automatic/pistol/pistol = gun
+		pistol.magazine_icon = null

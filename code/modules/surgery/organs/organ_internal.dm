@@ -20,6 +20,7 @@ GLOBAL_LIST_EMPTY(organ_rott_overlay_icons)
 	var/can_see_food = FALSE
 	/// Empty list == all species allowed
 	var/list/species_restrictions
+	var/ignore_cybernetic_restrictions = FALSE
 	/// The icon file for the augment that shows outside the mob, if any.
 	var/augment_icon = null
 	/// The icon state for the augment that shows outside the mob, if any.
@@ -113,6 +114,7 @@ GLOBAL_LIST_EMPTY(organ_rott_overlay_icons)
 		target.add_traits(organ_traits, UNIQUE_TRAIT_SOURCE(src))
 
 	SEND_SIGNAL(src, COMSIG_ORGAN_IMPLANTED, target)
+	SEND_SIGNAL(target, COMSIG_CARBON_GAIN_ORGAN, src)
 
 	STOP_PROCESSING(SSobj, src)
 

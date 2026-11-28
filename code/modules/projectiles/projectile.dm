@@ -115,6 +115,8 @@
 	var/ricochets = 0
 	var/ricochets_max = 2
 	var/ricochet_chance = 30
+	var/ricochet_auto_aim_range = 0
+	var/ricochet_auto_aim_angle = 30
 	/// If our projectile can ricochet from any walls
 	var/can_ricochet_from_everything = FALSE
 
@@ -205,6 +207,8 @@
 		finalize_hitscan_and_generate_tracers()
 	STOP_PROCESSING(SSprojectiles, src)
 	if(ammo_casing)
+		if(!QDELETED(ammo_casing))
+			ammo_casing.record_impact(get_turf(src))
 		if(ammo_casing.BB == src)
 			ammo_casing.BB = null
 		ammo_casing =  null
@@ -246,6 +250,8 @@
 	return SEND_SIGNAL(firer_source_atom, COMSIG_GUN_CHECK_FRIEND, bumped_atom) & GUN_TARGET_IS_FRIEND
 
 /obj/projectile/proc/on_hit(atom/target, blocked = 0, hit_zone)
+	if(ammo_casing && !QDELETED(ammo_casing) && !isturf(target))
+		ammo_casing.impact_target_name = DECLENT_RU_CAP(target, NOMINATIVE)
 	var/turf/target_loca = get_turf(target)
 	var/hitx
 	var/hity
@@ -267,6 +273,7 @@
 			new impact_effect_type(target_loca, hitx, hity)
 
 		W.add_dent(WALL_DENT_SHOT, hitx, hity)
+		W.record_bullet_trace(src)
 		return FALSE
 
 	if(!isliving(target))
@@ -551,6 +558,9 @@
 	if(setAngle)
 		Angle = setAngle
 
+	if(firer)
+		SEND_SIGNAL(firer, COMSIG_PROJECTILE_BEFORE_FIRE, src, original)
+
 	if(!log_override && firer && original)
 		fire_log_text += "Projectile: <small>'[type]'</small> | Harm: [nodamage ? "<small>NO DAMAGE</small>" : "<small>[uppertext(damage_type)] = </small>[damage]"]"
 		if(reagents?.reagent_list)
@@ -622,7 +632,20 @@
 	fire()
 
 /obj/projectile/proc/on_ricochet(atom/A)
-	return
+	if(!ricochet_auto_aim_angle || !ricochet_auto_aim_range)
+		return
+	var/mob/living/unlucky_sob
+	var/best_angle = ricochet_auto_aim_angle
+	for(var/mob/living/potential_target in range(ricochet_auto_aim_range, loc))
+		if(potential_target.stat == DEAD || potential_target == firer || !is_in_sight(src, potential_target))
+			continue
+		var/our_angle = abs(closer_angle_difference(Angle, get_angle(loc, potential_target.loc)))
+		if(our_angle < best_angle)
+			best_angle = our_angle
+			unlucky_sob = potential_target
+	if(unlucky_sob)
+		set_angle(get_angle(src, unlucky_sob.loc))
+		original = unlucky_sob
 
 /obj/projectile/proc/check_ricochet(atom/A)
 	if(prob(ricochet_chance))
@@ -794,3 +817,8 @@
 #undef MOVES_HITSCAN
 #undef MUZZLE_EFFECT_PIXEL_INCREMENT
 #undef DAMAGE_TO_BLOODSPLATTER
+
+/obj/projectile/proc/get_autopsy_name()
+	. = declent_ru(NOMINATIVE)
+	if(isgun(firer_source_atom))
+		. += " ([firer_source_atom.declent_ru(NOMINATIVE)])"

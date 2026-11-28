@@ -9346,6 +9346,17 @@
 	icon_state = "dark"
 	},
 /area/station/security/podbay)
+"aMR" = (
+/obj/machinery/optable/ripperdoc/security,
+/obj/item/tank/internals/anesthetic,
+/obj/item/clothing/mask/breath/medical,
+/obj/effect/landmark/start/hangover,
+/obj/machinery/defibrillator_mount/loaded/directional/east,
+/turf/simulated/floor/plasteel{
+	dir = 4;
+	icon_state = "whiteblue"
+	},
+/area/station/security/medical)
 "aMT" = (
 /obj/structure/cable{
 	icon_state = "4-8"
@@ -89796,6 +89807,15 @@
 	},
 /turf/simulated/floor/plating,
 /area/station/maintenance/electrical)
+"xqA" = (
+/obj/machinery/optable/ripperdoc,
+/obj/item/storage/firstaid/machine,
+/obj/item/storage/firstaid/machine,
+/obj/effect/landmark/start/hangover,
+/turf/simulated/floor/plasteel{
+	icon_state = "white"
+	},
+/area/station/science/robotics)
 "xqB" = (
 /obj/item/trash/candle,
 /turf/simulated/floor/plating,
@@ -117762,7 +117782,7 @@ ris
 tTs
 afo
 ipw
-inN
+aMR
 aeK
 ahu
 afo
@@ -135047,7 +135067,7 @@ pGN
 bRr
 bTW
 bId
-trr
+xqA
 bIa
 diR
 kLu

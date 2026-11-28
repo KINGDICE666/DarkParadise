@@ -21,6 +21,9 @@
 #define INVISIBILITY_LEVEL_TWO 45 //Used by some other stuff in code. It's really poorly organized.
 
 #define INVISIBILITY_SPIRIT 50
+
+#define INVISIBILITY_NETRUNNER 55
+#define SEE_INVISIBLE_NETRUNNER 55
 #define SEE_SPIRITS 50
 
 #define INVISIBILITY_ANOMALY 40 // Can be seen by observers or using a t-ray scanner

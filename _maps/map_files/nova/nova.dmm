@@ -78450,6 +78450,14 @@
 /obj/structure/disposalpipe/segment,
 /turf/simulated/floor/plating,
 /area/station/maintenance/engineering)
+"mdw" = (
+/obj/machinery/optable/ripperdoc/security,
+/obj/machinery/shower/directional/north,
+/turf/simulated/floor/plasteel{
+	dir = 1;
+	icon_state = "darkblue"
+	},
+/area/station/security/medical)
 "mdz" = (
 /obj/structure/table,
 /obj/item/clipboard,
@@ -115472,6 +115480,17 @@
 	},
 /turf/simulated/floor/plating,
 /area/station/maintenance/solars/starboard/aft)
+"rFx" = (
+/obj/machinery/optable/ripperdoc,
+/obj/item/radio/intercom/directional/south,
+/obj/item/tank/internals/anesthetic,
+/obj/item/clothing/mask/breath/medical,
+/obj/effect/turf_decal/delivery/hollow,
+/obj/effect/landmark/start/hangover,
+/turf/simulated/floor/plasteel{
+	icon_state = "blue"
+	},
+/area/station/science/robotics)
 "rFz" = (
 /obj/structure/cable{
 	icon_state = "1-2"
@@ -193123,7 +193142,7 @@ nJP
 our
 hzA
 vVv
-xzG
+rFx
 xLL
 jPn
 klc
@@ -246355,7 +246374,7 @@ bLL
 jEd
 ggJ
 fOi
-dMf
+mdw
 nkd
 bwD
 ebP

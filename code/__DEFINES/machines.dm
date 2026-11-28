@@ -282,3 +282,4 @@
 #define AUTODOC_MODULE_ORGANS "organs"
 #define AUTODOC_MODULE_LOBOTOMY "lobotomy"
 #define AUTODOC_MODULE_IMPLANTS "implants"
+#define AUTODOC_MODULE_XENOPHYSIOLOGY "xenophysiology"

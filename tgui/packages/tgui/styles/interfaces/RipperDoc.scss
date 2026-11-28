@@ -1,0 +1,1026 @@
+$rd-bg: #0a090d;
+$rd-panel: #131118;
+$rd-panel-light: #1b1822;
+$rd-red: #ff3c46;
+$rd-red-soft: #ff6b70;
+$rd-red-dim: rgba(255, 60, 70, 0.35);
+$rd-red-faint: rgba(255, 60, 70, 0.12);
+$rd-yellow: #f3e600;
+$rd-yellow-dim: rgba(243, 230, 0, 0.3);
+$rd-cyan: #5ef6ff;
+$rd-cyan-dim: rgba(94, 246, 255, 0.4);
+$rd-text: #ffd9d7;
+$rd-mono: Consolas, 'Lucida Console', 'Courier New', monospace;
+
+@mixin rd-cut($size: 10px) {
+  clip-path: polygon(
+    0 0,
+    calc(100% - #{$size}) 0,
+    100% $size,
+    100% 100%,
+    $size 100%,
+    0 calc(100% - #{$size})
+  );
+}
+
+.RipperDoc {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  height: 100%;
+  color: $rd-text;
+  font-family: $rd-mono;
+  font-size: 12px;
+}
+
+.RipperDoc__header {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  padding: 2px 4px 6px;
+  border-bottom: 1px solid $rd-red-dim;
+}
+
+.RipperDoc__logo {
+  position: relative;
+  color: $rd-yellow;
+  font-size: 22px;
+  font-weight: bold;
+  letter-spacing: 6px;
+  text-shadow:
+    2px 0 $rd-red,
+    -2px 0 $rd-cyan-dim,
+    0 0 10px rgba(243, 230, 0, 0.5);
+  animation: RipperDoc__glitch 4s steps(1) infinite;
+}
+
+@keyframes RipperDoc__glitch {
+  0%,
+  92%,
+  100% {
+    transform: none;
+  }
+
+  93% {
+    transform: translateX(-2px) skewX(-8deg);
+  }
+
+  95% {
+    transform: translateX(2px);
+  }
+
+  97% {
+    transform: translateX(-1px) skewX(4deg);
+  }
+}
+
+.RipperDoc__subtitle {
+  color: rgba(255, 60, 70, 0.75);
+  font-size: 10px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+.RipperDoc__spacer {
+  flex: 1;
+}
+
+.RipperDoc__pill {
+  padding: 1px 8px;
+  color: $rd-cyan;
+  font-size: 10px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  border: 1px solid $rd-cyan-dim;
+  background: rgba(94, 246, 255, 0.06);
+}
+
+.RipperDoc__pill--bad {
+  color: $rd-red;
+  border-color: $rd-red-dim;
+  background: $rd-red-faint;
+}
+
+.RipperDoc__patientBar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 10px;
+  background: linear-gradient(90deg, $rd-red-faint, transparent 70%);
+  border-left: 3px solid $rd-red;
+}
+
+.RipperDoc__patientName {
+  color: $rd-yellow;
+  font-size: 14px;
+  font-weight: bold;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+.RipperDoc__link {
+  margin-left: auto;
+  color: $rd-cyan;
+  font-size: 10px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.RipperDoc__link--off {
+  color: $rd-red;
+}
+
+.RipperDoc__body {
+  display: grid;
+  flex: 1;
+  grid-template-columns: 190px 1fr 1.15fr;
+  gap: 8px;
+  min-height: 0;
+}
+
+.RipperDoc__side {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-height: 0;
+  padding: 8px;
+  background: $rd-panel;
+  border: 1px solid $rd-red-faint;
+
+  @include rd-cut;
+}
+
+.RipperDoc__label {
+  margin-bottom: 4px;
+  color: $rd-cyan;
+  font-size: 10px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+.RipperDoc__note {
+  color: rgba(255, 107, 112, 0.65);
+  font-size: 11px;
+}
+
+.RipperDoc__bad {
+  color: $rd-red !important;
+}
+
+.RipperDoc__gauge {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  align-items: center;
+  min-height: 0;
+}
+
+.RipperDoc__gauge--empty {
+  background: repeating-linear-gradient(
+    0deg,
+    rgba(255, 60, 70, 0.06) 0 3px,
+    transparent 3px 5px
+  );
+}
+
+.RipperDoc__gaugeIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  margin-bottom: 6px;
+  color: $rd-bg;
+  font-size: 10px;
+  background: $rd-yellow;
+  border-radius: 50%;
+  box-shadow: 0 0 8px rgba(243, 230, 0, 0.6);
+}
+
+.RipperDoc__gaugeBody {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  padding: 0 44px;
+}
+
+.RipperDoc__gaugeBar {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  width: 26px;
+  height: 100%;
+}
+
+.RipperDoc__segment {
+  flex: 1 1 0;
+  min-height: 1px;
+  border-left: 1px solid transparent;
+  border-right: 1px solid transparent;
+}
+
+.RipperDoc__segment--locked {
+  background: rgba(255, 60, 70, 0.08);
+  border-color: rgba(255, 60, 70, 0.14);
+}
+
+.RipperDoc__segment--free {
+  background: rgba(243, 230, 0, 0.1);
+  border-color: $rd-yellow-dim;
+}
+
+.RipperDoc__segment--used {
+  background: $rd-yellow;
+  box-shadow: 0 0 4px rgba(243, 230, 0, 0.45);
+}
+
+.RipperDoc__segment--over {
+  margin-right: -10px;
+  background: $rd-red;
+  box-shadow: 0 0 6px $rd-red;
+}
+
+@keyframes RipperDoc__blink {
+  50% {
+    opacity: 0.4;
+  }
+}
+
+.RipperDoc__gaugeCap {
+  position: absolute;
+  left: 4px;
+  padding: 0 3px;
+  color: $rd-bg;
+  font-size: 10px;
+  font-weight: bold;
+  line-height: 12px;
+  background: $rd-red;
+  transform: translateY(50%);
+
+  &::after {
+    position: absolute;
+    top: 50%;
+    left: 100%;
+    width: 36px;
+    border-top: 1px solid $rd-red;
+    content: '';
+  }
+}
+
+.RipperDoc__gaugeFree {
+  position: absolute;
+  left: 76px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  transform: translateY(50%);
+}
+
+.RipperDoc__gaugeValue {
+  padding: 0 3px;
+  color: $rd-yellow;
+  font-size: 11px;
+  font-weight: bold;
+  line-height: 13px;
+  background: rgba(243, 230, 0, 0.1);
+  border: 1px solid $rd-yellow;
+}
+
+.RipperDoc__gaugeValue--bad {
+  color: $rd-red;
+  background: $rd-red-faint;
+  border-color: $rd-red;
+}
+
+.RipperDoc__stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px;
+
+  > div {
+    padding: 3px 6px;
+    background: $rd-panel-light;
+    border-left: 2px solid $rd-red;
+  }
+
+  small {
+    display: block;
+    color: rgba(255, 60, 70, 0.7);
+    font-size: 9px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+
+  b {
+    color: $rd-yellow;
+    font-size: 15px;
+  }
+
+  i {
+    color: rgba(243, 230, 0, 0.45);
+    font-size: 10px;
+    font-style: normal;
+  }
+}
+
+.RipperDoc__list {
+  min-height: 0;
+  padding: 8px;
+  overflow-y: auto;
+  background: $rd-panel;
+  border: 1px solid $rd-red-faint;
+  scrollbar-color: $rd-red-dim $rd-bg;
+}
+
+.RipperDoc__list--empty,
+.RipperDoc__details--empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  color: rgba(255, 60, 70, 0.7);
+  letter-spacing: 2px;
+
+  small {
+    letter-spacing: 0;
+  }
+}
+
+.RipperDoc__group {
+  margin-bottom: 8px;
+}
+
+.RipperDoc__row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  margin-bottom: 2px;
+  padding: 5px 8px;
+  color: $rd-text;
+  font-family: $rd-mono;
+  font-size: 12px;
+  text-align: left;
+  cursor: pointer;
+  background: $rd-panel-light;
+  border: 1px solid transparent;
+  border-left: 2px solid $rd-red-dim;
+
+  &:hover {
+    background: $rd-red-faint;
+    border-color: $rd-red-dim;
+    border-left-color: $rd-red;
+  }
+}
+
+.RipperDoc__row--selected {
+  background: rgba(243, 230, 0, 0.08);
+  border-color: $rd-yellow-dim;
+  border-left-color: $rd-yellow;
+}
+
+.RipperDoc__row--broken .RipperDoc__rowName {
+  color: $rd-red;
+  text-decoration: line-through;
+}
+
+.RipperDoc__rowName {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.RipperDoc__rowIcon {
+  color: $rd-cyan;
+  opacity: 0.7;
+}
+
+.RipperDoc__cost {
+  min-width: 24px;
+  color: $rd-yellow;
+  font-weight: bold;
+  text-align: right;
+}
+
+.RipperDoc__column {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-height: 0;
+}
+
+.RipperDoc__details {
+  flex: 1;
+  min-height: 0;
+  padding: 10px;
+  overflow-y: auto;
+  background: $rd-panel;
+  border: 1px solid $rd-red-faint;
+  border-top: 2px solid $rd-red;
+  scrollbar-color: $rd-red-dim $rd-bg;
+
+  @include rd-cut(14px);
+}
+
+.RipperDoc__detailsHead {
+  margin-bottom: 6px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid $rd-red-faint;
+}
+
+.RipperDoc__detailsName {
+  color: $rd-yellow;
+  font-size: 15px;
+  font-weight: bold;
+  text-shadow: 0 0 6px rgba(243, 230, 0, 0.35);
+}
+
+.RipperDoc__detailsMeta {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 2px;
+  color: $rd-cyan;
+  font-size: 10px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.RipperDoc__desc {
+  margin-bottom: 8px;
+  color: rgba(255, 217, 215, 0.75);
+  font-size: 11px;
+  line-height: 1.4;
+}
+
+.RipperDoc__warning {
+  margin-bottom: 8px;
+  padding: 3px 6px;
+  color: $rd-red;
+  background: $rd-red-faint;
+  border: 1px solid $rd-red-dim;
+}
+
+.RipperDoc__setting {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 5px 0;
+  border-bottom: 1px dashed $rd-red-faint;
+}
+
+.RipperDoc__settingName {
+  color: $rd-text;
+}
+
+.RipperDoc__switch,
+.RipperDoc__choices {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 2px;
+}
+
+.RipperDoc__switchSide,
+.RipperDoc__choice {
+  padding: 2px 8px;
+  color: rgba(255, 217, 215, 0.55);
+  font-family: $rd-mono;
+  font-size: 10px;
+  letter-spacing: 1px;
+  cursor: pointer;
+  background: $rd-bg;
+  border: 1px solid $rd-red-faint;
+
+  &:hover:not(:disabled) {
+    color: $rd-text;
+    border-color: $rd-red-dim;
+  }
+
+  &:disabled {
+    cursor: default;
+    opacity: 0.5;
+  }
+}
+
+.RipperDoc__switchSide--on,
+.RipperDoc__choice--on {
+  color: $rd-bg !important;
+  font-weight: bold;
+  background: $rd-yellow;
+  border-color: $rd-yellow;
+  box-shadow: 0 0 6px rgba(243, 230, 0, 0.45);
+}
+
+.RipperDoc__swatches {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 3px;
+  max-width: 150px;
+}
+
+.RipperDoc__swatch {
+  width: 16px;
+  height: 16px;
+  padding: 0;
+  cursor: pointer;
+  border: 1px solid rgba(255, 217, 215, 0.25);
+
+  &:disabled {
+    cursor: default;
+    opacity: 0.4;
+  }
+}
+
+.RipperDoc__swatch--on {
+  outline: 2px solid $rd-yellow;
+  outline-offset: 1px;
+  box-shadow: 0 0 6px rgba(243, 230, 0, 0.6);
+}
+
+.RipperDoc__action {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 100%;
+  margin-top: 10px;
+  padding: 6px 10px;
+  color: $rd-cyan;
+  font-family: $rd-mono;
+  font-size: 11px;
+  font-weight: bold;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  cursor: pointer;
+  background: rgba(94, 246, 255, 0.06);
+  border: 1px solid $rd-cyan-dim;
+
+  @include rd-cut(8px);
+
+  &:hover:not(:disabled) {
+    color: $rd-bg;
+    background: $rd-cyan;
+  }
+
+  &:disabled {
+    cursor: default;
+    opacity: 0.35;
+  }
+}
+
+.RipperDoc__action--red {
+  color: $rd-red;
+  background: $rd-red-faint;
+  border-color: $rd-red-dim;
+
+  &:hover:not(:disabled) {
+    background: $rd-red;
+  }
+}
+
+.RipperDoc__action--ghost {
+  margin-top: 0;
+  color: $rd-yellow;
+  background: transparent;
+  border-color: $rd-yellow-dim;
+
+  &:hover:not(:disabled) {
+    background: $rd-yellow;
+  }
+}
+
+.RipperDoc__tray {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 8px 12px;
+  background: linear-gradient(90deg, $rd-panel-light, $rd-panel);
+  border: 1px solid $rd-red-dim;
+  border-left: 3px solid $rd-yellow;
+
+  @include rd-cut(12px);
+}
+
+.RipperDoc__tray--empty {
+  gap: 8px;
+  color: rgba(255, 107, 112, 0.65);
+  border-left-color: $rd-red-dim;
+}
+
+.RipperDoc__trayInfo {
+  flex: 1;
+  min-width: 0;
+}
+
+.RipperDoc__trayName {
+  color: $rd-yellow;
+  font-size: 14px;
+  font-weight: bold;
+}
+
+.RipperDoc__trayButtons {
+  display: flex;
+  gap: 6px;
+  width: 300px;
+
+  .RipperDoc__action {
+    margin-top: 0;
+  }
+}
+
+.RipperDoc__busy {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  background: rgba(10, 9, 13, 0.82);
+}
+
+.RipperDoc__busyText {
+  color: $rd-red;
+  font-size: 18px;
+  font-weight: bold;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  text-shadow: 0 0 12px $rd-red;
+  animation: RipperDoc__glitch 1s steps(1) infinite;
+}
+
+.RipperDoc__busyBar {
+  width: 320px;
+  height: 6px;
+  background: repeating-linear-gradient(
+    90deg,
+    $rd-red 0 12px,
+    transparent 12px 18px
+  );
+  background-size: 36px 100%;
+  animation: RipperDoc__march 0.8s linear infinite;
+}
+
+@keyframes RipperDoc__march {
+  to {
+    background-position: 36px 0;
+  }
+}
+
+.RipperDoc__sweep {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  overflow: hidden;
+  pointer-events: none;
+
+  &::after {
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: 60px;
+    background: linear-gradient(
+      180deg,
+      transparent,
+      rgba(255, 60, 70, 0.07),
+      transparent
+    );
+    animation: RipperDoc__sweep 6s linear infinite;
+    content: '';
+  }
+}
+
+@keyframes RipperDoc__sweep {
+  from {
+    top: -60px;
+  }
+
+  to {
+    top: 100%;
+  }
+}
+
+.RipperDoc__vitals {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-left: auto;
+  color: $rd-cyan;
+  font-size: 10px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+
+  b {
+    min-width: 34px;
+    font-size: 12px;
+    text-align: right;
+  }
+}
+
+.RipperDoc__vitals--warn {
+  color: $rd-yellow;
+}
+
+.RipperDoc__vitals--bad {
+  color: $rd-red;
+}
+
+.RipperDoc__pulse {
+  width: 8px;
+  height: 8px;
+  background: currentColor;
+  border-radius: 50%;
+  box-shadow: 0 0 6px currentColor;
+  animation: RipperDoc__heartbeat 1.1s ease-in-out infinite;
+}
+
+@keyframes RipperDoc__heartbeat {
+  0%,
+  40%,
+  100% {
+    transform: scale(0.7);
+    opacity: 0.6;
+  }
+
+  15% {
+    transform: scale(1.25);
+    opacity: 1;
+  }
+}
+
+.RipperDoc__vitalsBar {
+  width: 90px;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+
+  div {
+    height: 100%;
+    background: currentColor;
+    box-shadow: 0 0 6px currentColor;
+    transition: width 0.4s ease;
+  }
+}
+
+.RipperDoc__link--off {
+  margin-left: 10px;
+}
+
+.RipperDoc__row {
+  animation: RipperDoc__rowIn 0.35s ease-out both;
+}
+
+@keyframes RipperDoc__rowIn {
+  from {
+    opacity: 0;
+    transform: translateX(-8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.RipperDoc__segment--used {
+  animation: RipperDoc__glow 2.4s ease-in-out infinite;
+}
+
+@keyframes RipperDoc__glow {
+  50% {
+    box-shadow: 0 0 8px rgba(243, 230, 0, 0.8);
+  }
+}
+
+.RipperDoc__log {
+  flex-shrink: 0;
+  max-height: 128px;
+  padding: 6px 8px;
+  overflow-y: auto;
+  background: $rd-bg;
+  border: 1px solid $rd-red-faint;
+  border-left: 2px solid $rd-cyan-dim;
+  scrollbar-color: $rd-red-dim $rd-bg;
+}
+
+.RipperDoc__logLine {
+  color: rgba(94, 246, 255, 0.85);
+  font-size: 10px;
+  line-height: 1.5;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+
+  &:first-of-type {
+    animation: RipperDoc__type 0.6s steps(20) both;
+  }
+}
+
+@keyframes RipperDoc__type {
+  from {
+    clip-path: inset(0 100% 0 0);
+  }
+
+  to {
+    clip-path: inset(0 0 0 0);
+  }
+}
+
+.RipperDoc__logLine--bad {
+  color: $rd-red;
+}
+
+.RipperDoc__logTime {
+  margin-right: 6px;
+  color: rgba(255, 217, 215, 0.4);
+}
+
+.RipperDoc__busyName {
+  color: $rd-yellow;
+  font-size: 13px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+.RipperDoc__busyTrack {
+  width: 360px;
+  height: 8px;
+  background: $rd-red-faint;
+  border: 1px solid $rd-red-dim;
+}
+
+.RipperDoc__busyFill {
+  width: 0;
+  height: 100%;
+  background: repeating-linear-gradient(
+    90deg,
+    $rd-red 0 10px,
+    $rd-red-soft 10px 14px
+  );
+  box-shadow: 0 0 8px $rd-red;
+  animation-name: RipperDoc__fill;
+  animation-timing-function: linear;
+  animation-fill-mode: forwards;
+}
+
+@keyframes RipperDoc__fill {
+  to {
+    width: 100%;
+  }
+}
+
+.RipperDoc__pill--button {
+  color: $rd-yellow;
+  font-family: $rd-mono;
+  cursor: pointer;
+  background: rgba(243, 230, 0, 0.06);
+  border-color: $rd-yellow-dim;
+
+  &:hover {
+    color: $rd-bg;
+    background: $rd-yellow;
+  }
+}
+
+.RipperDoc__row--blocked {
+  opacity: 0.55;
+  border-left-color: rgba(255, 255, 255, 0.15);
+
+  .RipperDoc__rowName {
+    font-style: italic;
+  }
+}
+
+.RipperDoc__blocked {
+  margin-bottom: 8px;
+  padding: 4px 6px;
+  color: $rd-cyan;
+  font-size: 11px;
+  background: rgba(94, 246, 255, 0.06);
+  border: 1px dashed $rd-cyan-dim;
+}
+
+.RipperDoc__globeOverlay {
+  position: absolute;
+  inset: 0;
+  z-index: 20;
+  display: flex;
+  flex-direction: column;
+  padding: 10px 12px;
+  background:
+    radial-gradient(circle at 40% 50%, rgba(255, 60, 70, 0.12), transparent 55%),
+    rgba(10, 9, 13, 0.96);
+  animation: RipperDoc__rowIn 0.25s ease-out both;
+}
+
+.RipperDoc__globeHead {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid $rd-red-dim;
+}
+
+.RipperDoc__globeClose {
+  width: auto;
+  margin: 0;
+}
+
+.RipperDoc__globeBody {
+  display: flex;
+  flex: 1;
+  gap: 14px;
+  min-height: 0;
+  margin-top: 8px;
+}
+
+.RipperDoc__globe {
+  position: relative;
+  flex: 1;
+  overflow: hidden;
+  cursor: grab;
+  user-select: none;
+
+  &:active {
+    cursor: grabbing;
+  }
+}
+
+.RipperDoc__globeCore {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 380px;
+  height: 380px;
+  border: 1px solid rgba(255, 60, 70, 0.18);
+  border-radius: 50%;
+  background: radial-gradient(
+    circle at 35% 35%,
+    rgba(255, 60, 70, 0.1),
+    rgba(10, 9, 13, 0) 70%
+  );
+  box-shadow:
+    inset 0 0 40px rgba(255, 60, 70, 0.12),
+    0 0 30px rgba(255, 60, 70, 0.08);
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+
+  &::before,
+  &::after {
+    position: absolute;
+    inset: 0;
+    border: 1px dashed rgba(94, 246, 255, 0.12);
+    border-radius: 50%;
+    content: '';
+  }
+
+  &::before {
+    transform: scaleX(0.35);
+  }
+
+  &::after {
+    transform: scaleY(0.35);
+  }
+}
+
+.RipperDoc__globeIcon {
+  position: absolute;
+  image-rendering: pixelated;
+  filter: drop-shadow(0 0 3px rgba(255, 60, 70, 0.5));
+  transition:
+    filter 0.15s,
+    transform 0.15s;
+}
+
+.RipperDoc__globeIcon--hovered,
+.RipperDoc__globeIcon:hover {
+  filter: drop-shadow(0 0 6px $rd-yellow);
+  transform: scale(1.35);
+}
+
+.RipperDoc__globeCard {
+  width: 250px;
+  padding: 10px;
+  overflow-y: auto;
+  background: $rd-panel;
+  border: 1px solid $rd-red-faint;
+  border-top: 2px solid $rd-yellow;
+
+  @include rd-cut(14px);
+}
+
+.RipperDoc__globeCardIcon {
+  display: block;
+  width: 96px;
+  height: 96px;
+  margin: 0 auto 8px;
+  image-rendering: pixelated;
+  filter: drop-shadow(0 0 8px rgba(243, 230, 0, 0.4));
+}

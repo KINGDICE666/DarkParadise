@@ -353,6 +353,23 @@ GLOBAL_LIST_INIT(autodoc_procedures, init_autodoc_procedures())
 		PREPOSITIONAL = "диске автодока (импланты)",
 	)
 
+/obj/item/disk/autodoc_module/xenophysiology
+	name = "autodoc module disk (xenophysiology)"
+	desc = "Диск с модулем автодока. Учит манипуляторы работать с унатхи и плазменами."
+	module_id = AUTODOC_MODULE_XENOPHYSIOLOGY
+	display_name = "Нестандартная физиология"
+	description = "Позволяет принимать и оперировать унатхи и плазменов."
+
+/obj/item/disk/autodoc_module/xenophysiology/get_ru_names()
+	return alist(
+		NOMINATIVE = "диск автодока (нестандартная физиология)",
+		GENITIVE = "диска автодока (нестандартная физиология)",
+		DATIVE = "диску автодока (нестандартная физиология)",
+		ACCUSATIVE = "диск автодока (нестандартная физиология)",
+		INSTRUMENTAL = "диском автодока (нестандартная физиология)",
+		PREPOSITIONAL = "диске автодока (нестандартная физиология)",
+	)
+
 /datum/autodoc_order
 	var/datum/autodoc_procedure/procedure
 	var/datum/weakref/organ_ref

@@ -46,7 +46,7 @@ GLOBAL_DATUM_INIT(mob_hit_recoil, /datum/gun_recoil, GUN_RECOIL_LOW)
 		return
 	if(HAS_TRAIT(user, TRAIT_USER_SCOPED))
 		return // sights and recoil create visual bugs, disable recoil if we in sight mode.
-	if(HAS_TRAIT(user, TRAIT_BADASS))
+	if(HAS_TRAIT(user, TRAIT_BADASS) || HAS_TRAIT(user, TRAIT_NO_RECOIL))
 		return
 	if(recoil.knockback_dwrfs && HAS_TRAIT(user, TRAIT_DWARF))
 		do_knockback_dworfs(user, target)

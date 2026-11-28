@@ -5,6 +5,7 @@
 	icon = 'icons/obj/circuits.dmi'
 	icon_state = "bci"
 	slot = INTERNAL_ORGAN_BRAIN_COMPUTER_INTERFACE
+	cyber_cost = 10
 	w_class = WEIGHT_CLASS_TINY
 
 /obj/item/organ/internal/cyberimp/brain/bci/get_ru_names()

@@ -52,3 +52,30 @@
 	name = "Золотой затвор"
 	icon_state = "enforcer_gold"
 	donation_tier = 4
+
+/datum/item_skin_data/gun/cyberpunk_enforcer
+	item_path = /obj/item/gun/projectile/automatic/pistol/enforcer
+	fire_sound = 'sound/weapons/gunshots/nue_shoot.ogg'
+	hide_magazine = TRUE
+
+/datum/item_skin_data/gun/cyberpunk_enforcer/nue
+	name = "Нуэ"
+	icon = 'icons/obj/weapons/pistols_36x32.dmi'
+	icon_state = "nue"
+	donation_tier = 2
+	attachable_offset = list(
+		ATTACHMENT_SLOT_MUZZLE = list(ATTACHMENT_OFFSET_X = 25, ATTACHMENT_OFFSET_Y = 2),
+		ATTACHMENT_SLOT_RAIL = list(ATTACHMENT_OFFSET_X = 0, ATTACHMENT_OFFSET_Y = 7),
+		ATTACHMENT_SLOT_UNDER = list(ATTACHMENT_OFFSET_X = 11, ATTACHMENT_OFFSET_Y = -5),
+	)
+
+/datum/item_skin_data/gun/cyberpunk_enforcer/malorian
+	name = "Малориан"
+	icon = 'icons/obj/weapons/pistols_48x32.dmi'
+	icon_state = "malorian"
+	donation_tier = 4
+	attachable_offset = list(
+		ATTACHMENT_SLOT_MUZZLE = list(ATTACHMENT_OFFSET_X = 37, ATTACHMENT_OFFSET_Y = 2),
+		ATTACHMENT_SLOT_RAIL = list(ATTACHMENT_OFFSET_X = 4, ATTACHMENT_OFFSET_Y = 9),
+		ATTACHMENT_SLOT_UNDER = list(ATTACHMENT_OFFSET_X = 14, ATTACHMENT_OFFSET_Y = -5),
+	)

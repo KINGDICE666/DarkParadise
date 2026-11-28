@@ -104,6 +104,8 @@
 	. = ..()
 	if(. & EMP_PROTECT_CONTENTS)
 		return
+	if(HAS_TRAIT(src, TRAIT_EMP_IMMUNE))
+		return
 	severity += get_emp_protection()
 	for(var/obj/inside in contents)
 		inside.emp_act(severity)

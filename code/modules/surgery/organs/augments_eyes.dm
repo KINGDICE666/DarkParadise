@@ -1,9 +1,10 @@
 /obj/item/organ/internal/cyberimp/eyes
 	name = "cybernetic eyes"
-	desc = "artificial photoreceptors with specialized functionality."
+	desc = "Искусственные фоторецепторы со специальными функциями."
 	icon_state = "eye_implant"
 	implant_overlay = "eye_implant_overlay"
 	slot = INTERNAL_ORGAN_EYE_SIGHT_DEVICE
+	cyber_cost = 8
 	parent_organ_zone = BODY_ZONE_PRECISE_EYES
 	w_class = WEIGHT_CLASS_TINY
 
@@ -15,7 +16,19 @@
 
 	var/eye_colour = "#000000" // Should never be null
 	var/flash_protect = FLASH_PROTECTION_NONE
-	var/aug_message = "Your vision is augmented!"
+	var/aug_message = "Ваше зрение улучшено!"
+	var/vision_disabled = FALSE
+	var/static/list/eye_colour_presets = list("#FF3C46", "#F3E600", "#5EF6FF", "#7DFF6A", "#B48CFF", "#FF8A00", "#FFFFFF", "#101010")
+
+/obj/item/organ/internal/cyberimp/eyes/get_ru_names()
+	return alist(
+		NOMINATIVE = "глазной имплант",
+		GENITIVE = "глазного импланта",
+		DATIVE = "глазному импланту",
+		ACCUSATIVE = "глазной имплант",
+		INSTRUMENTAL = "глазным имплантом",
+		PREPOSITIONAL = "глазном импланте",
+	)
 
 /obj/item/organ/internal/cyberimp/eyes/insert(mob/living/carbon/M, special = ORGAN_MANIPULATION_DEFAULT)
 	. = ..()
@@ -29,6 +42,45 @@
 /obj/item/organ/internal/cyberimp/eyes/remove(mob/living/carbon/M, special = ORGAN_MANIPULATION_DEFAULT)
 	. = ..()
 	M.update_sight()
+
+/obj/item/organ/internal/cyberimp/eyes/get_ripper_settings()
+	. = ..()
+	. += list(list(
+		"id" = "eye_colour",
+		"name" = "Цвет радужки",
+		"kind" = "color",
+		"value" = eye_colour,
+		"options" = eye_colour_presets | initial(eye_colour),
+	))
+	if(initial(vision_flags) || initial(see_in_dark) || initial(lighting_cutoff) != LIGHTING_CUTOFF_VISIBLE)
+		. += list(list("id" = "vision", "name" = "Режим зрения", "kind" = "toggle", "value" = !vision_disabled))
+
+/obj/item/organ/internal/cyberimp/eyes/set_ripper_setting(setting, value)
+	switch(setting)
+		if("eye_colour")
+			eye_colour = value
+			var/mob/living/carbon/human/human_owner = owner
+			if(istype(human_owner))
+				human_owner.update_body()
+			return TRUE
+		if("vision")
+			vision_disabled = !value
+			apply_vision()
+			return TRUE
+	return ..()
+
+/obj/item/organ/internal/cyberimp/eyes/on_block_changed()
+	apply_vision()
+
+/obj/item/organ/internal/cyberimp/eyes/proc/vision_active()
+	return !vision_disabled && !blocked
+
+/obj/item/organ/internal/cyberimp/eyes/proc/apply_vision()
+	var/active = vision_active()
+	vision_flags = active ? initial(vision_flags) : NONE
+	see_in_dark = active ? initial(see_in_dark) : 0
+	lighting_cutoff = active ? initial(lighting_cutoff) : LIGHTING_CUTOFF_VISIBLE
+	owner?.update_sight()
 
 /obj/item/organ/internal/cyberimp/eyes/proc/generate_icon(mob/living/carbon/human/HA)
 	var/mob/living/carbon/human/H = HA
@@ -48,7 +100,7 @@
 		if(prob(10 * severity))
 			return
 
-	to_chat(owner, span_warning("Static obfuscates your vision!"))
+	to_chat(owner, span_warning("Помехи застилают вам глаза!"))
 
 	if(HAS_TRAIT(owner, TRAIT_ADVANCED_CYBERIMPLANTS))
 		owner.EyeBlurry(1.5 SECONDS)
@@ -57,17 +109,37 @@
 
 /obj/item/organ/internal/cyberimp/eyes/meson
 	name = "meson scanner implant"
-	desc = "These cybernetic eyes will allow you to see the structural layout of the station, and, well, everything else."
+	cyber_cost = 6
+	desc = "Кибернетические глаза, показывающие устройство станции и, ну, всё остальное."
 	eye_colour = "#199900"
 	icon_state = "mesonhud_implant"
 	implant_overlay = null
 	origin_tech = "materials=4;engineering=4;biotech=4;magnets=4"
 	vision_flags = SEE_TURFS
 	lighting_cutoff = LIGHTING_CUTOFF_MEDIUM
-	aug_message = "Suddenly, you realize how much of a mess the station really is..."
+	aug_message = "Внезапно вы понимаете, какой же на станции бардак..."
+
+/obj/item/organ/internal/cyberimp/eyes/meson/get_ru_names()
+	return alist(
+		NOMINATIVE = "имплант мезонного сканера",
+		GENITIVE = "импланта мезонного сканера",
+		DATIVE = "импланту мезонного сканера",
+		ACCUSATIVE = "имплант мезонного сканера",
+		INSTRUMENTAL = "имплантом мезонного сканера",
+		PREPOSITIONAL = "импланте мезонного сканера",
+	)
 
 /obj/item/organ/internal/cyberimp/eyes/meson/insert(mob/living/carbon/human/user_human, special = FALSE)
-	ADD_TRAIT(user_human, TRAIT_MESON_VISION, UNIQUE_TRAIT_SOURCE(src))
+	if(vision_active())
+		ADD_TRAIT(user_human, TRAIT_MESON_VISION, UNIQUE_TRAIT_SOURCE(src))
+	return ..()
+
+/obj/item/organ/internal/cyberimp/eyes/meson/apply_vision()
+	if(owner)
+		if(vision_active())
+			ADD_TRAIT(owner, TRAIT_MESON_VISION, UNIQUE_TRAIT_SOURCE(src))
+		else
+			REMOVE_TRAIT(owner, TRAIT_MESON_VISION, UNIQUE_TRAIT_SOURCE(src))
 	return ..()
 
 /obj/item/organ/internal/cyberimp/eyes/meson/remove(mob/living/carbon/human/user_human, special = FALSE)
@@ -76,7 +148,8 @@
 
 /obj/item/organ/internal/cyberimp/eyes/xray
 	name = "X-ray implant"
-	desc = "These cybernetic eye implants will give you X-ray vision. Blinking is futile."
+	cyber_cost = 25
+	desc = "Глазные импланты, дающие рентгеновское зрение. Моргать бесполезно."
 	icon_state = "eyes-c-xray"
 	implant_overlay = null
 	origin_tech = "materials=4;programming=4;biotech=7;magnets=4"
@@ -84,9 +157,20 @@
 	see_in_dark = 8
 	lighting_cutoff = LIGHTING_CUTOFF_HIGH
 
+/obj/item/organ/internal/cyberimp/eyes/xray/get_ru_names()
+	return alist(
+		NOMINATIVE = "имплант рентгеновского зрения",
+		GENITIVE = "импланта рентгеновского зрения",
+		DATIVE = "импланту рентгеновского зрения",
+		ACCUSATIVE = "имплант рентгеновского зрения",
+		INSTRUMENTAL = "имплантом рентгеновского зрения",
+		PREPOSITIONAL = "импланте рентгеновского зрения",
+	)
+
 /obj/item/organ/internal/cyberimp/eyes/thermals
 	name = "Thermals implant"
-	desc = "These cybernetic eye implants will give you Thermal vision. Vertical slit pupil included."
+	cyber_cost = 20
+	desc = "Глазные импланты, дающие тепловое зрение. Вертикальные зрачки в комплекте."
 	icon_state = "thermal_implant"
 	implant_overlay = null
 	eye_colour = "#FFCC00"
@@ -94,7 +178,17 @@
 	lighting_cutoff = LIGHTING_CUTOFF_MEDIUM
 	flash_protect = FLASH_PROTECTION_SENSITIVE
 	origin_tech = "materials=5;programming=4;biotech=4;magnets=4"
-	aug_message = "You see prey everywhere you look..."
+	aug_message = "Куда ни глянь, всюду добыча..."
+
+/obj/item/organ/internal/cyberimp/eyes/thermals/get_ru_names()
+	return alist(
+		NOMINATIVE = "имплант теплового зрения",
+		GENITIVE = "импланта теплового зрения",
+		DATIVE = "импланту теплового зрения",
+		ACCUSATIVE = "имплант теплового зрения",
+		INSTRUMENTAL = "имплантом теплового зрения",
+		PREPOSITIONAL = "импланте теплового зрения",
+	)
 
 /obj/item/organ/internal/cyberimp/eyes/thermals/empproof
 	emp_proof = TRUE
@@ -156,15 +250,52 @@
 // HUD implants
 /obj/item/organ/internal/cyberimp/eyes/hud
 	name = "HUD implant"
-	desc = "These cybernetic eyes will display a HUD over everything you see. Maybe."
+	desc = "Кибернетические глаза, выводящие HUD поверх всего, что вы видите. Наверное."
 	slot = INTERNAL_ORGAN_EYE_HUD_DEVICE
+	cyber_cost = 6
 	var/HUDType = 0
+	var/hud_disabled = FALSE
 	/// A list of extension kinds added to the examine text. Things like medical or security records.
 	var/examine_extensions = EXAMINE_HUD_NONE
 
-/obj/item/organ/internal/cyberimp/eyes/hud/insert(mob/living/carbon/M, special = ORGAN_MANIPULATION_DEFAULT)
+/obj/item/organ/internal/cyberimp/eyes/hud/get_ru_names()
+	return alist(
+		NOMINATIVE = "имплант HUD",
+		GENITIVE = "импланта HUD",
+		DATIVE = "импланту HUD",
+		ACCUSATIVE = "имплант HUD",
+		INSTRUMENTAL = "имплантом HUD",
+		PREPOSITIONAL = "импланте HUD",
+	)
+
+/obj/item/organ/internal/cyberimp/eyes/hud/get_ripper_settings()
 	. = ..()
 	if(HUDType)
+		. += list(list("id" = "hud", "name" = "Отображение HUD", "kind" = "toggle", "value" = !hud_disabled))
+
+/obj/item/organ/internal/cyberimp/eyes/hud/set_ripper_setting(setting, value)
+	if(setting != "hud" || !HUDType)
+		return ..()
+	hud_disabled = !value
+	apply_hud()
+	return TRUE
+
+/obj/item/organ/internal/cyberimp/eyes/hud/on_block_changed()
+	. = ..()
+	apply_hud()
+
+/obj/item/organ/internal/cyberimp/eyes/hud/proc/apply_hud()
+	if(!owner || !HUDType)
+		return
+	var/datum/atom_hud/hud = GLOB.huds[HUDType]
+	if(hud_disabled || blocked)
+		hud.hide_from(owner)
+	else
+		hud.show_to(owner)
+
+/obj/item/organ/internal/cyberimp/eyes/hud/insert(mob/living/carbon/M, special = ORGAN_MANIPULATION_DEFAULT)
+	. = ..()
+	if(HUDType && !hud_disabled && !blocked)
 		var/datum/atom_hud/H = GLOB.huds[HUDType]
 		H.show_to(M)
 
@@ -176,69 +307,130 @@
 
 /obj/item/organ/internal/cyberimp/eyes/hud/medical
 	name = "Medical HUD implant"
-	desc = "These cybernetic eye implants will display a medical HUD over everything you see."
+	desc = "Глазные импланты, выводящие медицинский HUD поверх всего, что вы видите."
 	icon_state = "medhud_implant"
 	implant_overlay = null
 	eye_colour = "#0000D0"
 	origin_tech = "materials=4;programming=4;biotech=4"
-	aug_message = "You suddenly see health bars floating above people's heads..."
+	aug_message = "Над головами людей вдруг появляются полоски здоровья..."
 	HUDType = DATA_HUD_MEDICAL_ADVANCED
 	examine_extensions = EXAMINE_HUD_MEDICAL
 
+/obj/item/organ/internal/cyberimp/eyes/hud/medical/get_ru_names()
+	return alist(
+		NOMINATIVE = "имплант медицинского HUD",
+		GENITIVE = "импланта медицинского HUD",
+		DATIVE = "импланту медицинского HUD",
+		ACCUSATIVE = "имплант медицинского HUD",
+		INSTRUMENTAL = "имплантом медицинского HUD",
+		PREPOSITIONAL = "импланте медицинского HUD",
+	)
+
 /obj/item/organ/internal/cyberimp/eyes/hud/diagnostic
 	name = "Diagnostic HUD implant"
-	desc = "These cybernetic eye implants will display a diagnostic HUD over everything you see."
+	desc = "Глазные импланты, выводящие диагностический HUD поверх всего, что вы видите."
 	icon_state = "diagnosticalhud_implant"
 	implant_overlay = null
 	eye_colour = "#723E02"
 	origin_tech = "materials=4;engineering=4;biotech=4"
-	aug_message = "You see the diagnostic information of the synthetics around you..."
+	aug_message = "Вы видите диагностику окружающих синтетиков..."
 	HUDType = DATA_HUD_DIAGNOSTIC
+
+/obj/item/organ/internal/cyberimp/eyes/hud/diagnostic/get_ru_names()
+	return alist(
+		NOMINATIVE = "имплант диагностического HUD",
+		GENITIVE = "импланта диагностического HUD",
+		DATIVE = "импланту диагностического HUD",
+		ACCUSATIVE = "имплант диагностического HUD",
+		INSTRUMENTAL = "имплантом диагностического HUD",
+		PREPOSITIONAL = "импланте диагностического HUD",
+	)
 
 /obj/item/organ/internal/cyberimp/eyes/hud/security
 	name = "Security HUD implant"
-	desc = "These cybernetic eye implants will display a security HUD over everything you see."
+	desc = "Глазные импланты, выводящие HUD охраны поверх всего, что вы видите."
 	icon_state = "sechud_implant"
 	implant_overlay = null
 	eye_colour = "#D00000"
 	origin_tech = "materials=4;programming=4;biotech=3;combat=3"
-	aug_message = "Job indicator icons pop up in your vision. That is not a certified surgeon..."
+	aug_message = "Перед глазами всплывают значки должностей. А это не сертифицированный хирург..."
 	HUDType = DATA_HUD_SECURITY_ADVANCED
 	examine_extensions = EXAMINE_HUD_SECURITY_READ | EXAMINE_HUD_SECURITY_WRITE
 
+/obj/item/organ/internal/cyberimp/eyes/hud/security/get_ru_names()
+	return alist(
+		NOMINATIVE = "имплант HUD охраны",
+		GENITIVE = "импланта HUD охраны",
+		DATIVE = "импланту HUD охраны",
+		ACCUSATIVE = "имплант HUD охраны",
+		INSTRUMENTAL = "имплантом HUD охраны",
+		PREPOSITIONAL = "импланте HUD охраны",
+	)
+
 /obj/item/organ/internal/cyberimp/eyes/hud/hydroponic
 	name = "Hydroponic HUD implant"
-	desc = "These cybernetic eye implants will display a botanical HUD over everything you see."
+	desc = "Глазные импланты, выводящие ботанический HUD поверх всего, что вы видите."
 	icon_state = "eye_implant_hydro"
 	implant_overlay = null
 	origin_tech = "materials=4;magnets=4;biotech=4"
 	materials = list(MAT_METAL = 600, MAT_GLASS = 600, MAT_SILVER = 700, MAT_GOLD = 500)
-	aug_message = "You scan for non-plastic plants around you..."
+	aug_message = "Вы высматриваете вокруг себя непластиковые растения..."
 	HUDType = DATA_HUD_HYDROPONIC
+
+/obj/item/organ/internal/cyberimp/eyes/hud/hydroponic/get_ru_names()
+	return alist(
+		NOMINATIVE = "имплант ботанического HUD",
+		GENITIVE = "импланта ботанического HUD",
+		DATIVE = "импланту ботанического HUD",
+		ACCUSATIVE = "имплант ботанического HUD",
+		INSTRUMENTAL = "имплантом ботанического HUD",
+		PREPOSITIONAL = "импланте ботанического HUD",
+	)
 
 /obj/item/organ/internal/cyberimp/eyes/hud/science
 	name = "Science HUD implant"
-	desc = "These cybernetic eye implants with an analyzer for scanning items and reagents."
+	desc = "Глазные импланты со встроенным анализатором предметов и реагентов."
 	icon_state = "sciencehud_implant"
 	item_state = "sciencehud_implant"
 	implant_overlay = null
 	eye_colour = "#923DAC"
 	origin_tech = "materials=4;programming=4;biotech=4"
-	aug_message = "You see the technological nature of things around you."
+	aug_message = "Вы видите технологическую природу окружающих вещей."
 	examine_extensions = EXAMINE_HUD_SCIENCE
 	actions_types = list(/datum/action/item_action/toggle_research_scanner)
+
+/obj/item/organ/internal/cyberimp/eyes/hud/science/get_ru_names()
+	return alist(
+		NOMINATIVE = "имплант научного HUD",
+		GENITIVE = "импланта научного HUD",
+		DATIVE = "импланту научного HUD",
+		ACCUSATIVE = "имплант научного HUD",
+		INSTRUMENTAL = "имплантом научного HUD",
+		PREPOSITIONAL = "импланте научного HUD",
+	)
 
 // Welding shield implant
 /obj/item/organ/internal/cyberimp/eyes/shield
 	name = "welding shield implant"
-	desc = "These reactive micro-shields will protect you from welders and flashes without obscuring your vision."
+	desc = "Реактивные микрощитки защищают глаза от сварки и вспышек, не мешая обзору."
 	icon_state = "welding_implant"
 	implant_overlay = null
 	slot = INTERNAL_ORGAN_EYE_SHIELD_DEVICE
+	cyber_cost = 10
 	origin_tech = "materials=4;biotech=3;engineering=4;plasmatech=3"
 	flash_protect = FLASH_PROTECTION_WELDER
 	emp_proof = TRUE
 	// Welding with thermals will still hurt your eyes a bit.
+
+/obj/item/organ/internal/cyberimp/eyes/shield/get_ru_names()
+	return alist(
+		NOMINATIVE = "имплант сварочного щита",
+		GENITIVE = "импланта сварочного щита",
+		DATIVE = "импланту сварочного щита",
+		ACCUSATIVE = "имплант сварочного щита",
+		INSTRUMENTAL = "имплантом сварочного щита",
+		PREPOSITIONAL = "импланте сварочного щита",
+	)
 
 /obj/item/organ/internal/cyberimp/eyes/hud/universal
 	name = "universal HUD implant"
@@ -265,6 +457,7 @@
 	implant_overlay = null
 	eye_colour = "#4255e6"
 	slot = INTERNAL_ORGAN_EYE_HUD_DEVICE
+	cyber_cost = 4
 	origin_tech = "materials=4;biotech=3;engineering=4;plasmatech=3"
 	actions_types = list(/datum/action/item_action/organ_action/toggle)
 	var/active = FALSE
@@ -290,6 +483,16 @@
 	var/list/markers = list()
 	/// Cached marker icons
 	var/static/list/marker_icon_cache = list()
+
+/obj/item/organ/internal/cyberimp/eyes/map/get_ru_names()
+	return alist(
+		NOMINATIVE = "имплант гражданской карты",
+		GENITIVE = "импланта гражданской карты",
+		DATIVE = "импланту гражданской карты",
+		ACCUSATIVE = "имплант гражданской карты",
+		INSTRUMENTAL = "имплантом гражданской карты",
+		PREPOSITIONAL = "импланте гражданской карты",
+	)
 
 /obj/item/organ/internal/cyberimp/eyes/map/Destroy()
 	if(active && owner)
@@ -542,6 +745,16 @@
 	icon_state = "security_map_implant"
 	eye_colour = "#e41618"
 
+/obj/item/organ/internal/cyberimp/eyes/map/security/get_ru_names()
+	return alist(
+		NOMINATIVE = "имплант карты охраны",
+		GENITIVE = "импланта карты охраны",
+		DATIVE = "импланту карты охраны",
+		ACCUSATIVE = "имплант карты охраны",
+		INSTRUMENTAL = "имплантом карты охраны",
+		PREPOSITIONAL = "импланте карты охраны",
+	)
+
 /obj/item/organ/internal/cyberimp/eyes/map/security/handle_overlays(mob/user)
 	var/list/extra_overlays = ..()
 	if(holomap_datum.bogus)
@@ -565,6 +778,16 @@
 	desc = "Имплант для постоянного отображения мини-карты в правом верхнем углу поля зрения пользователя с помощью технологии дополненной реальности. Показывает членов ОБР."
 	icon_state = "security_map_implant"
 	eye_colour = "#e41618"
+
+/obj/item/organ/internal/cyberimp/eyes/map/ert/get_ru_names()
+	return alist(
+		NOMINATIVE = "имплант карты ОБР",
+		GENITIVE = "импланта карты ОБР",
+		DATIVE = "импланту карты ОБР",
+		ACCUSATIVE = "имплант карты ОБР",
+		INSTRUMENTAL = "имплантом карты ОБР",
+		PREPOSITIONAL = "импланте карты ОБР",
+	)
 
 /obj/item/organ/internal/cyberimp/eyes/map/ert/handle_overlays(mob/user)
 	var/list/extra_overlays = ..()
@@ -591,6 +814,16 @@
 	desc = "Имплант для постоянного отображения мини-карты в правом верхнем углу поля зрения пользователя с помощью технологии дополненной реальности. Показывает медицинские датчики и критическе состояния."
 	icon_state = "medical_map_implant"
 	eye_colour = "#00e3e3"
+
+/obj/item/organ/internal/cyberimp/eyes/map/medical/get_ru_names()
+	return alist(
+		NOMINATIVE = "имплант медицинской карты",
+		GENITIVE = "импланта медицинской карты",
+		DATIVE = "импланту медицинской карты",
+		ACCUSATIVE = "имплант медицинской карты",
+		INSTRUMENTAL = "имплантом медицинской карты",
+		PREPOSITIONAL = "импланте медицинской карты",
+	)
 
 /obj/item/organ/internal/cyberimp/eyes/map/medical/handle_overlays(mob/user)
 	var/list/extra_overlays = ..()
@@ -623,6 +856,16 @@
 	icon_state = "fire_map_implant"
 	eye_colour = "#0abd33"
 
+/obj/item/organ/internal/cyberimp/eyes/map/fire/get_ru_names()
+	return alist(
+		NOMINATIVE = "имплант пожарной карты",
+		GENITIVE = "импланта пожарной карты",
+		DATIVE = "импланту пожарной карты",
+		ACCUSATIVE = "имплант пожарной карты",
+		INSTRUMENTAL = "имплантом пожарной карты",
+		PREPOSITIONAL = "импланте пожарной карты",
+	)
+
 /obj/item/organ/internal/cyberimp/eyes/map/fire/handle_overlays(mob/user)
 	var/list/extra_overlays = ..()
 	if(holomap_datum.bogus)
@@ -653,6 +896,16 @@
 	desc = "Имплант для постоянного отображения мини-карты в правом верхнем углу поля зрения пользователя с помощью технологии дополненной реальности. Показывает членов вашего отряда и остальных живых целей. Также показывает где находится диск."
 	icon_state = "nuke_map_implant"
 	eye_colour = "#292929"
+
+/obj/item/organ/internal/cyberimp/eyes/map/nuke/get_ru_names()
+	return alist(
+		NOMINATIVE = "имплант карты ядерных оперативников",
+		GENITIVE = "импланта карты ядерных оперативников",
+		DATIVE = "импланту карты ядерных оперативников",
+		ACCUSATIVE = "имплант карты ядерных оперативников",
+		INSTRUMENTAL = "имплантом карты ядерных оперативников",
+		PREPOSITIONAL = "импланте карты ядерных оперативников",
+	)
 
 /obj/item/organ/internal/cyberimp/eyes/map/nuke/handle_overlays(mob/user)
 	var/list/extra_overlays = ..()

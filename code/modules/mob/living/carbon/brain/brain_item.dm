@@ -131,6 +131,8 @@
 		trauma = trauma.type
 	if(!initial(trauma.can_gain))
 		return FALSE
+	if(owner && HAS_TRAIT(owner, TRAIT_COGNITIVE_STABILIZED) && ispath(trauma, /datum/brain_trauma/mild))
+		return FALSE
 	if(!resilience)
 		resilience = initial(trauma.resilience)
 
